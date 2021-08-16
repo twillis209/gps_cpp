@@ -1,3 +1,4 @@
+#include <gpsConfig.h>
 #include <iostream>
 
 int main() {
