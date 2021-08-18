@@ -7,8 +7,7 @@
 using namespace Eigen;
 using boost::math::empirical_cumulative_distribution_function;
 
-// TODO check that u and v have same length
-// TODO check that index of largest value does not coincide for u and v
+// TODO can probably do away with some of the copying ehre
 double gps(std::vector<double> u, std::vector<double> v) {
   if(u.size() != v.size()) {
     throw std::invalid_argument("Size of u and v differs.");
