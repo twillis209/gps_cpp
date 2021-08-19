@@ -12,22 +12,27 @@ FetchContent_MakeAvailable(catch)
 # 2.0.1 does not build due to string_view-related issue
 # Not sure I'm managing C++17 libraries correctly
 # Testing library
+#FetchContent_Declare(
+#  csv-parser
+#  GIT_REPOSITORY https://github.com/vincentlaucsb/csv-parser
+#  GIT_TAG 2.0.0-beta
+#  GIT_SHALLOW TRUE)
+#FetchContent_MakeAvailable(csv-parser)
 FetchContent_Declare(
-  csv-parser
-  GIT_REPOSITORY https://github.com/vincentlaucsb/csv-parser
-  GIT_TAG 2.0.0-beta
+  rapidcsv
+  GIT_REPOSITORY https://github.com/d99kris/rapidcsv.git
+  GIT_TAG v8.53
   GIT_SHALLOW TRUE)
-FetchContent_MakeAvailable(csv-parser)
+FetchContent_MakeAvailable(rapidcsv)
+
 
 # Tests need to be added as executables first
 add_executable(testGps testGps.cpp)
 
-target_include_directories(testGps PRIVATE "${csv-parser_SOURCE_DIR}/single_include")
-
 # csv-parser recommends this link, but it's header-only, no?
 #target_link_libraries(testGps PRIVATE Gps Catch2::Catch2 csv)
 
-target_link_libraries(testGps PRIVATE Gps Catch2::Catch2)
+target_link_libraries(testGps PRIVATE Gps Catch2::Catch2 rapidcsv)
 
 # If you register a test, then ctest and make test will run it.
 # You can also run examples and check the output, as well.

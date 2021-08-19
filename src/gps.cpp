@@ -7,8 +7,10 @@
 using namespace Eigen;
 using boost::math::empirical_cumulative_distribution_function;
 
+namespace gps {
+
 // TODO can probably do away with some of the copying ehre
-double gps(std::vector<double> u, std::vector<double> v) {
+double gpsStat(std::vector<double> u, std::vector<double> v) {
   if(u.size() != v.size()) {
     throw std::invalid_argument("Size of u and v differs.");
   }
@@ -69,3 +71,4 @@ std::vector<double> bivariateEcdfLW(const std::vector<double>& u, const std::vec
 
   return std::vector<double>(ecdf_arr.data(), ecdf_arr.data() + ecdf_arr.size());
 }
+};

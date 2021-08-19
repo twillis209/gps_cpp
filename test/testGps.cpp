@@ -2,19 +2,40 @@
 #include <catch2/catch.hpp>
 #include <gps.hpp>
 #include <iostream>
-#include <csv.hpp>
+#include <rapidcsv.h>
 
+using namespace rapidcsv;
+using namespace gps;
+using namespace Catch;
+
+/*
 TEST_CASE( "gps computes correct statistic on uniformly distributed data", "[gps]" ) {
 
-  // Probably better libraries if I want to read whole columns, but I have spent too much time on this as it is
-  csv::CSVReader reader("test/data/1e6_unif.csv")
+  Document doc("/home/tw395/rds/hpc-work/gps/test/data/1e6_unif.csv");
 
-  std::vector<double> ecdfResult = bivariateEcdfLW(u,v);
+  std::vector<double> u = doc.GetColumn<double>("u");
+  std::vector<double> v = doc.GetColumn<double>("v");
 
+  double gpsResult = gps(u,v);
+
+  std::cout << gpsResult << std::endl;
+
+  /*
   REQUIRE_THAT(
                ecdfResult,
-               Catch::Matchers::Approx(std::vector<double>{.2, .4, .6, .8, .8})
+               Matchers::Approx(std::vector<double>{.2, .4, .6, .8, .8})
                );
+}
+
+*/
+
+TEST_CASE( "gpsStat runs in simple case", "[gpsStat]" ) {
+  std::vector u({.1, .2, .3, .4, .5});
+  std::vector v({.1, .2, .3, .5, .4});
+
+  float gpsResult = (float) gpsStat(u,v);
+
+  REQUIRE(gpsResult == Detail::Approx(1.439137));
 }
 
 TEST_CASE( "L&W bivariate ecdf runs in simple case", "[ecdf]" ) {
@@ -25,7 +46,7 @@ TEST_CASE( "L&W bivariate ecdf runs in simple case", "[ecdf]" ) {
 
   REQUIRE_THAT(
                ecdfResult,
-               Catch::Matchers::Approx(std::vector<double>{.2, .4, .6, .8, .8})
+               Matchers::Approx(std::vector<double>{.2, .4, .6, .8, .8})
                );
 }
 
@@ -34,24 +55,24 @@ TEST_CASE( "L&W bivariate ecdf throws exception with differently-sized input vec
   REQUIRE_THROWS_MATCHES(
                          bivariateEcdfLW(std::vector<double>{.1, .2}, std::vector<double>{.1, .3, .05}),
                          std::invalid_argument,
-                         Catch::Message("Size of u and v differs.")
+                         Message("Size of u and v differs.")
                          );
 }
 
 TEST_CASE( "gps throws exception with differently-sized input vectors", "[ecdf]") {
 
   REQUIRE_THROWS_MATCHES(
-                         gps(std::vector<double>{.1, .2}, std::vector<double>{.1, .3, .05}),
+                         gpsStat(std::vector<double>{.1, .2}, std::vector<double>{.1, .3, .05}),
                          std::invalid_argument,
-                         Catch::Message("Size of u and v differs.")
+                         Message("Size of u and v differs.")
                          );
 }
 
 TEST_CASE( "gps throws exception on undefined case", "[ecdf]") {
 
   REQUIRE_THROWS_MATCHES(
-                         gps(std::vector<double>{.1, .2, .3}, std::vector<double>{.1, .2, .3}),
+                         gpsStat(std::vector<double>{.1, .2, .3}, std::vector<double>{.1, .2, .3}),
                          std::invalid_argument,
-                         Catch::Message("Indices of largest elements of u and v coincide. GPS statistic is undefined in this case.")
+                         Message("Indices of largest elements of u and v coincide. GPS statistic is undefined in this case.")
                  );
 }
