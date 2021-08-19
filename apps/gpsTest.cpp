@@ -16,45 +16,30 @@ double uniformRand(boost::mt19937& generator) {
 }
 
 int main() {
-//  size_t n = 100000;
-//  std::vector<double> u(n);
-//  std::vector<double> v(n);
-//
-//  boost::normal_distribution<double> normalDistrib;
-//  boost::variate_generator<boost::mt19937 &, boost::normal_distribution<double> > normalRand(generator, normalDistrib);
-//
-//  for(int i = 0; i < n; ++i) {
-//    u[i] = normalRand();
-//    v[i] = normalRand();
-//  }
-//
-//  double gpsTest = gps(u,v);
-//
-//  std::cout << gpsTest << std::endl;
-//
+  /*
+  size_t n = 1e3;
+  std::cout << "size_t: " << n << std::endl;
+  std::vector<double> u(n);
+  std::vector<double> v(n);
+  boost::mt19937 generator;
 
-//  boost::mt19937 generator;
-//
-//  std:: cout << uniformRand(generator) << ' ' << uniformRand(generator) << std::endl;
+  for(int i = 0; i < n; ++i) {
+    u[i] = uniformRand(generator);
+    v[i] = uniformRand(generator);
+  }
 
-//  Document doc("/home/tw395/rds/hpc-work/gps/test/data/1e6_unif.csv");
-//
-//  std::vector<double> u = doc.GetColumn<double>("u");
-//  std::vector<double> v = doc.GetColumn<double>("v");
-//
-//  std::cout << u[0] << ' ' << u[1] << std::endl;
-//  std::cout << v[0] << ' ' << v[1] << std::endl;
+  std::cout << u[0] << ' ' << u[n-1] << std::endl;
+  std::cout << v[0] << ' ' << v[n-1] << std::endl;
+  */
 
-  std::vector u({.1, .2, .3, .4, .5});
-  std::vector v({.1, .2, .3, .5, .4});
+  Document doc("test/data/1e3_unif.csv");
 
-  double gpsResult = gpsStat(u,v);
+  std::vector<double> u = doc.GetColumn<double>("u");
+  std::vector<double> v = doc.GetColumn<double>("v");
 
-  std::cout << gpsResult << std::endl;
+  double gpsTest = gpsStat(u,v);
 
-//  double gpsResult = gps(u,v);
-//
-//  std::cout << gpsResult << std::endl;
+  std::cout << gpsTest << std::endl;
 
   return 0;
 }

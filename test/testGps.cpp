@@ -8,26 +8,17 @@ using namespace rapidcsv;
 using namespace gps;
 using namespace Catch;
 
-/*
 TEST_CASE( "gps computes correct statistic on uniformly distributed data", "[gps]" ) {
 
-  Document doc("/home/tw395/rds/hpc-work/gps/test/data/1e6_unif.csv");
+  Document doc("test/data/1e3_unif.csv");
 
   std::vector<double> u = doc.GetColumn<double>("u");
   std::vector<double> v = doc.GetColumn<double>("v");
 
-  double gpsResult = gps(u,v);
+  double gpsResult = gpsStat(u,v);
 
-  std::cout << gpsResult << std::endl;
-
-  /*
-  REQUIRE_THAT(
-               ecdfResult,
-               Matchers::Approx(std::vector<double>{.2, .4, .6, .8, .8})
-               );
+  REQUIRE(gpsResult == Detail::Approx(0.87333));
 }
-
-*/
 
 TEST_CASE( "gpsStat runs in simple case", "[gpsStat]" ) {
   std::vector u({.1, .2, .3, .4, .5});

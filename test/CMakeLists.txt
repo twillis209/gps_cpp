@@ -34,10 +34,9 @@ add_executable(testGps testGps.cpp)
 
 target_link_libraries(testGps PRIVATE Gps Catch2::Catch2 rapidcsv)
 
-# If you register a test, then ctest and make test will run it.
-# You can also run examples and check the output, as well.
+# Run with 'make test'; needs access to test data in gps/test/data
 add_test(
   NAME test
   COMMAND testGps
-  WORKING_DIRECTORY ${Gps_ROOT_DIR}
-)
+  WORKING_DIRECTORY "${Gps_SOURCE_DIR}"
+  )

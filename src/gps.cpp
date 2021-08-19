@@ -71,4 +71,25 @@ std::vector<double> bivariateEcdfLW(const std::vector<double>& u, const std::vec
 
   return std::vector<double>(ecdf_arr.data(), ecdf_arr.data() + ecdf_arr.size());
 }
+
+void bivariateEcdfLW_no_return(const std::vector<double>& u, const std::vector<double>& v) {
+    if(u.size() != v.size()) {
+      throw std::invalid_argument("Size of u and v differs.");
+    }
+
+    size_t n = u.size();
+
+    ArrayXd toAdd = ArrayXd::Constant(n, 1.);
+
+    ArrayXXd ptr(2, n);
+
+    for(int i = 0; i < n; i++) {
+      ptr(0, i) = u[i];
+      ptr(1, i) = v[i];
+    }
+
+    ArrayXd ecdf_arr = StOpt::fastCDFOnSample(ptr, toAdd);
+}
+
+
 };
