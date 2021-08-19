@@ -2,6 +2,20 @@
 #include <catch2/catch.hpp>
 #include <gps.hpp>
 #include <iostream>
+#include <csv.hpp>
+
+TEST_CASE( "gps computes correct statistic on uniformly distributed data", "[gps]" ) {
+
+  // Probably better libraries if I want to read whole columns, but I have spent too much time on this as it is
+  csv::CSVReader reader("test/data/1e6_unif.csv")
+
+  std::vector<double> ecdfResult = bivariateEcdfLW(u,v);
+
+  REQUIRE_THAT(
+               ecdfResult,
+               Catch::Matchers::Approx(std::vector<double>{.2, .4, .6, .8, .8})
+               );
+}
 
 TEST_CASE( "L&W bivariate ecdf runs in simple case", "[ecdf]" ) {
   std::vector u({.1, .2, .3, .4, .5});
