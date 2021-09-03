@@ -16,8 +16,7 @@ double uniformRand(boost::mt19937& generator) {
 }
 
 int main() {
-  /*
-  size_t n = 1e3;
+  size_t n = 1e5;
   std::cout << "size_t: " << n << std::endl;
   std::vector<double> u(n);
   std::vector<double> v(n);
@@ -28,15 +27,12 @@ int main() {
     v[i] = uniformRand(generator);
   }
 
-  std::cout << u[0] << ' ' << u[n-1] << std::endl;
-  std::cout << v[0] << ' ' << v[n-1] << std::endl;
-  */
-
-  Document doc("test/data/1e3_unif.csv");
+  /*
+  Document doc("/home/tw395/rds/hpc-work/gps/test/data/1e6_unif.csv");
 
   std::vector<double> u = doc.GetColumn<double>("u");
   std::vector<double> v = doc.GetColumn<double>("v");
-
+  */
   double gpsTest = gpsStat(u,v);
 
   std::cout << gpsTest << std::endl;

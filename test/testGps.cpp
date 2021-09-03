@@ -24,7 +24,7 @@ TEST_CASE( "gpsStat runs in simple case", "[gpsStat]" ) {
   std::vector u({.1, .2, .3, .4, .5});
   std::vector v({.1, .2, .3, .5, .4});
 
-  float gpsResult = (float) gpsStat(u,v);
+  double gpsResult = gpsStat(u,v);
 
   REQUIRE(gpsResult == Detail::Approx(1.439137));
 }
