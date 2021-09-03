@@ -72,7 +72,11 @@ std::vector<double> bivariateEcdfLW(const std::vector<double>& u, const std::vec
   return std::vector<double>(ecdf_arr.data(), ecdf_arr.data() + ecdf_arr.size());
 }
 
-std::vector<double> mix_rexp(int n, double altRate = 5, double altWeight = 0.01, bool pvalScale) {
+}
+
+  /*
+std::vector<double> mix_rexp(int n, double altRate = 5, double altWeight = 0.01, bool pvalScale = false) {
 
 
 }
+  */
