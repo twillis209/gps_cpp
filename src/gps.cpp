@@ -2,6 +2,7 @@
 #include <Eigen/Dense>
 #include <fastCDFOnSample.h>
 #include <boost/math/distributions/empirical_cumulative_distribution_function.hpp>
+#include <boost/random.hpp>
 #include <math.h>
 
 using namespace Eigen;
@@ -60,6 +61,7 @@ std::vector<double> bivariateEcdfLW(const std::vector<double>& u, const std::vec
 
   ArrayXd toAdd = ArrayXd::Constant(n, 1.);
 
+  // NB: XXd for two-dimensional and double entries
   ArrayXXd ptr(2, n);
 
   for(int i = 0; i < n; i++) {
@@ -72,11 +74,24 @@ std::vector<double> bivariateEcdfLW(const std::vector<double>& u, const std::vec
   return std::vector<double>(ecdf_arr.data(), ecdf_arr.data() + ecdf_arr.size());
 }
 
+std::vector<double> mix_rexp(size_t n, double altRate = 5, double altWeight = 0.01, bool pvalScale = false, unsigned int seed = 42) {
+  boost::mt19937 mt(seed);
+  boost::variate_generator<boost::mt19937&, boost::exponential_distribution<>> exp_1(mt, boost::exponential_distribution<>(1)) ;
+  boost::variate_generator<boost::mt19937&, boost::exponential_distribution<>> exp_alt(mt, boost::exponential_distribution<>(altRate)) ;
+  boost::uniform_01<boost::mt19937> unif(mt);
+
+  std::vector<double> sample;
+
+  sample.reserve(n);
+
+  for(int i = 0; i < n; ++i) {
+    double variate = (unif() <= altWeight ? exp_alt() : exp_1());
+    sample.push_back(variate);
+  }
+
+  if(pvalScale) std::transform(sample.begin(), sample.end(), sample.begin(), [](double d) -> double { return exp(-d);});
+
+  return sample;
 }
 
-  /*
-std::vector<double> mix_rexp(int n, double altRate = 5, double altWeight = 0.01, bool pvalScale = false) {
-
-
 }
-  */
