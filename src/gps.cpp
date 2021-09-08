@@ -94,4 +94,40 @@ std::vector<double> mix_rexp(size_t n, double altRate = 5, double altWeight = 0.
   return sample;
 }
 
+  std::vector<double> rgps(size_t n, double altRate = 5, double altWeight = 0.01, unsigned int seed = 42, size_t noOfSnps = 1e4) {
+  std::vector<double> gps_sample;
+
+  gps_sample.reserve(n);
+
+  for(int i = 0; i < n; ++i) {
+      double gps;
+
+      int j = 1;
+
+      while(j < 6 && gps == NULL) {
+
+        std::vector<double> exp_sample = mix_rexp(2*noOfSnps, altRate, altWeight, true, std::time(0));
+
+        try {
+          gps = gpsStat(std::vector<double>(exp_sample.begin(), exp_sample.begin() + noOfSnps), std::vector<double>(exp_sample.begin() + noOfSnps, exp_sample.end()));
+
+        } catch(std::invalid_argument e) {
+          // not sure anything needs to happen in here, just want to catch it silently so we can try again
+        }
+
+        ++j;
+
+    }
+
+      if(gps == NULL) {
+        throw std::runtime_error("Failed to generate GPS sample realisation after 5 attempts");
+      } else {
+        gps_sample.push_back(gps);
+      }
+
+  }
+
+  return gps_sample;
+}
+
 }

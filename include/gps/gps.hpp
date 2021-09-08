@@ -4,14 +4,16 @@
 
 namespace gps {
 
-double rgps(size_t n);
+  double rgps(size_t n);
 
-double gpsStat(std::vector<double> u,
+  double gpsStat(std::vector<double> u,
                        std::vector<double> v);
 
-std::vector<double> bivariateEcdfLW(const std::vector<double>& u,
+  std::vector<double> bivariateEcdfLW(const std::vector<double>& u,
                        const std::vector<double>& v);
 
-std::vector<double> mix_rexp(size_t n, double altRate, double altWeight, bool pvalScale, unsigned int seed);
+  std::vector<double> mix_rexp(size_t n, double altRate, double altWeight, bool pvalScale, unsigned int seed);
+
+  std::vector<double> rgps(size_t n, double altRate, double altWeight, unsigned int seed, size_t noOfSnps);
 
 }
