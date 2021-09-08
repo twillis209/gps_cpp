@@ -17,7 +17,9 @@ double uniformRand(boost::mt19937& generator) {
 int main(int argc, const char* argv[]) {
   size_t n = 5;
 
-  std::vector<double> gps_sample = rgps(n, 5, 0, 42u, 1e4);
+  boost::mt19937 mt(43u);
+
+  std::vector<double> gps_sample = rgps(n, 5, 0, 1e4, mt);
 
   for(auto i: gps_sample) std::cout << i << std::endl;
 

@@ -74,8 +74,7 @@ std::vector<double> bivariateEcdfLW(const std::vector<double>& u, const std::vec
   return std::vector<double>(ecdf_arr.data(), ecdf_arr.data() + ecdf_arr.size());
 }
 
-std::vector<double> mix_rexp(size_t n, double altRate = 5, double altWeight = 0.01, bool pvalScale = false, unsigned int seed = 42) {
-  boost::mt19937 mt(seed);
+  std::vector<double> mix_rexp(size_t n, double altRate = 5, double altWeight = 0.01, bool pvalScale = false, boost::mt19937 mt = boost::mt19937()) {
   boost::variate_generator<boost::mt19937&, boost::exponential_distribution<>> exp_1(mt, boost::exponential_distribution<>(1)) ;
   boost::variate_generator<boost::mt19937&, boost::exponential_distribution<>> exp_alt(mt, boost::exponential_distribution<>(altRate)) ;
   boost::uniform_01<boost::mt19937> unif(mt);
@@ -94,7 +93,7 @@ std::vector<double> mix_rexp(size_t n, double altRate = 5, double altWeight = 0.
   return sample;
 }
 
-  std::vector<double> rgps(size_t n, double altRate = 5, double altWeight = 0.01, unsigned int seed = 42, size_t noOfSnps = 1e4) {
+  std::vector<double> rgps(size_t n, double altRate = 5, double altWeight = 0.01, size_t noOfSnps = 1e4, boost::mt19937 mt = boost::mt19937()) {
   std::vector<double> gps_sample;
 
   gps_sample.reserve(n);
@@ -106,7 +105,7 @@ std::vector<double> mix_rexp(size_t n, double altRate = 5, double altWeight = 0.
 
       while(j < 6 && gps == NULL) {
 
-        std::vector<double> exp_sample = mix_rexp(2*noOfSnps, altRate, altWeight, true, std::time(0));
+        std::vector<double> exp_sample = mix_rexp(2*noOfSnps, altRate, altWeight, true, mt);
 
         try {
           gps = gpsStat(std::vector<double>(exp_sample.begin(), exp_sample.begin() + noOfSnps), std::vector<double>(exp_sample.begin() + noOfSnps, exp_sample.end()));

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <boost/random.hpp>
 
 namespace gps {
 
@@ -12,8 +13,8 @@ namespace gps {
   std::vector<double> bivariateEcdfLW(const std::vector<double>& u,
                        const std::vector<double>& v);
 
-  std::vector<double> mix_rexp(size_t n, double altRate, double altWeight, bool pvalScale, unsigned int seed);
+  std::vector<double> mix_rexp(size_t n, double altRate, double altWeight, bool pvalScale, boost::mt19937 mt);
 
-  std::vector<double> rgps(size_t n, double altRate, double altWeight, unsigned int seed, size_t noOfSnps);
+  std::vector<double> rgps(size_t n, double altRate, double altWeight, size_t noOfSnps, boost::mt19937 mt);
 
 }
