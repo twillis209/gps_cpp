@@ -8,18 +8,10 @@
 using namespace gps;
 using namespace Eigen;
 
-// TODO causes segfault when used in the for loop to initialise the u and v vectors
-double uniformRand(boost::mt19937& generator) {
-  static boost::uniform_01<boost::mt19937> dist(generator);
-  return dist();
-}
-
 int main(int argc, const char* argv[]) {
-  size_t n = 5;
+  size_t n = 1e5;
 
-  boost::mt19937 mt(43u);
-
-  std::vector<double> gps_sample = rgps(n, 5, 0, 1e4, mt);
+  std::vector<double> gps_sample = rgps(n, 5, 0, 1e4, 42u);
 
   for(auto i: gps_sample) std::cout << i << std::endl;
 
