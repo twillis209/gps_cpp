@@ -99,10 +99,6 @@ std::vector<double> bivariateEcdfLW(const std::vector<double>& u, const std::vec
 
   std::vector<double> rgps(size_t n, double altRate = 5, double altWeight = 0.01, size_t noOfSnps = 1e4, unsigned int seed = 42u) {
 
-    /*
-      Can we omit
-
-     */
   boost::mt19937 mt(seed);
 
   boost::exponential_distribution<> expDist(1);
