@@ -74,14 +74,12 @@ std::vector<double> bivariateEcdfLW(const std::vector<double>& u, const std::vec
   return std::vector<double>(ecdf_arr.data(), ecdf_arr.data() + ecdf_arr.size());
 }
 
-  std::vector<double> mix_rexp(size_t n, double altRate = 5, double altWeight = 0.01, bool pvalScale = false, unsigned int seed = 42u) {
-  boost::mt19937 mt(seed);
-
+  std::vector<double> mix_rexp(size_t n, boost::mt19937& mt, double altRate = 5, double altWeight = 0.01, bool pvalScale = false) {
   boost::variate_generator<boost::mt19937&, boost::exponential_distribution<>> exp_1(mt, boost::exponential_distribution<>(1));
 
   boost::variate_generator<boost::mt19937&, boost::exponential_distribution<>> exp_alt(mt, boost::exponential_distribution<>(altRate));
 
-  boost::uniform_01<boost::mt19937> unif(mt);
+  boost::uniform_01<boost::mt19937&> unif(mt);
 
   std::vector<double> sample;
 
@@ -97,54 +95,16 @@ std::vector<double> bivariateEcdfLW(const std::vector<double>& u, const std::vec
   return sample;
 }
 
-  std::vector<double> rgps(size_t n, double altRate = 5, double altWeight = 0.01, size_t noOfSnps = 1e4, unsigned int seed = 42u) {
-
-  boost::mt19937 mt(seed);
-
-  boost::exponential_distribution<> expDist(1);
-  boost::exponential_distribution<> expAlt(altRate);
-
-  boost::variate_generator<boost::mt19937&, boost::exponential_distribution<>> exp_1(mt, expDist);
-  boost::variate_generator<boost::mt19937&, boost::exponential_distribution<>> exp_alt(mt, expAlt);
-
-  //boost::uniform_01<boost::mt19937> unif(mt);
-  boost::uniform_01<boost::mt19937&> unif(mt);
-
+  std::vector<double> rgps(size_t n, boost::mt19937& mt, double altRate = 5, double altWeight = 0.01, size_t noOfSnps = 1e4) {
   std::vector<double> gps_sample;
 
   gps_sample.reserve(n);
 
   for(int i = 0; i < n; ++i) {
-      double gps = NULL;
+    std::vector<double> expSample = mix_rexp(2*noOfSnps, mt, altRate, altWeight, true);
 
-      int j = 1;
-
-      while(j < 6 && gps == NULL) {
-
-        std::vector<double> exp_sample;
-
-        exp_sample.reserve(2*noOfSnps);
-
-        for(int k = 0; k < 2*noOfSnps; ++k) {
-          double variate = (unif() <= altWeight ? exp_alt() : exp_1());
-          exp_sample.push_back(variate);
-        }
-
-        std::transform(exp_sample.begin(), exp_sample.end(), exp_sample.begin(), [](double d) -> double { return exp(-d);});
-
-        if(std::distance(exp_sample.begin(), std::max_element(exp_sample.begin(), exp_sample.begin() + noOfSnps)) != std::distance(exp_sample.begin() + noOfSnps, std::max_element(exp_sample.begin() + noOfSnps, exp_sample.end()))) {
-          gps = gpsStat(std::vector<double>(exp_sample.begin(), exp_sample.begin() + noOfSnps), std::vector<double>(exp_sample.begin() + noOfSnps, exp_sample.end()));
-        }
-
-        ++j;
-    }
-
-      if(gps == NULL) {
-        throw std::runtime_error("Failed to generate GPS sample realisation after 5 attempts");
-      } else {
-        gps_sample.push_back(gps);
-      }
-
+    gps_sample.push_back(
+                         gpsStat(std::vector<double>(expSample.begin(), expSample.begin() + noOfSnps), std::vector<double>(expSample.begin() + noOfSnps, expSample.end())));
   }
 
   return gps_sample;
