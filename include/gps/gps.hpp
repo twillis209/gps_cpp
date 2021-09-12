@@ -15,4 +15,6 @@ namespace gps {
 
   std::vector<double> rgps(size_t n, boost::mt19937& mt, double altRate, double altWeight, size_t noOfSnps);
 
+  std::vector<double> permuteAndSampleGps(std::vector<double> u, std::vector<double> v, size_t n);
+
 }
