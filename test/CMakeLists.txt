@@ -25,12 +25,8 @@ FetchContent_Declare(
   GIT_SHALLOW TRUE)
 FetchContent_MakeAvailable(rapidcsv)
 
-
 # Tests need to be added as executables first
 add_executable(testGps testGps.cpp)
-
-# csv-parser recommends this link, but it's header-only, no?
-#target_link_libraries(testGps PRIVATE Gps Catch2::Catch2 csv)
 
 target_link_libraries(testGps PRIVATE Gps Catch2::Catch2 rapidcsv)
 
