@@ -11,9 +11,10 @@ include(FetchContent)
 
 enable_testing()
 
-find_package(Boost REQUIRED)
-find_package(Eigen3 REQUIRED NAMES Eigen eigen eigen-3.4.0)
-find_package(StOpt REQUIRED NAMES STOPT StOpt)
+#set(CMAKE_PREFIX_PATH "/usr/local/lib")
+
+find_package(Boost 1.77 COMPONENTS random math_c99 REQUIRED)
+find_package(Eigen3 3.3 REQUIRED NAMES Eigen3 Eigen eigen NO_MODULE)
 
 FetchContent_Declare(
   rapidcsv
@@ -22,7 +23,7 @@ FetchContent_Declare(
   GIT_SHALLOW TRUE)
 FetchContent_MakeAvailable(rapidcsv)
 
-add_subdirectory(apps)
-add_subdirectory(src)
 add_subdirectory(StOptCDF)
+add_subdirectory(src)
+add_subdirectory(apps)
 add_subdirectory(test)

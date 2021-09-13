@@ -9,24 +9,37 @@ using namespace gps;
 using namespace Eigen;
 
 int main(int argc, const char* argv[]) {
-  /*
-  size_t n = 1e2;
+  size_t n = 4e4;
 
-  std::vector<double> gps_sample = rgps(n, 5, 0, 1e4, 42u);
-
-  //  for(auto i: gps_sample) std::cout << i << std::endl;
-
-
-  std::vector<double> gps_sample = rgps(5, mt, 5, 0, 1e4);
-
-  for(auto i: gps_sample) std::cout << i << std::endl;
-
-  */
   boost::mt19937 mt(42u);
+  boost::uniform_01<boost::mt19937&> unif(mt);
 
-  std::vector<double> gps_sample = rgps(1e2, mt, 5, 0, 1e4);
+  ArrayXd toAdd = ArrayXd::Constant(n, 1.);
+
+  ArrayXXd ptr(2, n);
+
+  for(int i = 0; i < n; i++) {
+    ptr(0, i) = unif();
+    ptr(1, i) = unif();
+  }
+
+  ArrayXd ecdf_arr = StOpt::fastCDFOnSample(ptr, toAdd);
+
+  /*
+  for(int i = 0; i < n; ++i) {
+    u.push_back(unif());
+    v.push_back(unif());
+  }
+
+  double gps = fastCDFOnSample(u,v);
+
+  std::cout << gps << std::endl;
+
+
+  std::vector<double> gps_sample = rgps(1, mt, 5, 0, 1e6);
 
   for(auto i: gps_sample) std::cout << i << std::endl;
+  */
 
   return 0;
 }

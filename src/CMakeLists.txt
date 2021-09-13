@@ -7,6 +7,6 @@ FetchContent_Declare(
   GIT_SHALLOW TRUE)
 FetchContent_MakeAvailable(rapidcsv)
 
-target_include_directories(Gps PUBLIC "${Gps_SOURCE_DIR}/include/gps" "${Boost_INCLUDE_DIRS}" "/opt/include/eigen-3-4.0" "/usr/local/include/StOpt")
+target_include_directories(Gps PUBLIC "${CMAKE_SOURCE_DIR}/include/gps" "${Boost_INCLUDE_DIRS}" "${CMAKE_SOURCE_DIR}/include/StOptCDF")
 
-target_link_libraries(Gps rapidcsv Boost StOpt)
+target_link_libraries(Gps rapidcsv Eigen3::Eigen Boost::random Boost::math_c99 StOptCDF)
