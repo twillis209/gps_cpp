@@ -2,7 +2,7 @@
 // All Rights Reserved
 // This code is published under the GNU Lesser General Public License (GNU LGPL)
 #include <Eigen/Dense>
-#include <StOpt/cdf/nDDominanceAlone.h>
+#include <nDDominanceAlone.h>
 
 using namespace Eigen ;
 
