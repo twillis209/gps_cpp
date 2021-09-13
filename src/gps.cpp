@@ -96,6 +96,7 @@ std::vector<double> bivariateEcdfLW(const std::vector<double>& u, const std::vec
 }
 
   std::vector<double> rgps(size_t n, boost::mt19937& mt, double altRate = 5, double altWeight = 0.01, size_t noOfSnps = 1e4) {
+
   std::vector<double> gps_sample;
 
   gps_sample.reserve(n);
@@ -104,7 +105,10 @@ std::vector<double> bivariateEcdfLW(const std::vector<double>& u, const std::vec
     std::vector<double> expSample = mix_rexp(2*noOfSnps, mt, altRate, altWeight, true);
 
     gps_sample.push_back(
-                         gpsStat(std::vector<double>(expSample.begin(), expSample.begin() + noOfSnps), std::vector<double>(expSample.begin() + noOfSnps, expSample.end())));
+                         gpsStat(
+                                 std::vector<double>(expSample.begin(), expSample.begin() + noOfSnps),
+                                 std::vector<double>(expSample.begin() + noOfSnps, expSample.end()))
+                         );
   }
 
   return gps_sample;

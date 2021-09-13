@@ -3,7 +3,6 @@
 #include <iostream>
 #include <boost/random.hpp>
 #include <gps.hpp>
-#include <rapidcsv.h>
 
 using namespace gps;
 using namespace Eigen;
