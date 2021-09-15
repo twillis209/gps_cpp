@@ -3,3 +3,4 @@ test/data
 out
 debug
 *.txt
+pruned_pid_pso.csv

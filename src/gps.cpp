@@ -103,13 +103,23 @@ std::vector<double> bivariateEcdfLW(const std::vector<double>& u, const std::vec
   gpsSample.reserve(n);
 
   for(int i = 0; i < n; ++i) {
-    std::vector<double> expSample = mix_rexp(2*noOfSnps, mt, altRate, altWeight, true);
+    int j = 1;
 
-    gpsSample.push_back(
-                         gpsStat(
-                                 std::vector<double>(expSample.begin(), expSample.begin() + noOfSnps),
-                                 std::vector<double>(expSample.begin() + noOfSnps, expSample.end()))
-                         );
+    double gps = NULL;
+
+    // Will only try 10 times
+    while(j < 11 && gps == NULL) {
+      std::vector<double> expSample_1 = mix_rexp(noOfSnps, mt, altRate, altWeight, true);
+      std::vector<double> expSample_2 = mix_rexp(noOfSnps, mt, altRate, altWeight, true);
+
+      if(!(std::distance(expSample_1.begin(), std::max_element(expSample_1.begin(), expSample_1.end())) == std::distance(expSample_2.begin(), std::max_element(expSample_2.begin(), expSample_2.end())))) {
+          gps = gpsStat(expSample_1, expSample_2);
+        }
+
+      ++j;
+    }
+
+    gpsSample.push_back(gps);
   }
 
   return gpsSample;

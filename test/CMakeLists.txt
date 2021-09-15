@@ -18,12 +18,6 @@ FetchContent_MakeAvailable(catch)
 #  GIT_TAG 2.0.0-beta
 #  GIT_SHALLOW TRUE)
 #FetchContent_MakeAvailable(csv-parser)
-FetchContent_Declare(
-  rapidcsv
-  GIT_REPOSITORY https://github.com/d99kris/rapidcsv.git
-  GIT_TAG v8.53
-  GIT_SHALLOW TRUE)
-FetchContent_MakeAvailable(rapidcsv)
 
 # Tests need to be added as executables first
 add_executable(testGps testGps.cpp)
@@ -34,5 +28,5 @@ target_link_libraries(testGps PRIVATE Gps Catch2::Catch2 rapidcsv)
 add_test(
   NAME test
   COMMAND testGps
-  WORKING_DIRECTORY "${Gps_SOURCE_DIR}"
+  WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
   )
