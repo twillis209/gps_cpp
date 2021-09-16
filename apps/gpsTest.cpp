@@ -4,16 +4,32 @@
 #include <boost/random.hpp>
 #include <boost/range/algorithm.hpp>
 #include <gps.hpp>
+#include <omp.h>
 
 using namespace gps;
 using namespace Eigen;
 
 int main(int argc, const char* argv[]) {
-  size_t n = 4e4;
+  omp_set_num_threads(2);
+
+  std::cout << omp_get_num_threads() << std::endl;
+
+  size_t n = 1e4;
 
   boost::mt19937 mt(42u);
   boost::uniform_01<boost::mt19937&> unif(mt);
 
+  std::vector<double> u;
+  std::vector<double> v;
+
+  for(int i = 0; i < n; ++i) {
+    u.push_back(unif());
+    v.push_back(unif());
+  }
+
+  std::vector<double> ecdf = bivariateEcdfPar(u,v);
+
+  /*
   ArrayXd toAdd = ArrayXd::Constant(n, 1.);
 
   ArrayXXd ptr(2, n);
@@ -24,6 +40,7 @@ int main(int argc, const char* argv[]) {
   }
 
   ArrayXd ecdf_arr = StOpt::fastCDFOnSample(ptr, toAdd);
+  */
 
   /*
   for(int i = 0; i < n; ++i) {
