@@ -74,6 +74,35 @@ std::vector<double> bivariateEcdfLW(const std::vector<double>& u, const std::vec
   return std::vector<double>(ecdf_arr.data(), ecdf_arr.data() + ecdf_arr.size());
 }
 
+  std::vector<double> bivariateEcdfPar(const std::vector<double>& u, const std::vector<double>& v) {
+    if(u.size() != v.size()) {
+      throw std::invalid_argument("Size of u and v differs.");
+    }
+
+    size_t n = u.size();
+
+    std::vector<double> ecdf;
+
+    ecdf.reserve(n);
+
+    #pragma openmp parallel for
+    for(size_t i = 0; i < n; ++i) {
+        int count = 0;
+
+        for(size_t j = 0; j < n; ++j) {
+          if(u[j] <= u[i] && v[j] <= v[i]) {
+            ++count;
+          }
+        }
+
+        ecdf[i] = (double) count;
+      }
+
+    std::transform(ecdf.begin(), ecdf.end(), ecdf.begin(), [n](double d) -> double { return d/(double) n;});
+
+    return ecdf;
+  }
+
   std::vector<double> mix_rexp(size_t n, boost::mt19937& mt, double altRate = 5, double altWeight = 0.01, bool pvalScale = false) {
   boost::variate_generator<boost::mt19937&, boost::exponential_distribution<>> exp_1(mt, boost::exponential_distribution<>(1));
 
