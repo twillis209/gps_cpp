@@ -26,7 +26,6 @@ namespace gps {
     return estEcdf;
   }
 
-// TODO can probably do away with some of the copying here
   double gpsStat(std::vector<double> u, std::vector<double> v, bool lw = false) {
   if(u.size() != v.size()) {
     throw std::invalid_argument("Size of u and v differs.");
@@ -34,14 +33,25 @@ namespace gps {
 
   size_t n = u.size();
 
+  std::vector<double> u_copy = u;
+  std::vector<double> v_copy = v;
+
+  std::sort(u_copy);
+  std::sort(v_copy);
+
   if(std::distance(u.begin(), std::max_element(u.begin(), u.end())) == std::distance(v.begin(), std::max_element(v.begin(), v.end()))) {
     throw std::invalid_argument("Indices of largest elements of u and v coincide. GPS statistic is undefined in this case.");
   }
 
-  std::vector<double> u_copy = u;
-  std::vector<double> v_copy = v;
-
   std::vector<double> bivariate_ecdf;
+
+  /*
+    sort vector, count number of duplicates, then perturb instances of same value requisite number of times
+
+    save duplicates in map, then go through unsorted vector and perturb with a multiple of eps based on remaining count as long as count > 1 (don't need to perturb all duplicates, just n - 1)
+
+
+   */
 
   if(lw) {
     bivariate_ecdf = bivariateEcdfLW(u,v);
