@@ -11,7 +11,7 @@ using boost::math::empirical_cumulative_distribution_function;
 namespace gps {
 
 // TODO can probably do away with some of the copying here
-double gpsStat(std::vector<double> u, std::vector<double> v) {
+  double gpsStat(std::vector<double> u, std::vector<double> v, bool lw = false) {
   if(u.size() != v.size()) {
     throw std::invalid_argument("Size of u and v differs.");
   }
@@ -24,8 +24,13 @@ double gpsStat(std::vector<double> u, std::vector<double> v) {
 
   std::vector<double> u_copy = u;
   std::vector<double> v_copy = v;
+  std::vector<double> bivariate_ecdf;
+  if(lw) {
+    bivariate_ecdf = bivariateEcdfLW(u,v);
+  } else {
+    bivariate_ecdf = bivariateEcdfPar(u,v);
+  }
 
-  std::vector<double> bivariate_ecdf = bivariateEcdfLW(u,v);
   // TODO hopefully this doesn't modify u or v by using std::move
   // TODO it does have to sort the data; is that done in-place?
   auto ecdf_u = empirical_cumulative_distribution_function(std::move(u));
@@ -124,7 +129,7 @@ std::vector<double> bivariateEcdfLW(const std::vector<double>& u, const std::vec
   return sample;
 }
 
-  std::vector<double> rgps(size_t n, boost::mt19937& mt, double altRate = 5, double altWeight = 0.01, size_t noOfSnps = 1e4) {
+  std::vector<double> rgps(size_t n, boost::mt19937& mt, double altRate = 5, double altWeight = 0.01, size_t noOfSnps = 1e4, bool lw = false) {
 
   std::vector<double> gps_sample;
 
@@ -136,7 +141,7 @@ std::vector<double> bivariateEcdfLW(const std::vector<double>& u, const std::vec
     gps_sample.push_back(
                          gpsStat(
                                  std::vector<double>(expSample.begin(), expSample.begin() + noOfSnps),
-                                 std::vector<double>(expSample.begin() + noOfSnps, expSample.end()))
+                                 std::vector<double>(expSample.begin() + noOfSnps, expSample.end()), lw)
                          );
   }
 

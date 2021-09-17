@@ -9,6 +9,7 @@ using namespace gps;
 using namespace Eigen;
 
 int main(int argc, const char* argv[]) {
+  omp_set_dynamic(0);
   omp_set_num_threads(2);
 
   std::cout << omp_get_num_threads() << std::endl;

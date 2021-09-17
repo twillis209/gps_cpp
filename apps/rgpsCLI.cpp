@@ -31,7 +31,7 @@ int main(int argc, const char* argv[]) {
   if(vm.count("size")) {
     boost::mt19937 mt(seed);
 
-    std::vector<double> gpsSample = gps::rgps(n, mt, altRate, altWeight, noOfSnps);
+    std::vector<double> gpsSample = gps::rgps(n, mt, altRate, altWeight, noOfSnps, true);
 
     for(auto i : gpsSample) std::cout << i << std::endl;
   } else {
