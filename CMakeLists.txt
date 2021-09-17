@@ -14,6 +14,13 @@ enable_testing()
 find_package(Boost 1.77 COMPONENTS random math_c99 program_options REQUIRED)
 find_package(Eigen3 3.3 REQUIRED NAMES Eigen3 Eigen eigen NO_MODULE)
 
+FetchContent_Declare(
+  rapidcsv
+  GIT_REPOSITORY https://github.com/d99kris/rapidcsv.git
+  GIT_TAG v8.53
+  GIT_SHALLOW TRUE)
+FetchContent_MakeAvailable(rapidcsv)
+
 add_subdirectory(StOptCDF)
 add_subdirectory(src)
 add_subdirectory(apps)

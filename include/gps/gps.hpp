@@ -5,6 +5,8 @@
 
 namespace gps {
 
+  std::vector<double> ecdf(std::vector<double> reference);
+
   double gpsStat(std::vector<double> u,
                  std::vector<double> v, bool lw);
 

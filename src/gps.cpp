@@ -10,6 +10,22 @@ using boost::math::empirical_cumulative_distribution_function;
 
 namespace gps {
 
+  std::vector<double> ecdf(std::vector<double> reference) {
+    std::vector<double> refCopy = reference;
+
+    size_t n = reference.size();
+
+    std::sort(refCopy.begin(), refCopy.end());
+
+    std::vector<double> estEcdf;
+
+    for(int i = 0; i < n; ++i) {
+      estEcdf.push_back((double) (std::upper_bound(refCopy.begin(), refCopy.end(), reference[i])-refCopy.begin())/n);
+    }
+
+    return estEcdf;
+  }
+
 // TODO can probably do away with some of the copying here
   double gpsStat(std::vector<double> u, std::vector<double> v, bool lw = false) {
   if(u.size() != v.size()) {
@@ -24,17 +40,17 @@ namespace gps {
 
   std::vector<double> u_copy = u;
   std::vector<double> v_copy = v;
+
   std::vector<double> bivariate_ecdf;
+
   if(lw) {
     bivariate_ecdf = bivariateEcdfLW(u,v);
   } else {
     bivariate_ecdf = bivariateEcdfPar(u,v);
   }
 
-  // TODO hopefully this doesn't modify u or v by using std::move
-  // TODO it does have to sort the data; is that done in-place?
-  auto ecdf_u = empirical_cumulative_distribution_function(std::move(u));
-  auto ecdf_v = empirical_cumulative_distribution_function(std::move(v));
+  std::vector<double> ecdf_u = ecdf(u);
+  std::vector<double> ecdf_v = ecdf(v);
 
   double max = -std::numeric_limits<double>::max();
 
@@ -42,9 +58,8 @@ namespace gps {
 
   for(int i = 0; i < n; ++i) {
     double cdf_uv = bivariate_ecdf[i];
-    double cdf_u = ecdf_u(u_copy[i]);
-    double cdf_v = ecdf_v(v_copy[i]);
-
+    double cdf_u = ecdf_u[i];
+    double cdf_v = ecdf_v[i];
     double denom = sqrt(cdf_u*cdf_v - pow(cdf_u, 2.)*pow(cdf_v, 2.));
 
     double numerator = abs(cdf_uv - cdf_u*cdf_v);
@@ -100,10 +115,8 @@ std::vector<double> bivariateEcdfLW(const std::vector<double>& u, const std::vec
           }
         }
 
-        ecdf[i] = (double) count;
+        ecdf[i] = (double) count/n;
       }
-
-    std::transform(ecdf.begin(), ecdf.end(), ecdf.begin(), [n](double d) -> double { return d/(double) n;});
 
     return ecdf;
   }
