@@ -47,7 +47,7 @@ int main(int argc, const char* argv[]) {
     std::cout << u_s << ',' << v_s << std::endl;
   }
   */
-  std::vector<double> ecdf = bivariateEcdfLW(u,v);
+  //std::vector<double> ecdf = bivariateEcdfLW(u,v);
 
   //std::cout << ecdf[(n-2)] << std::endl;
 

@@ -4,6 +4,7 @@
 #include <boost/math/distributions/empirical_cumulative_distribution_function.hpp>
 #include <boost/random.hpp>
 #include <math.h>
+#include <map>
 
 using namespace Eigen;
 using boost::math::empirical_cumulative_distribution_function;
@@ -33,17 +34,26 @@ namespace gps {
 
   size_t n = u.size();
 
-  std::vector<double> u_copy = u;
-  std::vector<double> v_copy = v;
+  std::vector<double> uCopy = u;
+  std::vector<double> vCopy = v;
 
-  std::sort(u_copy);
-  std::sort(v_copy);
+  std::sort(uCopy.begin(), uCopy.end());
+  std::sort(vCopy.begin(), vCopy.end());
 
-  if(std::distance(u.begin(), std::max_element(u.begin(), u.end())) == std::distance(v.begin(), std::max_element(v.begin(), v.end()))) {
+if(std::distance(u.begin(), std::max_element(u.begin(), u.end())) == std::distance(
+v.begin(), std::max_element(v.begin(), v.end()))) {
     throw std::invalid_argument("Indices of largest elements of u and v coincide. GPS statistic is undefined in this case.");
   }
 
-  std::vector<double> bivariate_ecdf;
+  std::vector<double> uEcdf;
+  std::vector<double> vEcdf;
+
+  for(int i = 0; i < n; ++i) {
+    uEcdf.push_back((double) (std::upper_bound(uCopy.begin(), uCopy.end(), u[i])-uCopy.begin())/n);
+    vEcdf.push_back((double) (std::upper_bound(vCopy.begin(), vCopy.end(), v[i])-vCopy.begin())/n);
+  }
+
+  std::vector<double> bivariateEcdf;
 
   /*
     sort vector, count number of duplicates, then perturb instances of same value requisite number of times
@@ -53,23 +63,47 @@ namespace gps {
 
    */
 
-  if(lw) {
-    bivariate_ecdf = bivariateEcdfLW(u,v);
-  } else {
-    bivariate_ecdf = bivariateEcdfPar(u,v);
+  std::map<double, int> uFreqMap;
+  std::map<double, int> vFreqMap;
+
+  for(size_t i = 0; i < n; ++i){
+    uFreqMap[u[i]]++;
+    vFreqMap[v[i]]++;
   }
 
-  std::vector<double> ecdf_u = ecdf(u);
-  std::vector<double> ecdf_v = ecdf(v);
+  /*
+    TODO could just omit duplicate values?
+
+    Need to perturb by a relevant value; add a fixed constant will have an effect which differs based on scale
+
+   */
+
+  for(size_t i = 0; i < n; ++i) {
+    if(uFreqMap[u[i]] > 1) {
+      u[i] = u[i] + (uFreqMap[u[i]] * std::numeric_limits<double>::epsilon());
+      uFreqMap[u[i]]--;
+    }
+
+    if(vFreqMap[v[i]] > 1) {
+      v[i] = v[i] + (vFreqMap[v[i]] * std::numeric_limits<double>::epsilon());
+      vFreqMap[v[i]]--;
+    }
+  }
+
+  if(lw) {
+    bivariateEcdf = bivariateEcdfLW(u,v);
+  } else {
+    bivariateEcdf = bivariateEcdfPar(u,v);
+  }
 
   double max = -std::numeric_limits<double>::max();
 
   // Referencing v[i] and u[i] leads to a segfault as I have moved them
 
   for(int i = 0; i < n; ++i) {
-    double cdf_uv = bivariate_ecdf[i];
-    double cdf_u = ecdf_u[i];
-    double cdf_v = ecdf_v[i];
+    double cdf_uv = bivariateEcdf[i];
+    double cdf_u = uEcdf[i];
+    double cdf_v = vEcdf[i];
     double denom = sqrt(cdf_u*cdf_v - pow(cdf_u, 2.)*pow(cdf_v, 2.));
 
     double numerator = abs(cdf_uv - cdf_u*cdf_v);
