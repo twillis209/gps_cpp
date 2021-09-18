@@ -34,16 +34,16 @@ namespace gps {
 
   size_t n = u.size();
 
+if(std::distance(u.begin(), std::max_element(u.begin(), u.end())) == std::distance(
+v.begin(), std::max_element(v.begin(), v.end()))) {
+    throw std::invalid_argument("Indices of largest elements of u and v coincide. GPS statistic is undefined in this case.");
+  }
+
   std::vector<double> uCopy = u;
   std::vector<double> vCopy = v;
 
   std::sort(uCopy.begin(), uCopy.end());
   std::sort(vCopy.begin(), vCopy.end());
-
-if(std::distance(u.begin(), std::max_element(u.begin(), u.end())) == std::distance(
-v.begin(), std::max_element(v.begin(), v.end()))) {
-    throw std::invalid_argument("Indices of largest elements of u and v coincide. GPS statistic is undefined in this case.");
-  }
 
   std::vector<double> uEcdf;
   std::vector<double> vEcdf;
@@ -60,8 +60,10 @@ v.begin(), std::max_element(v.begin(), v.end()))) {
 
     save duplicates in map, then go through unsorted vector and perturb with a multiple of eps based on remaining count as long as count > 1 (don't need to perturb all duplicates, just n - 1)
 
+    TODO could just omit duplicate values?
 
-   */
+    Need to perturb by a relevant value; add a fixed constant will have an effect which differs based on scale
+
 
   std::map<double, int> uFreqMap;
   std::map<double, int> vFreqMap;
@@ -70,13 +72,6 @@ v.begin(), std::max_element(v.begin(), v.end()))) {
     uFreqMap[u[i]]++;
     vFreqMap[v[i]]++;
   }
-
-  /*
-    TODO could just omit duplicate values?
-
-    Need to perturb by a relevant value; add a fixed constant will have an effect which differs based on scale
-
-   */
 
   for(size_t i = 0; i < n; ++i) {
     if(uFreqMap[u[i]] > 1) {
@@ -89,6 +84,8 @@ v.begin(), std::max_element(v.begin(), v.end()))) {
       vFreqMap[v[i]]--;
     }
   }
+
+  */
 
   if(lw) {
     bivariateEcdf = bivariateEcdfLW(u,v);
