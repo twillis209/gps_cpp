@@ -52,8 +52,8 @@ int main(int argc, const char* argv[]) {
   std::vector<std::vector<double>> gpsPermutations;
 
   #pragma omp parallel for
-  for(int i = 0; i < 10; ++i) {
-    gpsPermutations.push_back(permuteAndSampleGps(uNoDup, vNoDup, 1000));
+  for(int i = 0; i < 100; ++i) {
+    gpsPermutations.push_back(permuteAndSampleGps(uNoDup, vNoDup, 100));
   }
 
   std::vector<double> gpsResults;
