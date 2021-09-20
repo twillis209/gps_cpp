@@ -11,82 +11,87 @@ using namespace rapidcsv;
 using namespace Eigen;
 
 int main(int argc, const char* argv[]) {
-  //omp_set_dynamic(0);
-  //omp_set_num_threads(2);
-
-  //std::cout << omp_get_num_threads() << std::endl;
-
+  /*
   Document data("u_v_unif_n_1999556.csv");
 
   std::vector<double> u = data.GetColumn<double>("u");
   std::vector<double> v = data.GetColumn<double>("v");
 
-  double gpsResult = gpsStat(u,v, true);
+  double gpsResult = gpsStat(u,v);
 
   std::cout << gpsResult << std::endl;
-  /*
 
-  std::vector<double> ecdf = bivariateEcdfPar(data.GetColumn<double>("u"), data.GetColumn<double>("v"));
+  std::vector<double> permSample = permuteAndSampleGps(u, v, 3);
 
-  for(int i = 0; i < 1e3; ++i) std::cout << ecdf[i] << std::endl;
+  for(auto i : permSample) std::cout << i << std::endl;
+
+  std::vector<double> vNoDup = perturbDuplicates(v);
+
+  std::vector<double> u({.01042, .01042, .01059, .01059});
+
+  std::vector<double> uNoDup = perturbDuplicates(u);
+
+  std::cout.precision(10);
+
+  std::sort(uNoDup.begin(), uNoDup.end());
+  std::sort(vNoDup.begin(), vNoDup.end());
   */
 
+  Document data("pruned_pid_sys-scl.csv");
+
+  std::vector<double> u = data.GetColumn<double>("P.A");
+  std::vector<double> v = data.GetColumn<double>("P.B");
+
+  //std::cout.precision(20);
+
+  std::vector<double> uNoDup = perturbDuplicates(u);
+  std::vector<double> vNoDup = perturbDuplicates(v);
+
+  double gpsResult = gpsStat(uNoDup, vNoDup);
+
+  std::cout << gpsResult << std::endl;
+
+  //  for(int i = 0; i < v.size(); ++i) std::cout << v[i] << ',' << vNoDup[i] << std::endl;
+
   /*
+  std::map<double, int> freqMap;
+
+  for(size_t i = 0; i < u.size(); ++i){
+    freqMap[u[i]]++;
+
+    if(freqMap[u[i]] > 1) {
+      //values[i] = values[i] + (freqMap[values[i]] * std::numeric_limits<double>::epsilon());
+      u[i] = u[i] + (freqMap[u[i]] * 1e-4);
+    }
+  }
+  .6507
+  .4134
+
   boost::mt19937 mt(42u);
+
   boost::uniform_01<boost::mt19937&> unif(mt);
-  */
 
-  /*
-  for(int i = 0; i < n; ++i) {
-    //    u.push_back(i*1e-5);
-    //    v.push_back(i*1e-5);
-    double u_s = unif();
-    double v_s = unif();
-    u.push_back(u_s);
-    v.push_back(v_s);
-    std::cout << u_s << ',' << v_s << std::endl;
-  }
-  */
-  //std::vector<double> ecdf = bivariateEcdfLW(u,v);
+  size_t n = 1e6;
 
-  //std::cout << ecdf[(n-2)] << std::endl;
+  std::vector<double> u;
 
-  /*
-  std::sort(u.begin(), u.end());
-  std::sort(v.begin(), v.end());
-
-  bool isUDuplicated = std::adjacent_find(u.begin(), u.end()) != u.end();
-  bool isVDuplicated = std::adjacent_find(v.begin(), v.end()) != v.end();
-
-  std::cout << isUDuplicated << ' ' << isVDuplicated << std::endl;
-  */
-  /*
-  ArrayXd toAdd = ArrayXd::Constant(n, 1.);
-
-  ArrayXXd ptr(2, n);
-
-  for(int i = 0; i < n; i++) {
-    ptr(0, i) = unif();
-    ptr(1, i) = unif();
-  }
-
-  ArrayXd ecdf_arr = StOpt::fastCDFOnSample(ptr, toAdd);
-  */
-
-  /*
   for(int i = 0; i < n; ++i) {
     u.push_back(unif());
-    v.push_back(unif());
   }
 
-  double gps = fastCDFOnSample(u,v);
-
-  std::cout << gps << std::endl;
+  */
 
 
-  std::vector<double> gps_sample = rgps(1, mt, 5, 0, 1e6);
+  /*
+  std::map<double, int> freqMap;
 
-  for(auto i: gps_sample) std::cout << i << std::endl;
+  for(size_t i = 0; i < n; ++i){
+    freqMap[noDup[i]]++;
+  }
+
+  for(size_t i = 0; i < n; ++i){
+    if(freqMap[noDup[i]] > 1) std::cout << u[i] << ',' << noDup[i] << std::endl;
+  }
   */
 
   return 0;

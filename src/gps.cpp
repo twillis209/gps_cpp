@@ -3,6 +3,7 @@
 #include <fastCDFOnSample.h>
 #include <boost/math/distributions/empirical_cumulative_distribution_function.hpp>
 #include <boost/random.hpp>
+#include <boost/range/algorithm/random_shuffle.hpp>
 #include <math.h>
 #include <map>
 
@@ -27,112 +28,62 @@ namespace gps {
     return estEcdf;
   }
 
-  double gpsStat(std::vector<double> u, std::vector<double> v, bool lw = false) {
-  if(u.size() != v.size()) {
-    throw std::invalid_argument("Size of u and v differs.");
-  }
 
-  size_t n = u.size();
-
-if(std::distance(u.begin(), std::max_element(u.begin(), u.end())) == std::distance(
-v.begin(), std::max_element(v.begin(), v.end()))) {
-    throw std::invalid_argument("Indices of largest elements of u and v coincide. GPS statistic is undefined in this case.");
-  }
-
-  std::vector<double> uCopy = u;
-  std::vector<double> vCopy = v;
-
-  std::sort(uCopy.begin(), uCopy.end());
-  std::sort(vCopy.begin(), vCopy.end());
-
-  std::vector<double> uEcdf;
-  std::vector<double> vEcdf;
-
-  for(int i = 0; i < n; ++i) {
-    uEcdf.push_back((double) (std::upper_bound(uCopy.begin(), uCopy.end(), u[i])-uCopy.begin())/n);
-    vEcdf.push_back((double) (std::upper_bound(vCopy.begin(), vCopy.end(), v[i])-vCopy.begin())/n);
-  }
-
-  std::vector<double> bivariateEcdf;
-
-  /*
-    sort vector, count number of duplicates, then perturb instances of same value requisite number of times
-
-    save duplicates in map, then go through unsorted vector and perturb with a multiple of eps based on remaining count as long as count > 1 (don't need to perturb all duplicates, just n - 1)
-
-    TODO could just omit duplicate values?
-
-    Need to perturb by a relevant value; add a fixed constant will have an effect which differs based on scale
-
-
-  std::map<double, int> uFreqMap;
-  std::map<double, int> vFreqMap;
-
-  for(size_t i = 0; i < n; ++i){
-    uFreqMap[u[i]]++;
-    vFreqMap[v[i]]++;
-  }
-
-  for(size_t i = 0; i < n; ++i) {
-    if(uFreqMap[u[i]] > 1) {
-      u[i] = u[i] + (uFreqMap[u[i]] * std::numeric_limits<double>::epsilon());
-      uFreqMap[u[i]]--;
+  double gpsStat(std::vector<double> u, std::vector<double> v) {
+    if(u.size() != v.size()) {
+      throw std::invalid_argument("Size of u and v differs.");
     }
 
-    if(vFreqMap[v[i]] > 1) {
-      v[i] = v[i] + (vFreqMap[v[i]] * std::numeric_limits<double>::epsilon());
-      vFreqMap[v[i]]--;
+    size_t n = u.size();
+
+    if(std::distance(u.begin(), std::max_element(u.begin(), u.end())) == std::distance(
+    v.begin(), std::max_element(v.begin(), v.end()))) {
+        throw std::invalid_argument("Indices of largest elements of u and v coincide. GPS statistic is undefined in this case.");
+      }
+
+    std::vector<double> uEcdf = ecdf(u);
+    std::vector<double> vEcdf = ecdf(v);
+
+    std::vector<double> bivariateEcdf = bivariateEcdfLW(u, v);
+
+    double max = -std::numeric_limits<double>::max();
+
+    for(int i = 0; i < n; ++i) {
+      double cdf_uv = bivariateEcdf[i];
+      double cdf_u = uEcdf[i];
+      double cdf_v = vEcdf[i];
+      double denom = sqrt(cdf_u*cdf_v - pow(cdf_u, 2.)*pow(cdf_v, 2.));
+
+      double numerator = abs(cdf_uv - cdf_u*cdf_v);
+
+      double maximand = sqrt((double) n / log((double) n))*numerator/denom;
+
+      if(maximand > max) max = maximand;
     }
-  }
-
-  */
-
-  if(lw) {
-    bivariateEcdf = bivariateEcdfLW(u,v);
-  } else {
-    bivariateEcdf = bivariateEcdfPar(u,v);
-  }
-
-  double max = -std::numeric_limits<double>::max();
-
-  // Referencing v[i] and u[i] leads to a segfault as I have moved them
-
-  for(int i = 0; i < n; ++i) {
-    double cdf_uv = bivariateEcdf[i];
-    double cdf_u = uEcdf[i];
-    double cdf_v = vEcdf[i];
-    double denom = sqrt(cdf_u*cdf_v - pow(cdf_u, 2.)*pow(cdf_v, 2.));
-
-    double numerator = abs(cdf_uv - cdf_u*cdf_v);
-
-    double maximand = sqrt((double) n / log((double) n))*numerator/denom;
-
-    if(maximand > max) max = maximand;
-  }
 
   return max;
 }
 
-std::vector<double> bivariateEcdfLW(const std::vector<double>& u, const std::vector<double>& v) {
-  if(u.size() != v.size()) {
-    throw std::invalid_argument("Size of u and v differs.");
-  }
+  std::vector<double> bivariateEcdfLW(const std::vector<double>& u, const std::vector<double>& v) {
+    if(u.size() != v.size()) {
+      throw std::invalid_argument("Size of u and v differs.");
+    }
 
-  size_t n = u.size();
+    size_t n = u.size();
 
-  ArrayXd toAdd = ArrayXd::Constant(n, 1.);
+    ArrayXd toAdd = ArrayXd::Constant(n, 1.);
 
-  // NB: XXd for two-dimensional and double entries
-  ArrayXXd ptr(2, n);
+    // NB: XXd for two-dimensional and double entries
+    ArrayXXd ptr(2, n);
 
-  for(int i = 0; i < n; i++) {
-    ptr(0, i) = u[i];
-    ptr(1, i) = v[i];
-  }
+    for(int i = 0; i < n; i++) {
+      ptr(0, i) = u[i];
+      ptr(1, i) = v[i];
+    }
 
-  ArrayXd ecdf_arr = StOpt::fastCDFOnSample(ptr, toAdd);
+    ArrayXd ecdf_arr = StOpt::fastCDFOnSample(ptr, toAdd);
 
-  return std::vector<double>(ecdf_arr.data(), ecdf_arr.data() + ecdf_arr.size());
+    return std::vector<double>(ecdf_arr.data(), ecdf_arr.data() + ecdf_arr.size());
 }
 
   std::vector<double> bivariateEcdfPar(const std::vector<double>& u, const std::vector<double>& v) {
@@ -183,7 +134,7 @@ std::vector<double> bivariateEcdfLW(const std::vector<double>& u, const std::vec
   return sample;
 }
 
-  std::vector<double> rgps(size_t n, boost::mt19937& mt, double altRate = 5, double altWeight = 0.01, size_t noOfSnps = 1e4, bool lw = false) {
+  std::vector<double> rgps(size_t n, boost::mt19937& mt, double altRate = 5, double altWeight = 0.01, size_t noOfSnps = 1e4) {
 
   std::vector<double> gps_sample;
 
@@ -195,11 +146,49 @@ std::vector<double> bivariateEcdfLW(const std::vector<double>& u, const std::vec
     gps_sample.push_back(
                          gpsStat(
                                  std::vector<double>(expSample.begin(), expSample.begin() + noOfSnps),
-                                 std::vector<double>(expSample.begin() + noOfSnps, expSample.end()), lw)
+                                 std::vector<double>(expSample.begin() + noOfSnps, expSample.end()))
                          );
   }
 
   return gps_sample;
 }
+
+  std::vector<double> permuteAndSampleGps(std::vector<double> u, std::vector<double> v, size_t n) {
+    std::vector<double> sample;
+
+    size_t i = 0;
+
+    while(i < n) {
+      // TODO need to pass a generator to these
+      boost::range::random_shuffle(u);
+      boost::range::random_shuffle(v);
+
+      if(std::distance(u.begin(), std::max_element(u.begin(), u.end())) != std::distance(v.begin(), std::max_element(v.begin(), v.end()))) {
+        sample.push_back(gpsStat(u,v));
+      }
+
+      ++i;
+    }
+
+    return sample;
+  }
+
+
+  std::vector<double> perturbDuplicates(std::vector<double> values) {
+    std::map<double, int> freqMap;
+
+    for(size_t i = 0; i < values.size(); ++i){
+      freqMap[values[i]]++;
+
+      if(freqMap[values[i]] > 1) {
+        //std::cout << values[i];
+        // 2.22045e-16 is eps for doubles on my laptop
+        values[i] = values[i] + (freqMap[values[i]] * std::numeric_limits<double>::epsilon());
+        //std::cout << ',' << values[i] << std::endl;
+      }
+    }
+
+    return values;
+  }
 
 }

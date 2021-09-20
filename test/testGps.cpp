@@ -37,7 +37,7 @@ TEST_CASE( "gps computes correct statistic on uniformly distributed data", "[gps
   std::vector<double> u = doc.GetColumn<double>("u");
   std::vector<double> v = doc.GetColumn<double>("v");
 
-  double gpsResult = gpsStat(u,v, true);
+  double gpsResult = gpsStat(u,v);
 
   REQUIRE(gpsResult == Detail::Approx(0.87333));
 }
@@ -46,7 +46,7 @@ TEST_CASE( "gpsStat runs in simple case", "[gpsStat]" ) {
   std::vector u({.1, .2, .3, .4, .5});
   std::vector v({.1, .2, .3, .5, .4});
 
-  double gpsResult = gpsStat(u,v, true);
+  double gpsResult = gpsStat(u,v);
 
   REQUIRE(gpsResult == Detail::Approx(1.439137));
 }
@@ -122,7 +122,7 @@ TEST_CASE( "Naive bivariate ecdf throws exception with differently-sized input v
 TEST_CASE( "gps throws exception with differently-sized input vectors", "[ecdf]") {
 
   REQUIRE_THROWS_MATCHES(
-                         gpsStat(std::vector<double>{.1, .2}, std::vector<double>{.1, .3, .05}, true),
+                         gpsStat(std::vector<double>{.1, .2}, std::vector<double>{.1, .3, .05}),
                          std::invalid_argument,
                          Message("Size of u and v differs.")
                          );
@@ -131,8 +131,19 @@ TEST_CASE( "gps throws exception with differently-sized input vectors", "[ecdf]"
 TEST_CASE( "gps throws exception on undefined case", "[ecdf]") {
 
   REQUIRE_THROWS_MATCHES(
-                         gpsStat(std::vector<double>{.1, .2, .3}, std::vector<double>{.1, .2, .3}, true),
+                         gpsStat(std::vector<double>{.1, .2, .3}, std::vector<double>{.1, .2, .3}),
                          std::invalid_argument,
                          Message("Indices of largest elements of u and v coincide. GPS statistic is undefined in this case.")
                  );
+}
+
+TEST_CASE( "perturbDuplicates distinguishes duplicates in simple case", "[perturbDuplicates]") {
+
+  std::vector<double> u({.1,.1,.1,.2,.3,.4,.5});
+
+  std::vector<double> noDup = perturbDuplicates(u);
+
+  REQUIRE(noDup[0] == .1);
+  REQUIRE(noDup[0] != noDup[1]);
+  REQUIRE(noDup[0] != noDup[2]);
 }
