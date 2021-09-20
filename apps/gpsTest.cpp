@@ -49,7 +49,24 @@ int main(int argc, const char* argv[]) {
 
   double gpsResult = gpsStat(uNoDup, vNoDup);
 
-  std::cout << gpsResult << std::endl;
+  std::vector<std::vector<double>> gpsPermutations;
+
+  #pragma omp parallel for
+  for(int i = 0; i < 10; ++i) {
+    gpsPermutations.push_back(permuteAndSampleGps(uNoDup, vNoDup, 1000));
+  }
+
+  std::vector<double> gpsResults;
+
+  for(int i = 0; i < 4; ++i){
+    for(int j = 0; j < 10; ++j) {
+      gpsResults.push_back(gpsPermutations[i][j]);
+    }
+  }
+
+  for(auto i : gpsResults) std::cout << i << std::endl;
+
+  //  for(auto i : gpsPermutations) std::cout << i << std::endl;
 
   //  for(int i = 0; i < v.size(); ++i) std::cout << v[i] << ',' << vNoDup[i] << std::endl;
 

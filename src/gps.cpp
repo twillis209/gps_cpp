@@ -165,14 +165,13 @@ namespace gps {
 
       if(std::distance(u.begin(), std::max_element(u.begin(), u.end())) != std::distance(v.begin(), std::max_element(v.begin(), v.end()))) {
         sample.push_back(gpsStat(u,v));
+        ++i;
       }
 
-      ++i;
     }
 
     return sample;
   }
-
 
   std::vector<double> perturbDuplicates(std::vector<double> values) {
     std::map<double, int> freqMap;
