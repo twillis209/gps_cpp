@@ -4,9 +4,9 @@
 #include <boost/random.hpp>
 
 namespace gps {
+  std::vector<double> ecdf(std::vector<double> reference);
 
-  double gpsStat(std::vector<double> u,
-                       std::vector<double> v);
+  double gpsStat(std::vector<double> u, std::vector<double> v);
 
   std::vector<double> bivariateEcdfLW(const std::vector<double>& u,
                        const std::vector<double>& v);
@@ -19,4 +19,5 @@ namespace gps {
 
   std::vector<double> permuteAndSampleGps(std::vector<double> u, std::vector<double> v, size_t n);
 
+  std::vector<double> perturbDuplicates(std::vector<double> values);
 }

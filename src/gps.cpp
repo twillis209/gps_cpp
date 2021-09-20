@@ -3,76 +3,87 @@
 #include <fastCDFOnSample.h>
 #include <boost/math/distributions/empirical_cumulative_distribution_function.hpp>
 #include <boost/random.hpp>
-#include <boost/range/algorithm.hpp>
+#include <boost/range/algorithm/random_shuffle.hpp>
 #include <math.h>
+#include <map>
 
 using namespace Eigen;
 using boost::math::empirical_cumulative_distribution_function;
 
 namespace gps {
 
-// TODO can probably do away with some of the copying here
-double gpsStat(std::vector<double> u, std::vector<double> v) {
-  if(u.size() != v.size()) {
-    throw std::invalid_argument("Size of u and v differs.");
+  std::vector<double> ecdf(std::vector<double> reference) {
+    std::vector<double> refCopy = reference;
+
+    size_t n = reference.size();
+
+    std::sort(refCopy.begin(), refCopy.end());
+
+    std::vector<double> estEcdf;
+
+    for(int i = 0; i < n; ++i) {
+      estEcdf.push_back((double) (std::upper_bound(refCopy.begin(), refCopy.end(), reference[i])-refCopy.begin())/n);
+    }
+
+    return estEcdf;
   }
 
-  size_t n = u.size();
 
-  if(std::distance(u.begin(), std::max_element(u.begin(), u.end())) == std::distance(v.begin(), std::max_element(v.begin(), v.end()))) {
-    throw std::invalid_argument("Indices of largest elements of u and v coincide. GPS statistic is undefined in this case.");
-  }
+  double gpsStat(std::vector<double> u, std::vector<double> v) {
+    if(u.size() != v.size()) {
+      throw std::invalid_argument("Size of u and v differs.");
+    }
 
-  std::vector<double> u_copy = u;
-  std::vector<double> v_copy = v;
+    size_t n = u.size();
 
-  std::vector<double> bivariate_ecdf = bivariateEcdfLW(u,v);
-  // TODO hopefully this doesn't modify u or v by using std::move
-  // TODO it does have to sort the data; is that done in-place?
-  auto ecdf_u = empirical_cumulative_distribution_function(std::move(u));
-  auto ecdf_v = empirical_cumulative_distribution_function(std::move(v));
+    if(std::distance(u.begin(), std::max_element(u.begin(), u.end())) == std::distance(
+    v.begin(), std::max_element(v.begin(), v.end()))) {
+        throw std::invalid_argument("Indices of largest elements of u and v coincide. GPS statistic is undefined in this case.");
+      }
 
-  double max = -std::numeric_limits<double>::max();
+    std::vector<double> uEcdf = ecdf(u);
+    std::vector<double> vEcdf = ecdf(v);
 
-  // Referencing v[i] and u[i] leads to a segfault as I have moved them
+    std::vector<double> bivariateEcdf = bivariateEcdfLW(u, v);
 
-  for(int i = 0; i < n; ++i) {
-    double cdf_uv = bivariate_ecdf[i];
-    double cdf_u = ecdf_u(u_copy[i]);
-    double cdf_v = ecdf_v(v_copy[i]);
+    double max = -std::numeric_limits<double>::max();
 
-    double denom = sqrt(cdf_u*cdf_v - pow(cdf_u, 2.)*pow(cdf_v, 2.));
+    for(int i = 0; i < n; ++i) {
+      double cdf_uv = bivariateEcdf[i];
+      double cdf_u = uEcdf[i];
+      double cdf_v = vEcdf[i];
+      double denom = sqrt(cdf_u*cdf_v - pow(cdf_u, 2.)*pow(cdf_v, 2.));
 
-    double numerator = abs(cdf_uv - cdf_u*cdf_v);
+      double numerator = abs(cdf_uv - cdf_u*cdf_v);
 
-    double maximand = sqrt((double) n / log((double) n))*numerator/denom;
+      double maximand = sqrt((double) n / log((double) n))*numerator/denom;
 
-    if(maximand > max) max = maximand;
-  }
+      if(maximand > max) max = maximand;
+    }
 
   return max;
 }
 
-std::vector<double> bivariateEcdfLW(const std::vector<double>& u, const std::vector<double>& v) {
-  if(u.size() != v.size()) {
-    throw std::invalid_argument("Size of u and v differs.");
-  }
+  std::vector<double> bivariateEcdfLW(const std::vector<double>& u, const std::vector<double>& v) {
+    if(u.size() != v.size()) {
+      throw std::invalid_argument("Size of u and v differs.");
+    }
 
-  size_t n = u.size();
+    size_t n = u.size();
 
-  ArrayXd toAdd = ArrayXd::Constant(n, 1.);
+    ArrayXd toAdd = ArrayXd::Constant(n, 1.);
 
-  // NB: XXd for two-dimensional and double entries
-  ArrayXXd ptr(2, n);
+    // NB: XXd for two-dimensional and double entries
+    ArrayXXd ptr(2, n);
 
-  for(int i = 0; i < n; i++) {
-    ptr(0, i) = u[i];
-    ptr(1, i) = v[i];
-  }
+    for(int i = 0; i < n; i++) {
+      ptr(0, i) = u[i];
+      ptr(1, i) = v[i];
+    }
 
-  ArrayXd ecdf_arr = StOpt::fastCDFOnSample(ptr, toAdd);
+    ArrayXd ecdf_arr = StOpt::fastCDFOnSample(ptr, toAdd);
 
-  return std::vector<double>(ecdf_arr.data(), ecdf_arr.data() + ecdf_arr.size());
+    return std::vector<double>(ecdf_arr.data(), ecdf_arr.data() + ecdf_arr.size());
 }
 
   std::vector<double> bivariateEcdfPar(const std::vector<double>& u, const std::vector<double>& v) {
@@ -96,10 +107,8 @@ std::vector<double> bivariateEcdfLW(const std::vector<double>& u, const std::vec
           }
         }
 
-        ecdf[i] = (double) count;
+        ecdf[i] = (double) count/n;
       }
-
-    std::transform(ecdf.begin(), ecdf.end(), ecdf.begin(), [n](double d) -> double { return d/(double) n;});
 
     return ecdf;
   }
@@ -172,5 +181,42 @@ std::vector<double> bivariateEcdfLW(const std::vector<double>& u, const std::vec
 
     return gpsSample;
 }
+
+  std::vector<double> permuteAndSampleGps(std::vector<double> u, std::vector<double> v, size_t n) {
+    std::vector<double> sample;
+
+    size_t i = 0;
+
+    while(i < n) {
+      // TODO need to pass a generator to these
+      boost::range::random_shuffle(u);
+      boost::range::random_shuffle(v);
+
+      if(std::distance(u.begin(), std::max_element(u.begin(), u.end())) != std::distance(v.begin(), std::max_element(v.begin(), v.end()))) {
+        sample.push_back(gpsStat(u,v));
+        ++i;
+      }
+
+    }
+
+    return sample;
+  }
+
+  std::vector<double> perturbDuplicates(std::vector<double> values) {
+    std::map<double, int> freqMap;
+
+    for(size_t i = 0; i < values.size(); ++i){
+      freqMap[values[i]]++;
+
+      if(freqMap[values[i]] > 1) {
+        //std::cout << values[i];
+        // 2.22045e-16 is eps for doubles on my laptop
+        values[i] = values[i] + (freqMap[values[i]] * std::numeric_limits<double>::epsilon());
+        //std::cout << ',' << values[i] << std::endl;
+      }
+    }
+
+    return values;
+  }
 
 }
