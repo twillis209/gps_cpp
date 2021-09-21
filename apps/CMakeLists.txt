@@ -10,16 +10,8 @@ target_include_directories(rgpsCLI PUBLIC "${CMAKE_SOURCE_DIR}/include/gps" "${B
 
 target_link_libraries(rgpsCLI Gps Boost::program_options Boost::random)
 
-#add_executable(testPermutation testPermutation.cpp)
+add_executable(permuteGpsCLI permuteGpsCLI.cpp)
 
-#target_include_directories(testPermutation PUBLIC "${CMAKE_SOURCE_DIR}/include/gps")
+target_include_directories(permuteGpsCLI PUBLIC "${CMAKE_SOURCE_DIR}/include/gps" "${Boost_INCLUDE_DIRS}")
 
-#target_link_libraries(testPermutation Gps rapidcsv)
-
-add_executable(lwIssue lwIssue.cpp)
-
-target_include_directories(lwIssue PUBLIC "/home/tw395/opt/include/StOpt/cdf")
-
-target_link_directories(lwIssue PUBLIC "/home/tw395/opt/lib")
-
-target_link_libraries(lwIssue Eigen3::Eigen Boost::random StOpt)
+target_link_libraries(permuteGpsCLI Gps Boost::program_options Boost::random rapidcsv)

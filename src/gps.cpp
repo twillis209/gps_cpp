@@ -164,25 +164,6 @@ namespace gps {
 }
 
   std::vector<double> permuteAndSampleGps(std::vector<double> u, std::vector<double> v, size_t n) {
-
-    std::vector<double> gpsSample;
-
-    gpsSample.reserve(n);
-
-    // TODO not sure if random_shuffle is what I need here; whence comes its randomness?
-    for(int i = 0; i < n; ++i) {
-
-      boost::range::random_shuffle(u);
-      boost::range::random_shuffle(v);
-
-      gpsSample.push_back(gpsStat(u,v));
-
-    }
-
-    return gpsSample;
-}
-
-  std::vector<double> permuteAndSampleGps(std::vector<double> u, std::vector<double> v, size_t n) {
     std::vector<double> sample;
 
     size_t i = 0;
