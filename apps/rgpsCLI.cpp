@@ -9,7 +9,8 @@ using namespace po;
 int main(int argc, const char* argv[]) {
   po::options_description desc("Allowed options");
 
-  size_t n;
+  int cores;
+  int draws;
   size_t noOfSnps;
   double altWeight;
   double altRate;
@@ -17,7 +18,8 @@ int main(int argc, const char* argv[]) {
 
   desc.add_options()
     ("help", "Print help message")
-    ("size,n", po::value<size_t>(&n), "No. of variates")
+    ("cores,c", po::value<int>(&cores), "No. of cores")
+    ("draws,n", po::value<int>(&draws), "No. of draws per core")
     ("noOfSnps,p", po::value<size_t>(&noOfSnps)->default_value(1e4), "No. of SNPs")
     ("altWeight,w", po::value<double>(&altWeight)->default_value(0), "Mixing weight for non-standard exp. component")
     ("altRate,r", po::value<double>(&altRate)->default_value(5), "Rate parameter for non-standard exp. component")
@@ -28,17 +30,42 @@ int main(int argc, const char* argv[]) {
   po::store(po::parse_command_line(argc, argv, desc), vm);
   po::notify(vm);
 
-  // TODO to parallelise, could generate uniform ints from the seed to, in turn, seed threads like in the permute CLI
-  if(vm.count("size")) {
+  if(vm.count("cores")) {
     boost::mt19937 mt(seed);
 
+    boost::uniform_int<> dist(0, 255);
 
-    std::vector<double> gpsSample = gps::rgps(n, mt, altRate, altWeight, noOfSnps);
+    boost::variate_generator<boost::mt19937&, boost::uniform_int<>> seedGen(mt, dist);
+
+    unsigned int seeds[cores];
+
+    for(size_t i = 0; i < cores; ++i) {
+      seeds[i] = seedGen();
+    }
+
+
+    std::vector<std::vector<double>> samplesPerCore;
+
+    #pragma omp parallel for
+    for(size_t i = 0; i < cores; ++i) {
+      boost::mt19937 subMt(seeds[i]);
+
+      samplesPerCore.push_back(gps::rgps(draws, subMt, altRate, altWeight, noOfSnps));
+    }
+
+    std::vector<double> gpsSample;
+
+    for(int i = 0; i < cores; ++i) {
+      for(int j = 0; j < draws; ++j) {
+        gpsSample.push_back(samplesPerCore[i][j]);
+      }
+    }
 
     for(auto i : gpsSample) std::cout << i << std::endl;
-  } else {
+
+    } else {
       std::cout << desc << std::endl;
-  }
+    }
 
   return 0;
 }
