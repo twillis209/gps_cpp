@@ -150,6 +150,9 @@ namespace gps {
       std::vector<double> expSample_1 = mix_rexp(noOfSnps, mt, altRate, altWeight, true);
       std::vector<double> expSample_2 = mix_rexp(noOfSnps, mt, altRate, altWeight, true);
 
+      expSample_1 = perturbDuplicates(expSample_1);
+      expSample_2 = perturbDuplicates(expSample_2);
+
       if(!(std::distance(expSample_1.begin(), std::max_element(expSample_1.begin(), expSample_1.end())) == std::distance(expSample_2.begin(), std::max_element(expSample_2.begin(), expSample_2.end())))) {
           gps = gpsStat(expSample_1, expSample_2);
         }
@@ -163,6 +166,7 @@ namespace gps {
   return gpsSample;
 }
 
+  // TODO can make this faster by fitting the univariate ecdfs once
   std::vector<double> permuteAndSampleGps(std::vector<double> u, std::vector<double> v, size_t n) {
     std::vector<double> sample;
 

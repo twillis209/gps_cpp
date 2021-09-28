@@ -28,8 +28,10 @@ int main(int argc, const char* argv[]) {
   po::store(po::parse_command_line(argc, argv, desc), vm);
   po::notify(vm);
 
+  // TODO to parallelise, could generate uniform ints from the seed to, in turn, seed threads like in the permute CLI
   if(vm.count("size")) {
     boost::mt19937 mt(seed);
+
 
     std::vector<double> gpsSample = gps::rgps(n, mt, altRate, altWeight, noOfSnps);
 
