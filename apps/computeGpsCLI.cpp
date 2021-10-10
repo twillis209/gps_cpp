@@ -1,7 +1,6 @@
 #include <iostream>
 #include <gps.hpp>
 #include <boost/program_options.hpp>
-#include <boost/random.hpp>
 #include <rapidcsv.h>
 
 namespace po = boost::program_options;

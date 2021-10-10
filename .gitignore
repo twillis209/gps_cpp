@@ -1,7 +1,6 @@
 build
 out
 debug
-*.txt
 pruned_pid_pso.csv
 u_v_unif_n_1999556.csv
 *.csv
