@@ -38,16 +38,17 @@ int main(int argc, const char* argv[]) {
   std::sort(vNoDup.begin(), vNoDup.end());
   */
 
-  Document data("pruned_pid_pso.csv");
+  Document data("test_trait_1_2.csv");
 
-  std::vector<double> u = data.GetColumn<double>("P.A");
-  std::vector<double> v = data.GetColumn<double>("P.B");
+  std::vector<double> u = data.GetColumn<double>("pval.20002_1111");
+  std::vector<double> v = data.GetColumn<double>("pval.20002_1113");
 
   std::cout.precision(20);
 
   std::vector<double> uNoDup = perturbDuplicates(u);
   std::vector<double> vNoDup = perturbDuplicates(v);
 
+  /*
   std::sort(uNoDup.begin(), uNoDup.end());
 
   std::cout << (std::adjacent_find(uNoDup.begin(), uNoDup.end()) == uNoDup.end()) << std::endl;
@@ -59,12 +60,13 @@ int main(int argc, const char* argv[]) {
   std::sort(vNoDupCopy.begin(), vNoDupCopy.end());
 
   vNoDupCopy[vNoDupCopy.size()-1] = 0.0;
+  */
 
-  std::cout << gpsStat(vNoDup, vNoDupCopy) << std::endl;
+  std::cout << gpsStat(uNoDup, vNoDup) << std::endl;
 
   /*
   for(int i = 0; i < u.size(); ++i) std::cout << u[i] << ',' << uNoDup[i] << std::endl;
   */
 
-    return 0;
+  return 0;
 }
