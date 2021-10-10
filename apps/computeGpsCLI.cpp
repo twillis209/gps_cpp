@@ -31,8 +31,6 @@ int main(int argc, const char* argv[]) {
 
     std::stringstream stringOutput;
 
-    Document output(stringOutput, LabelParams(), SeparatorParams('\t'));
-
     stringOutput << "Trait A\tTrait B\tGPS" << std::endl;
 
     // Ignore variant column
@@ -50,6 +48,7 @@ int main(int argc, const char* argv[]) {
       }
     }
 
+    Document output(stringOutput, LabelParams(), SeparatorParams('\t'));
     output.Save(outputFile);
   } else {
       std::cout << desc << std::endl;

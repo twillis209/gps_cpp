@@ -57,7 +57,6 @@ int main(int argc, const char* argv[]) {
     }
 
     Document output(stringOutput, LabelParams(), SeparatorParams('\t'));
-
     output.Save(outputFile);
   } else {
       std::cout << desc << std::endl;
