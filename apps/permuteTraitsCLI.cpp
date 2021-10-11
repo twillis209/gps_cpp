@@ -2,6 +2,7 @@
 #include <gps.hpp>
 #include <boost/program_options.hpp>
 #include <rapidcsv.h>
+#include <omp.h>
 
 namespace po = boost::program_options;
 using namespace po;
@@ -43,12 +44,21 @@ int main(int argc, const char* argv[]) {
 
     std::vector<std::vector<double>> gpsPermutations;
 
+    // TODO remove me
+    #pragma omp parallel
+    {
+      std::cout << omp_get_num_threads() << std::endl;
+    }
+
+
     #pragma omp parallel for
     for(int k = 0; k < cores; ++k) {
       gpsPermutations.push_back(permuteAndSampleGps(uNoDup, vNoDup, drawsPerCore));
     }
 
     std::stringstream stringOutput;
+
+    stringOutput << "GPS" << std::endl;
 
     for(int i = 0; i < cores; ++i) {
       for(int j = 0; j < drawsPerCore; ++j) {

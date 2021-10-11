@@ -31,7 +31,7 @@ int main(int argc, const char* argv[]) {
 
     std::stringstream stringOutput;
 
-    stringOutput << "Trait A\tTrait B\tGPS" << std::endl;
+    stringOutput << "Trait_A\tTrait_B\tGPS" << std::endl;
 
     // Ignore variant column
     for(size_t i = 1; i < noOfColumns-1; ++i) {
