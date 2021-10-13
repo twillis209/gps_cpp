@@ -44,13 +44,6 @@ int main(int argc, const char* argv[]) {
 
     std::vector<std::vector<double>> gpsPermutations;
 
-    // TODO remove me
-    #pragma omp parallel
-    {
-      std::cout << omp_get_num_threads() << std::endl;
-    }
-
-
     #pragma omp parallel for
     for(int k = 0; k < cores; ++k) {
       gpsPermutations.push_back(permuteAndSampleGps(uNoDup, vNoDup, drawsPerCore));
