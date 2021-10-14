@@ -1,7 +1,7 @@
 #include <iostream>
 #include <gps.hpp>
-#include <boost/program_options.hpp>
 #include <rapidcsv.h>
+#include <boost/program_options.hpp>
 
 namespace po = boost::program_options;
 using namespace po;
@@ -11,8 +11,6 @@ using namespace rapidcsv;
 int main(int argc, const char* argv[]) {
   po::options_description desc("Allowed options");
 
-  int cores;
-  int drawsPerCore;
   std::string inputFile;
   std::string colLabelA;
   std::string colLabelB;
@@ -23,8 +21,6 @@ int main(int argc, const char* argv[]) {
     ("inputFile,i", po::value<std::string>(&inputFile), "Path to input file")
     ("colLabelA,a", po::value<std::string>(&colLabelA), "Label of column A")
     ("colLabelB,b", po::value<std::string>(&colLabelB), "Label of column B")
-    ("cores,c", po::value<int>(&cores), "No. of cores")
-    ("draws,n", po::value<int>(&drawsPerCore), "No. of draws per core")
     ;
 
   po::variables_map vm;
@@ -32,7 +28,7 @@ int main(int argc, const char* argv[]) {
   po::notify(vm);
 
   if(vm.count("inputFile")) {
-    Document data(inputFile);
+    Document data(inputFile, LabelParams(), SeparatorParams('\t'));
 
     std::vector<double> u = data.GetColumn<double>(colLabelA);
     std::vector<double> v = data.GetColumn<double>(colLabelB);
@@ -40,22 +36,13 @@ int main(int argc, const char* argv[]) {
     std::vector<double> uNoDup = perturbDuplicates(u);
     std::vector<double> vNoDup = perturbDuplicates(v);
 
-    std::vector<std::vector<double>> gpsPermutations;
+    std::cout.precision(35);
 
-    #pragma omp parallel for
-    for(int i = 0; i < cores; ++i) {
-      gpsPermutations.push_back(permuteAndSampleGps(uNoDup, vNoDup, drawsPerCore));
+    std::cout << "Trait_A\tPert_trait_A\tTrait_B\tPert_trait_B" << std::endl;
+
+    for(size_t i = 0; i < uNoDup.size(); ++i) {
+      std::cout << u[i] << "\t" << uNoDup[i] << "\t" << v[i] << "\t" << vNoDup[i] << std::endl;
     }
-
-    std::vector<double> gpsResults;
-
-    for(int i = 0; i < cores; ++i) {
-      for(int j = 0; j < drawsPerCore; ++j) {
-        gpsResults.push_back(gpsPermutations[i][j]);
-      }
-    }
-
-    for(auto i : gpsResults) std::cout << i << std::endl;
 
   } else {
       std::cout << desc << std::endl;

@@ -196,7 +196,12 @@ namespace gps {
       if(freqMap[values[i]] > 1) {
         //std::cout << values[i];
         // 2.22045e-16 is eps for doubles on my laptop
-        values[i] = values[i] + (freqMap[values[i]] * std::numeric_limits<double>::epsilon());
+        //values[i] = values[i] + (freqMap[values[i]] * std::numeric_limits<double>::epsilon());
+
+        for(int j = 1; j < freqMap[values[i]]; ++j) {
+          //values[i] = values[i] + (freqMap[values[i]] * std::numeric_limits<double>::epsilon());
+          values[i] = nextafter(values[i], DBL_MAX);
+        }
         //std::cout << ',' << values[i] << std::endl;
       }
     }
