@@ -12,6 +12,8 @@ int main(int argc, const char* argv[]) {
   po::options_description desc("Allowed options");
 
   std::string inputFile;
+  std::string aOutputFile;
+  std::string bOutputFile;
   std::string colLabelA;
   std::string colLabelB;
 
@@ -21,6 +23,8 @@ int main(int argc, const char* argv[]) {
     ("inputFile,i", po::value<std::string>(&inputFile), "Path to input file")
     ("colLabelA,a", po::value<std::string>(&colLabelA), "Label of column A")
     ("colLabelB,b", po::value<std::string>(&colLabelB), "Label of column B")
+    ("aOutputFile,c", po::value<std::string>(&aOutputFile), "Path to A output file")
+    ("bOutputFile,d", po::value<std::string>(&bOutputFile), "Path to B output file")
     ;
 
   po::variables_map vm;
@@ -36,14 +40,26 @@ int main(int argc, const char* argv[]) {
     std::vector<double> uNoDup = perturbDuplicates(u);
     std::vector<double> vNoDup = perturbDuplicates(v);
 
-    std::cout.precision(35);
+    std::map<double, int> uNoDupFreqMap = returnFreqMap(uNoDup);
+    std::map<double, int> vNoDupFreqMap = returnFreqMap(vNoDup);
 
-    std::cout << "Trait_A\tPert_trait_A\tTrait_B\tPert_trait_B" << std::endl;
+    std::stringstream aStringOutput;
 
     for(size_t i = 0; i < uNoDup.size(); ++i) {
-      std::cout << u[i] << "\t" << uNoDup[i] << "\t" << v[i] << "\t" << vNoDup[i] << std::endl;
+      aStringOutput << uNoDup[i] << "\t" << uNoDupFreqMap[uNoDup[i]] << std::endl;
     }
 
+    Document aOutput(aStringOutput, LabelParams(), SeparatorParams('\t'));
+    aOutput.Save(aOutputFile);
+
+    std::stringstream bStringOutput;
+
+    for(size_t i = 0; i < vNoDup.size(); ++i) {
+      bStringOutput << vNoDup[i] << "\t" << vNoDupFreqMap[vNoDup[i]] << std::endl;
+    }
+
+    Document bOutput(bStringOutput, LabelParams(), SeparatorParams('\t'));
+    bOutput.Save(bOutputFile);
   } else {
       std::cout << desc << std::endl;
   }

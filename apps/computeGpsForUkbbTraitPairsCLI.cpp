@@ -13,14 +13,10 @@ int main(int argc, const char* argv[]) {
 
   std::string inputFile;
   std::string outputFile;
-  std::string colLabelA;
-  std::string colLabelB;
 
   desc.add_options()
     ("help", "Print help message")
     ("inputFile,i", po::value<std::string>(&inputFile), "Path to input file")
-    ("colLabelA,a", po::value<std::string>(&colLabelA), "Label of column A")
-    ("colLabelB,b", po::value<std::string>(&colLabelB), "Label of column B")
     ("outputFile,o", po::value<std::string>(&outputFile), "Path to output file")
     ;
 
@@ -31,19 +27,26 @@ int main(int argc, const char* argv[]) {
   if(vm.count("inputFile")) {
     Document data(inputFile, LabelParams(), SeparatorParams('\t'));
 
-    std::vector<double> u = data.GetColumn<double>(colLabelA);
-    std::vector<double> v = data.GetColumn<double>(colLabelB);
-
-    std::vector<double> uNoDup = perturbDuplicates(u);
-    std::vector<double> vNoDup = perturbDuplicates(v);
-
-    double gps = gpsStat(uNoDup, vNoDup);
+    size_t noOfColumns = data.GetColumnCount();
 
     std::stringstream stringOutput;
 
-    stringOutput << "GPS" << std::endl;
+    stringOutput << "Trait_A\tTrait_B\tGPS" << std::endl;
 
-    stringOutput << gps << std::endl;
+    // Ignore variant column
+    for(size_t i = 1; i < noOfColumns-1; ++i) {
+      for(size_t j = i+1; j < noOfColumns; ++j) {
+        std::vector<double> u = data.GetColumn<double>(i);
+        std::vector<double> v = data.GetColumn<double>(j);
+
+        std::vector<double> uNoDup = perturbDuplicates(u);
+        std::vector<double> vNoDup = perturbDuplicates(v);
+
+        double gps = gpsStat(uNoDup, vNoDup);
+
+        stringOutput << data.GetColumnName(i) << '\t' << data.GetColumnName(j) << '\t' << gps << std::endl;
+      }
+    }
 
     Document output(stringOutput, LabelParams(), SeparatorParams('\t'));
     output.Save(outputFile);

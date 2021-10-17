@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <map>
 #include <boost/random.hpp>
 
 namespace gps {
@@ -20,4 +21,6 @@ namespace gps {
   std::vector<double> permuteAndSampleGps(std::vector<double> u, std::vector<double> v, size_t n);
 
   std::vector<double> perturbDuplicates(std::vector<double> values);
+
+  std::map<double, int> returnFreqMap(std::vector<double> values);
 }

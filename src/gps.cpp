@@ -194,19 +194,29 @@ namespace gps {
       freqMap[values[i]]++;
 
       if(freqMap[values[i]] > 1) {
-        //std::cout << values[i];
         // 2.22045e-16 is eps for doubles on my laptop
         //values[i] = values[i] + (freqMap[values[i]] * std::numeric_limits<double>::epsilon());
 
+        // TODO found that this works by accident, but it increments by more than epsilon
         for(int j = 1; j < freqMap[values[i]]; ++j) {
-          //values[i] = values[i] + (freqMap[values[i]] * std::numeric_limits<double>::epsilon());
-          values[i] = nextafter(values[i], DBL_MAX);
+          values[i] = values[i] + std::numeric_limits<double>::epsilon();
+          //values[i] = nextafter(values[i], DBL_MAX);
         }
         //std::cout << ',' << values[i] << std::endl;
       }
     }
 
     return values;
+  }
+
+  std::map<double, int> returnFreqMap(std::vector<double> values) {
+    std::map<double, int> freqMap;
+
+    for(size_t i = 0; i < values.size(); ++i){
+      freqMap[values[i]]++;
+    }
+
+    return freqMap;
   }
 
 }
