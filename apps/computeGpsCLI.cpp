@@ -47,7 +47,7 @@ int main(int argc, const char* argv[]) {
 
     stringOutput << "Trait_A\tTrait_B\tGPS" << std::endl;
 
-    stringOutput << traitA << "\t" << traitB "\t" << gps << std::endl;
+    stringOutput << traitA << "\t" << traitB << "\t" << gps << std::endl;
 
     Document output(stringOutput, LabelParams(), SeparatorParams('\t'));
     output.Save(outputFile);
