@@ -14,7 +14,7 @@ add_executable(permuteProblem permuteProblem.cpp)
 
 target_include_directories(permuteProblem PUBLIC "${CMAKE_SOURCE_DIR}/include/gps" "${Boost_INCLUDE_DIRS}")
 
-target_link_libraries(permuteProblem Boost::program_options Gps rapidcsv)
+target_link_libraries(permuteProblem Boost::program_options Boost::random Boost::math_c99 Gps rapidcsv)
 
 add_executable(computeGpsForUkbbTraitPairsCLI computeGpsForUkbbTraitPairsCLI.cpp)
 
