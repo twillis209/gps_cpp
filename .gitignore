@@ -7,3 +7,4 @@ u_v_unif_n_1999556.csv
 *.tsv*
 machine.file.*
 *.out
+pruned_pid_ra.tsv

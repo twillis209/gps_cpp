@@ -1,6 +1,8 @@
 #include <iostream>
+#include <map>
 #include <gps.hpp>
 #include <rapidcsv.h>
+#include <random>
 #include <boost/program_options.hpp>
 
 namespace po = boost::program_options;
@@ -8,13 +10,30 @@ using namespace po;
 using namespace gps;
 using namespace rapidcsv;
 
-std::vector<double> perturbDuplicates_eps(std::vector<double> values) {
+std::vector<double> perturbDuplicates_nextafter(std::vector<double> values) {
   std::map<double, int> freqMap;
 
   for(size_t i = 0; i < values.size(); ++i){
     freqMap[values[i]]++;
 
     if(freqMap[values[i]] > 1) {
+      for(int j = 1; j < freqMap[values[i]]; ++j) {
+        values[i] = nextafter(values[i], DBL_MAX);
+      }
+    }
+  }
+
+  return values;
+}
+
+std::vector<double> perturbDuplicates_addEpsilon(std::vector<double> values) {
+  std::map<double, int> freqMap;
+
+  for(size_t i = 0; i < values.size(); ++i){
+    freqMap[values[i]]++;
+
+    if(freqMap[values[i]] > 1) {
+      // TODO found that this works by accident, but it increments by more than epsilon
       for(int j = 1; j < freqMap[values[i]]; ++j) {
         values[i] = values[i] + std::numeric_limits<double>::epsilon();
       }
@@ -24,24 +43,37 @@ std::vector<double> perturbDuplicates_eps(std::vector<double> values) {
   return values;
 }
 
-std::vector<double> perturbDuplicates_nextafter_while(std::vector<double> values) {
+std::vector<double> perturbDuplicates_addVariable(std::vector<double> values, double addend) {
   std::map<double, int> freqMap;
-  std::map<double, int> lastIndexMap;
 
   for(size_t i = 0; i < values.size(); ++i){
     freqMap[values[i]]++;
 
-    // TODO don't think this works
     if(freqMap[values[i]] > 1) {
-      double prev = values[lastIndexMap[values[i]]];
-      double val = prev;
-      while(val == prev) {
-        val = nextafter(val, 1.0);
+      // TODO found that this works by accident, but it increments by more than epsilon
+      for(int j = 1; j < freqMap[values[i]]; ++j) {
+        values[i] += addend;
       }
-      lastIndexMap[values[i]] = i;
-      values[i] = val;
-    } else {
-      lastIndexMap[values[i]] = i;
+    }
+  }
+
+  return values;
+}
+
+std::vector<double> perturbDuplicates_addUnif(std::vector<double> values) {
+  std::mt19937 gen(42);
+  std::uniform_real_distribution unif(0.0, 1e-10);
+
+  std::map<double, int> freqMap;
+
+  for(size_t i = 0; i < values.size(); ++i){
+    freqMap[values[i]]++;
+
+    if(freqMap[values[i]] > 1) {
+      // TODO found that this works by accident, but it increments by more than epsilon
+      for(int j = 1; j < freqMap[values[i]]; ++j) {
+        values[i] += unif(gen);
+      }
     }
   }
 
@@ -77,8 +109,11 @@ int main(int argc, const char* argv[]) {
     std::vector<double> u = data.GetColumn<double>(colLabelA);
     std::vector<double> v = data.GetColumn<double>(colLabelB);
 
-    std::vector<double> uNoDup = perturbDuplicates_nextafter_while(u);
-    std::vector<double> vNoDup = perturbDuplicates_nextafter_while(v);
+    std::map<double, int> uFreqMap = returnFreqMap(u);
+    std::map<double, int> vFreqMap = returnFreqMap(v);
+
+    std::vector<double> uNoDup = perturbDuplicates_addUnif(u);
+    std::vector<double> vNoDup = perturbDuplicates_addUnif(v);
 
     std::map<double, int> uNoDupFreqMap = returnFreqMap(uNoDup);
     std::map<double, int> vNoDupFreqMap = returnFreqMap(vNoDup);
@@ -86,7 +121,7 @@ int main(int argc, const char* argv[]) {
     std::stringstream aStringOutput;
 
     for(size_t i = 0; i < uNoDup.size(); ++i) {
-      aStringOutput << uNoDup[i] << "\t" << uNoDupFreqMap[uNoDup[i]] << std::endl;
+      aStringOutput << u[i] << "\t" << uFreqMap[u[i]] << "\t" << uNoDup[i] << "\t" << uNoDupFreqMap[uNoDup[i]] << std::endl;
     }
 
     Document aOutput(aStringOutput, LabelParams(), SeparatorParams('\t'));
@@ -95,13 +130,25 @@ int main(int argc, const char* argv[]) {
     std::stringstream bStringOutput;
 
     for(size_t i = 0; i < vNoDup.size(); ++i) {
-      bStringOutput << vNoDup[i] << "\t" << vNoDupFreqMap[vNoDup[i]] << std::endl;
+      bStringOutput << v[i] << "\t" << vFreqMap[v[i]] << "\t" << vNoDup[i] << "\t" << vNoDupFreqMap[vNoDup[i]] << std::endl;
     }
 
     Document bOutput(bStringOutput, LabelParams(), SeparatorParams('\t'));
     bOutput.Save(bOutputFile);
   } else {
       std::cout << desc << std::endl;
+
+      // TODO remove me
+      double testDoubleA = 0.1;
+      double testDoubleB = nextafter(testDoubleA, 1.0);
+      double testDoubleC = nextafter(testDoubleA, DBL_MAX);
+
+      std::cout.precision(20);
+
+      std::cout << testDoubleA << std::endl;
+      std::cout << testDoubleB << std::endl;
+      std::cout << testDoubleC << std::endl;
+      std::cout << (testDoubleA == testDoubleB) << std::endl;
   }
 
   return 0;
