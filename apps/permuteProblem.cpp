@@ -8,6 +8,46 @@ using namespace po;
 using namespace gps;
 using namespace rapidcsv;
 
+std::vector<double> perturbDuplicates_eps(std::vector<double> values) {
+  std::map<double, int> freqMap;
+
+  for(size_t i = 0; i < values.size(); ++i){
+    freqMap[values[i]]++;
+
+    if(freqMap[values[i]] > 1) {
+      for(int j = 1; j < freqMap[values[i]]; ++j) {
+        values[i] = values[i] + std::numeric_limits<double>::epsilon();
+      }
+    }
+  }
+
+  return values;
+}
+
+std::vector<double> perturbDuplicates_nextafter_while(std::vector<double> values) {
+  std::map<double, int> freqMap;
+  std::map<double, int> lastIndexMap;
+
+  for(size_t i = 0; i < values.size(); ++i){
+    freqMap[values[i]]++;
+
+    // TODO don't think this works
+    if(freqMap[values[i]] > 1) {
+      double prev = values[lastIndexMap[values[i]]];
+      double val = prev;
+      while(val == prev) {
+        val = nextafter(val, 1.0);
+      }
+      lastIndexMap[values[i]] = i;
+      values[i] = val;
+    } else {
+      lastIndexMap[values[i]] = i;
+    }
+  }
+
+  return values;
+}
+
 int main(int argc, const char* argv[]) {
   po::options_description desc("Allowed options");
 
@@ -37,8 +77,8 @@ int main(int argc, const char* argv[]) {
     std::vector<double> u = data.GetColumn<double>(colLabelA);
     std::vector<double> v = data.GetColumn<double>(colLabelB);
 
-    std::vector<double> uNoDup = perturbDuplicates(u);
-    std::vector<double> vNoDup = perturbDuplicates(v);
+    std::vector<double> uNoDup = perturbDuplicates_nextafter_while(u);
+    std::vector<double> vNoDup = perturbDuplicates_nextafter_while(v);
 
     std::map<double, int> uNoDupFreqMap = returnFreqMap(uNoDup);
     std::map<double, int> vNoDupFreqMap = returnFreqMap(vNoDup);

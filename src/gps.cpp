@@ -199,8 +199,7 @@ namespace gps {
 
         // TODO found that this works by accident, but it increments by more than epsilon
         for(int j = 1; j < freqMap[values[i]]; ++j) {
-          values[i] = values[i] + std::numeric_limits<double>::epsilon();
-          //values[i] = nextafter(values[i], DBL_MAX);
+          values[i] = values[i] + (freqMap[values[i]] * std::numeric_limits<double>::epsilon());
         }
         //std::cout << ',' << values[i] << std::endl;
       }

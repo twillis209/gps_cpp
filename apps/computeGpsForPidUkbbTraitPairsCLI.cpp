@@ -33,21 +33,19 @@ int main(int argc, const char* argv[]) {
 
     stringOutput << "Trait_A\tTrait_B\tGPS" << std::endl;
 
-    // Ignore variant column
-    for(size_t i = 1; i < noOfColumns-1; ++i) {
-      for(size_t j = i+1; j < noOfColumns; ++j) {
-        std::cout << "i " << i << " j " << j << std::endl;
-        std::vector<double> u = data.GetColumn<double>(i);
-        std::vector<double> v = data.GetColumn<double>(j);
+    std::vector<double> u = data.GetColumn<double>(4);
+    std::vector<double> uNoDup = perturbDuplicates(u);
 
-        std::vector<double> uNoDup = perturbDuplicates(u);
+    // Ignore variant column
+    for(size_t i = 6; i < 27; ++i) {
+      //std::cout << "pid " << " i " << i << std::endl;
+        std::vector<double> v = data.GetColumn<double>(i);
         std::vector<double> vNoDup = perturbDuplicates(v);
 
         double gps = gpsStat(uNoDup, vNoDup);
 
-        stringOutput << data.GetColumnName(i) << '\t' << data.GetColumnName(j) << '\t' << gps << std::endl;
-      }
-    }
+        stringOutput << "pid" << '\t' << data.GetColumnName(i) << '\t' << gps << std::endl;
+     }
 
     Document output(stringOutput, LabelParams(), SeparatorParams('\t'));
     output.Save(outputFile);
