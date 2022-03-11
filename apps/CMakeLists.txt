@@ -27,3 +27,9 @@ add_executable(computeGpsForPidUkbbTraitPairsCLI computeGpsForPidUkbbTraitPairsC
 target_include_directories(computeGpsForPidUkbbTraitPairsCLI PUBLIC "${CMAKE_SOURCE_DIR}/include/gps" "${Boost_INCLUDE_DIRS}")
 
 target_link_libraries(computeGpsForPidUkbbTraitPairsCLI Boost::program_options Gps rapidcsv)
+
+add_executable(fitAndEvaluateEcdfsCLI fitAndEvaluateEcdfsCLI.cpp)
+
+target_include_directories(fitAndEvaluateEcdfsCLI PUBLIC "${CMAKE_SOURCE_DIR}/include/gps" "${Boost_INCLUDE_DIRS}")
+
+target_link_libraries(fitAndEvaluateEcdfsCLI Boost::program_options Gps rapidcsv)
