@@ -4,6 +4,12 @@ target_include_directories(computeGpsCLI PUBLIC "${CMAKE_SOURCE_DIR}/include/gps
 
 target_link_libraries(computeGpsCLI Boost::program_options Gps rapidcsv)
 
+add_executable(computeGpsNoPerturbCLI computeGpsNoPerturbCLI.cpp)
+
+target_include_directories(computeGpsNoPerturbCLI PUBLIC "${CMAKE_SOURCE_DIR}/include/gps" "${Boost_INCLUDE_DIRS}")
+
+target_link_libraries(computeGpsNoPerturbCLI Boost::program_options Gps rapidcsv)
+
 add_executable(permuteTraitsCLI permuteTraitsCLI.cpp)
 
 target_include_directories(permuteTraitsCLI PUBLIC "${CMAKE_SOURCE_DIR}/include/gps" "${Boost_INCLUDE_DIRS}")
