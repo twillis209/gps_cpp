@@ -46,7 +46,7 @@ int main(int argc, const char* argv[]) {
 
     std::stringstream stringOutput;
 
-    stringOutput << "u\tv\tF(u)\tF(v)\tF(u,v)" << std::endl;
+    stringOutput << "u\tv\tF_u\tF_v\tF_uv" << std::endl;
 
     for(int i = 0; i < uNoDup.size(); i++) {
       stringOutput << uNoDup[i] << "\t" << vNoDup[i] << "\t" << uEcdf[i] << "\t" << vEcdf[i] << "\t" << bivariateEcdf[i] << std::endl;
