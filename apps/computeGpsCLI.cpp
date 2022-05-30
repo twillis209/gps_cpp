@@ -2,6 +2,7 @@
 #include <gps.hpp>
 #include <boost/program_options.hpp>
 #include <rapidcsv.h>
+#include <omp.h>
 
 namespace po = boost::program_options;
 using namespace po;
@@ -18,6 +19,8 @@ int main(int argc, const char* argv[]) {
   std::string colLabelA;
   std::string colLabelB;
   bool lwFlag = false;
+  bool perturbFlag = false;
+  int cores = 1;
 
   desc.add_options()
     ("help", "Print help message")
@@ -28,6 +31,9 @@ int main(int argc, const char* argv[]) {
     ("traitB,d", po::value<std::string>(&traitB), "Trait B")
     ("outputFile,o", po::value<std::string>(&outputFile), "Path to output file")
     ("lwFlag,l", po::bool_switch(&lwFlag), "Flag to use the fast bivariate ecdf algorithm from Langrene and Warin")
+    ("lwFlag,l", po::bool_switch(&lwFlag), "Flag to use the fast bivariate ecdf algorithm from Langrene and Warin")
+    ("perturbFlag,p", po::bool_switch(&perturbFlag), "Flag to use the fast bivariate ecdf algorithm from Langrene and Warin")
+    ("cores,c", po::value<int>(&cores), "No. of cores")
     ;
 
   po::variables_map vm;
@@ -40,15 +46,19 @@ int main(int argc, const char* argv[]) {
     std::vector<double> u = data.GetColumn<double>(colLabelA);
     std::vector<double> v = data.GetColumn<double>(colLabelB);
 
-    std::vector<double> uNoDup = perturbDuplicates(u);
-    std::vector<double> vNoDup = perturbDuplicates(v);
+    if(perturbFlag) {
+      u = perturbDuplicates(u);
+      v = perturbDuplicates(v);
+    }
+
+    omp_set_num_threads(cores);
 
     double gps;
 
     if(lwFlag) {
-      gps = gpsStat(uNoDup, vNoDup, &bivariateEcdfLW);
+      gps = gpsStat(u, v, &bivariateEcdfLW);
     } else {
-      gps = gpsStat(uNoDup, vNoDup, &bivariateEcdfPar);
+      gps = gpsStat(u, v, &bivariateEcdfPar);
     }
 
     std::stringstream stringOutput;
