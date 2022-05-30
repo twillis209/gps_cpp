@@ -48,7 +48,7 @@ int main(int argc, const char* argv[]) {
 
     #pragma omp parallel for
     for(int k = 0; k < cores; ++k) {
-      gpsPermutations.push_back(permuteAndSampleGps(uNoDup, vNoDup, drawsPerCore));
+      gpsPermutations.push_back(permuteAndSampleGps(uNoDup, vNoDup, drawsPerCore, &bivariateEcdfLW));
     }
 
     std::stringstream stringOutput;

@@ -43,7 +43,7 @@ int main(int argc, const char* argv[]) {
         std::vector<double> uNoDup = perturbDuplicates(u);
         std::vector<double> vNoDup = perturbDuplicates(v);
 
-        double gps = gpsStat(uNoDup, vNoDup);
+        double gps = gpsStat(uNoDup, vNoDup, &bivariateEcdfLW);
 
         stringOutput << data.GetColumnName(i) << '\t' << data.GetColumnName(j) << '\t' << gps << std::endl;
       }

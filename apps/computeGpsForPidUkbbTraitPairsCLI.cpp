@@ -42,7 +42,7 @@ int main(int argc, const char* argv[]) {
         std::vector<double> v = data.GetColumn<double>(i);
         std::vector<double> vNoDup = perturbDuplicates(v);
 
-        double gps = gpsStat(uNoDup, vNoDup);
+        double gps = gpsStat(uNoDup, vNoDup, &bivariateEcdfLW);
 
         stringOutput << "pid" << '\t' << data.GetColumnName(i) << '\t' << gps << std::endl;
      }

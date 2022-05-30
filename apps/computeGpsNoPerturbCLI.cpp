@@ -38,7 +38,7 @@ int main(int argc, const char* argv[]) {
     std::vector<double> u = data.GetColumn<double>(colLabelA);
     std::vector<double> v = data.GetColumn<double>(colLabelB);
 
-    double gps = gpsStat(u, v);
+    double gps = gpsStat(u, v, &bivariateEcdfLW);
 
     std::stringstream stringOutput;
 

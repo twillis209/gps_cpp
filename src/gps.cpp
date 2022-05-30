@@ -28,8 +28,7 @@ namespace gps {
     return estEcdf;
   }
 
-
-  double gpsStat(std::vector<double> u, std::vector<double> v) {
+  double gpsStat(std::vector<double> u, std::vector<double> v, std::function<std::vector<double>(const std::vector<double>&, const std::vector<double>&)> bivariateEcdf) {
     if(u.size() != v.size()) {
       throw std::invalid_argument("Size of u and v differs.");
     }
@@ -44,12 +43,12 @@ namespace gps {
     std::vector<double> uEcdf = ecdf(u);
     std::vector<double> vEcdf = ecdf(v);
 
-    std::vector<double> bivariateEcdf = bivariateEcdfLW(u, v);
+    std::vector<double> bivariateEcdfVec = bivariateEcdf(u, v);
 
     double max = -std::numeric_limits<double>::max();
 
     for(int i = 0; i < n; ++i) {
-      double cdf_uv = bivariateEcdf[i];
+      double cdf_uv = bivariateEcdfVec[i];
       double cdf_u = uEcdf[i];
       double cdf_v = vEcdf[i];
       double denom = sqrt(cdf_u*cdf_v - pow(cdf_u, 2.)*pow(cdf_v, 2.));
@@ -113,72 +112,17 @@ namespace gps {
     return ecdf;
   }
 
-  std::vector<double> mix_rexp(size_t n, boost::mt19937& mt, double altRate = 5, double altWeight = 0.01, bool pvalScale = false) {
-  boost::variate_generator<boost::mt19937&, boost::exponential_distribution<>> exp_1(mt, boost::exponential_distribution<>(1));
-
-  boost::variate_generator<boost::mt19937&, boost::exponential_distribution<>> exp_alt(mt, boost::exponential_distribution<>(altRate));
-
-  boost::uniform_01<boost::mt19937&> unif(mt);
-
-  std::vector<double> sample;
-
-  sample.reserve(n);
-
-  for(int i = 0; i < n; ++i) {
-    double variate = (unif() <= altWeight ? exp_alt() : exp_1());
-    sample.push_back(variate);
-  }
-
-  if(pvalScale) std::transform(sample.begin(), sample.end(), sample.begin(), [](double d) -> double { return exp(-d);});
-
-  return sample;
-}
-
-  std::vector<double> rgps(size_t n, boost::mt19937& mt, double altRate = 5, double altWeight = 0.01, size_t noOfSnps = 1e4) {
-
-  std::vector<double> gpsSample;
-
-  gpsSample.reserve(n);
-
-  for(int i = 0; i < n; ++i) {
-    int j = 1;
-
-    double gps = NULL;
-
-    // Will only try 10 times
-    while(j < 11 && gps == NULL) {
-      std::vector<double> expSample_1 = mix_rexp(noOfSnps, mt, altRate, altWeight, true);
-      std::vector<double> expSample_2 = mix_rexp(noOfSnps, mt, altRate, altWeight, true);
-
-      expSample_1 = perturbDuplicates(expSample_1);
-      expSample_2 = perturbDuplicates(expSample_2);
-
-      if(!(std::distance(expSample_1.begin(), std::max_element(expSample_1.begin(), expSample_1.end())) == std::distance(expSample_2.begin(), std::max_element(expSample_2.begin(), expSample_2.end())))) {
-          gps = gpsStat(expSample_1, expSample_2);
-        }
-
-      ++j;
-    }
-
-    gpsSample.push_back(gps);
-  }
-
-  return gpsSample;
-}
-
   // TODO can make this faster by fitting the univariate ecdfs once
-  std::vector<double> permuteAndSampleGps(std::vector<double> u, std::vector<double> v, size_t n) {
+  std::vector<double> permuteAndSampleGps(std::vector<double> u, std::vector<double> v, size_t n, std::function<std::vector<double>(const std::vector<double>&, const std::vector<double>&)> bivariateEcdf) {
     std::vector<double> sample;
 
     size_t i = 0;
 
     while(i < n) {
-      // TODO need to pass a generator to these
-      boost::range::random_shuffle(u);
       boost::range::random_shuffle(v);
 
       if(std::distance(u.begin(), std::max_element(u.begin(), u.end())) != std::distance(v.begin(), std::max_element(v.begin(), v.end()))) {
-        sample.push_back(gpsStat(u,v));
+        sample.push_back(gpsStat(u, v, bivariateEcdf));
         ++i;
       }
 
