@@ -17,6 +17,7 @@ int main(int argc, const char* argv[]) {
   std::string traitB;
   std::string colLabelA;
   std::string colLabelB;
+  bool lwFlag = false;
 
   desc.add_options()
     ("help", "Print help message")
@@ -26,6 +27,7 @@ int main(int argc, const char* argv[]) {
     ("traitA,c", po::value<std::string>(&traitA), "Trait A")
     ("traitB,d", po::value<std::string>(&traitB), "Trait B")
     ("outputFile,o", po::value<std::string>(&outputFile), "Path to output file")
+    ("lwFlag,l", po::bool_switch(&lwFlag), "Flag to use the fast bivariate ecdf algorithm from Langrene and Warin")
     ;
 
   po::variables_map vm;
@@ -41,7 +43,13 @@ int main(int argc, const char* argv[]) {
     std::vector<double> uNoDup = perturbDuplicates(u);
     std::vector<double> vNoDup = perturbDuplicates(v);
 
-    double gps = gpsStat(uNoDup, vNoDup, &bivariateEcdfLW);
+    double gps;
+
+    if(lwFlag) {
+      gps = gpsStat(uNoDup, vNoDup, &bivariateEcdfLW);
+    } else {
+      gps = gpsStat(uNoDup, vNoDup, &bivariateEcdfPar);
+    }
 
     std::stringstream stringOutput;
 
