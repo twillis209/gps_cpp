@@ -19,23 +19,19 @@ int main(int argc, const char* argv[]) {
   std::string colLabelA;
   std::string colLabelB;
   std::string perturbFn;
+  double epsilonMultiple = 2.0;
 
   desc.add_options()
     ("help", "Print help message")
     ("inputFile,i", po::value<std::string>(&inputFile), "Path to input file")
     ("colLabelA,a", po::value<std::string>(&colLabelA), "Label of column A")
     ("colLabelB,b", po::value<std::string>(&colLabelB), "Label of column B")
-    ("perturbFn,f", po::value<std::string>(&perturbFn), "Perturbation function")
+    ("epsilonMultiple,e", po::value<double>(&epsilonMultiple), "Multiple of epsilon to use in perturbation procedure")
     ;
 
   po::variables_map vm;
   po::store(po::parse_command_line(argc, argv, desc), vm);
   po::notify(vm);
-
-  std::map<std::string, std::function<std::vector<double>(std::vector<double>)>> fnMap =
-    {{"nextafter", perturbDuplicates},
-     {"addEpsilon", perturbDuplicates_addEpsilon}
-    };
 
   if(vm.count("inputFile")) {
     Document data(inputFile, LabelParams(), SeparatorParams('\t'));
@@ -46,32 +42,20 @@ int main(int argc, const char* argv[]) {
     std::map<double, int> uFreqMap = returnFreqMap(u);
     std::map<double, int> vFreqMap = returnFreqMap(v);
 
-    std::vector<double> uNoDup;
-    std::vector<double> vNoDup;
+    std::vector<double> uNoDup = perturbDuplicates_addEpsilon(u, epsilonMultiple);
+    std::vector<double> vNoDup = perturbDuplicates_addEpsilon(v, epsilonMultiple);
 
     for(size_t i = 0; i < 99; ++i) {
-      u = fnMap[perturbFn](u);
-      v = fnMap[perturbFn](v);
+      uNoDup = perturbDuplicates_addEpsilon(uNoDup, epsilonMultiple);
+      vNoDup = perturbDuplicates_addEpsilon(vNoDup, epsilonMultiple);
     }
-
-    uNoDup = u;
-    vNoDup = v;
-
-    /*
-    for(size_t i = 0; i < u.size(); ++i) {
-      if(u[i] != 1.0 && v[i] != 1.0) {
-        uNoDup.push_back(u[i]);
-        vNoDup.push_back(v[i]);
-      }
-    }
-    */
 
     std::map<double, int> uNoDupFreqMap = returnFreqMap(uNoDup);
     std::map<double, int> vNoDupFreqMap = returnFreqMap(vNoDup);
 
     std::cout.precision(20);
 
-    for(size_t i = 0; i < uNoDup.size(); ++i) {
+    for(size_t i = 0; i < u.size(); ++i) {
       std::cout << u[i] << "\t" << uFreqMap[u[i]] << "\t" << uNoDup[i] << "\t" << uNoDupFreqMap[uNoDup[i]] << "\t" << v[i] << "\t" << vFreqMap[u[i]] << "\t" << vNoDup[i] << "\t" << vNoDupFreqMap[vNoDup[i]] << std::endl;
     }
   } else {
