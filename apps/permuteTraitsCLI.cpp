@@ -39,16 +39,20 @@ int main(int argc, const char* argv[]) {
     std::vector<double> u = input.GetColumn<double>(columnA);
     std::vector<double> v = input.GetColumn<double>(columnB);
 
-    std::vector<double> uNoDup = perturbDuplicates(u);
-    std::vector<double> vNoDup = perturbDuplicates(v);
+    for(size_t i = 0; i < 100; ++i) {
+      u = perturbDuplicates_addEpsilon(u);
+      v = perturbDuplicates_addEpsilon(v);
+    }
 
     std::vector<std::vector<double>> gpsPermutations;
 
     int drawsPerCore = draws / cores;
 
+    omp_set_num_threads(cores);
+
     #pragma omp parallel for
     for(int k = 0; k < cores; ++k) {
-      gpsPermutations.push_back(permuteAndSampleGps(uNoDup, vNoDup, drawsPerCore, &bivariateEcdfLW));
+      gpsPermutations.push_back(permuteAndSampleGps(u, v, drawsPerCore, &bivariateEcdfLW));
     }
 
     std::stringstream stringOutput;

@@ -21,6 +21,12 @@ FetchContent_Declare(
   GIT_SHALLOW TRUE)
 FetchContent_MakeAvailable(rapidcsv)
 
+FetchContent_Declare(
+  DataFrame
+  GIT_REPOSITORY https://github.com/hosseinmoein/DataFrame.git
+  GIT_SHALLOW TRUE)
+FetchContent_MakeAvailable(DataFrame)
+
 add_subdirectory(StOptCDF)
 add_subdirectory(src)
 add_subdirectory(apps)
