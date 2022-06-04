@@ -27,6 +27,11 @@ FetchContent_Declare(
   GIT_SHALLOW TRUE)
 FetchContent_MakeAvailable(DataFrame)
 
+#FetchContent_Declare(
+#  csv
+#  GIT_REPOSITORY https://github.com/ben-strasser/fast-cpp-csv-parser.git  GIT_SHALLOW TRUE)
+#FetchContent_MakeAvailable(csv)
+
 add_subdirectory(StOptCDF)
 add_subdirectory(src)
 add_subdirectory(apps)

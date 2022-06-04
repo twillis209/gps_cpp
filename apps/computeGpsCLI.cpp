@@ -2,26 +2,25 @@
 #include <gps.hpp>
 #include <boost/program_options.hpp>
 #include <rapidcsv.h>
-#include <DataFrame/DataFrame.h> 
 #include <omp.h>
 
 namespace po = boost::program_options;
 using namespace po;
 using namespace gps;
 using namespace rapidcsv;
-using namespace hmdf;
 
 int main(int argc, const char* argv[]) {
   po::options_description desc("Allowed options");
 
   std::string inputFile;
   std::string outputFile;
+  std::string logFile;
   std::string traitA;
   std::string traitB;
   std::string colLabelA;
   std::string colLabelB;
   bool lwFlag = false;
-  bool perturbFlag = false;
+  int perturbN = 0;
   double epsilonMultiple = 2.0;
   int cores = 1;
 
@@ -33,8 +32,9 @@ int main(int argc, const char* argv[]) {
     ("traitA,c", po::value<std::string>(&traitA), "Trait A")
     ("traitB,d", po::value<std::string>(&traitB), "Trait B")
     ("outputFile,o", po::value<std::string>(&outputFile), "Path to output file")
+    ("logFile,g", po::value<std::string>(&logFile), "Path to log file")
     ("lwFlag,l", po::bool_switch(&lwFlag), "Flag to use the fast bivariate ecdf algorithm from Langrene and Warin")
-    ("perturbFlag,p", po::bool_switch(&perturbFlag), "Flag to use perturbation")
+    ("perturbN,p", po::value<int>(&perturbN), "No. of perturbation iterations")
     ("epsilonMultiple,e", po::value<double>(&epsilonMultiple), "Multiple of epsilon to use in perturbation procedure")
     ("cores,n", po::value<int>(&cores), "No. of cores")
     ;
@@ -46,17 +46,44 @@ int main(int argc, const char* argv[]) {
   if(vm.count("inputFile")) {
     Document data(inputFile, LabelParams(), SeparatorParams('\t'));
 
-    std::vector<double> u = data.GetColumn<double>(colLabelA);
-    std::vector<double> v = data.GetColumn<double>(colLabelB);
+    std::stringstream logOutput;
+
+    logOutput << "Trait\tRow" << std::endl;
+
+    std::vector<double> u;
+    std::vector<double> v;
+
+    try {
+      u = data.GetColumn<double>(colLabelA);
+    } catch(std::out_of_range stod){
+      for(size_t i = 0; i < data.GetRowCount(); ++i){
+        try {
+          u.push_back(data.GetCell<double>(colLabelA, i));
+        } catch(std::out_of_range stod) {
+          u.push_back(1.0);
+          logOutput << traitA << "\t" << i+1 << std::endl;
+        }
+      }
+    }
+
+    try {
+      v = data.GetColumn<double>(colLabelB);
+    } catch(std::out_of_range stod){
+      for(size_t i = 0; i < data.GetRowCount(); ++i){
+        try {
+          v.push_back(data.GetCell<double>(colLabelB, i));
+        } catch(std::out_of_range stod) {
+          v.push_back(1.0);
+          logOutput << traitB << "\t" << i+1 << std::endl;
+        }
+      }
+    }
 
     double gps;
 
-    if(perturbFlag) {
-
-      for(size_t i = 0; i < 100; ++i) {
-        u = perturbDuplicates_addEpsilon(u, epsilonMultiple);
-        v = perturbDuplicates_addEpsilon(v, epsilonMultiple);
-      }
+    for(size_t i = 0; i < perturbN; ++i) {
+      u = perturbDuplicates_addEpsilon(u, epsilonMultiple);
+      v = perturbDuplicates_addEpsilon(v, epsilonMultiple);
     }
 
     omp_set_num_threads(cores);
@@ -75,6 +102,8 @@ int main(int argc, const char* argv[]) {
 
     Document output(stringOutput, LabelParams(), SeparatorParams('\t'));
     output.Save(outputFile);
+    Document log(logOutput, LabelParams(), SeparatorParams('\t'));
+    log.Save(logFile);
   } else {
       std::cout << desc << std::endl;
   }
