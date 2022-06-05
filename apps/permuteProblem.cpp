@@ -18,8 +18,8 @@ int main(int argc, const char* argv[]) {
   std::string bOutputFile;
   std::string colLabelA;
   std::string colLabelB;
-  std::string perturbFn;
   double epsilonMultiple = 2.0;
+  int perturbN = 100;
 
   desc.add_options()
     ("help", "Print help message")
@@ -27,6 +27,7 @@ int main(int argc, const char* argv[]) {
     ("colLabelA,a", po::value<std::string>(&colLabelA), "Label of column A")
     ("colLabelB,b", po::value<std::string>(&colLabelB), "Label of column B")
     ("epsilonMultiple,e", po::value<double>(&epsilonMultiple), "Multiple of epsilon to use in perturbation procedure")
+    ("perturbN,p", po::value<int>(&perturbN), "No. of perturbation iterations")
     ;
 
   po::variables_map vm;
@@ -45,9 +46,16 @@ int main(int argc, const char* argv[]) {
     std::vector<double> uNoDup = perturbDuplicates_addEpsilon(u, epsilonMultiple);
     std::vector<double> vNoDup = perturbDuplicates_addEpsilon(v, epsilonMultiple);
 
-    for(size_t i = 0; i < 99; ++i) {
+    for(size_t i = 0; i < (perturbN-1); ++i) {
       uNoDup = perturbDuplicates_addEpsilon(uNoDup, epsilonMultiple);
       vNoDup = perturbDuplicates_addEpsilon(vNoDup, epsilonMultiple);
+    }
+
+    for(size_t i = 0; i < u.size(); ++i) {
+      if(uNoDup[i] > 1.0 || vNoDup[i] > 1.0) {
+        uNoDup[i] = -1.0;
+        vNoDup[i] = -1.0;
+      }
     }
 
     std::map<double, int> uNoDupFreqMap = returnFreqMap(uNoDup);

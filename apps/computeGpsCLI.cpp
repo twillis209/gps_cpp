@@ -86,6 +86,13 @@ int main(int argc, const char* argv[]) {
       v = perturbDuplicates_addEpsilon(v, epsilonMultiple);
     }
 
+    for(size_t i = 0; i < u.size(); ++i) {
+      if(u[i] > 1.0 || v[i] > 1.0) {
+        u.erase(u.end()-(i+1));
+        v.erase(v.end()-(i+1));
+      }
+    }
+
     omp_set_num_threads(cores);
 
     if(lwFlag) {
