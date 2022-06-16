@@ -16,6 +16,7 @@ int main(int argc, const char* argv[]) {
   std::string outputFile;
   std::string columnA;
   std::string columnB;
+  int perturbN = 0;
   double epsilonMultiple = 2.0;
   int cores;
   int draws;
@@ -26,6 +27,7 @@ int main(int argc, const char* argv[]) {
     ("outputFile,o", po::value<std::string>(&outputFile), "Path to output file")
     ("columnA,a", po::value<std::string>(&columnA), "Label of column A")
     ("columnB,b", po::value<std::string>(&columnB), "Label of column B")
+    ("perturbN,p", po::value<int>(&perturbN), "No. of perturbation iterations")
     ("epsilonMultiple,e", po::value<double>(&epsilonMultiple), "Multiple of epsilon to use in perturbation procedure")
     ("cores,c", po::value<int>(&cores), "No. of cores")
     ("draws,n", po::value<int>(&draws), "No. of draws")
@@ -41,7 +43,7 @@ int main(int argc, const char* argv[]) {
     std::vector<double> u = input.GetColumn<double>(columnA);
     std::vector<double> v = input.GetColumn<double>(columnB);
 
-    for(size_t i = 0; i < 100; ++i) {
+    for(size_t i = 0; i < perturbN; ++i) {
       u = perturbDuplicates_addEpsilon(u, epsilonMultiple);
       v = perturbDuplicates_addEpsilon(v, epsilonMultiple);
     }
