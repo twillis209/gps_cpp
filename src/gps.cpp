@@ -6,6 +6,7 @@
 #include <boost/range/algorithm/random_shuffle.hpp>
 #include <math.h>
 #include <map>
+#include <omp.h>
 
 using namespace Eigen;
 using boost::math::empirical_cumulative_distribution_function;
@@ -138,14 +139,26 @@ namespace gps {
       freqMap[values[i]]++;
 
       if(freqMap[values[i]] > 1) {
-        // 2.22045e-16 is eps for doubles on my laptop
-        //values[i] = values[i] + (freqMap[values[i]] * std::numeric_limits<double>::epsilon());
-
-        // TODO found that this works by accident, but it increments by more than epsilon
         for(int j = 1; j < freqMap[values[i]]; ++j) {
-          values[i] = values[i] + (freqMap[values[i]] * std::numeric_limits<double>::epsilon());
+          values[i] = nextafter(values[i], 1.0);
         }
-        //std::cout << ',' << values[i] << std::endl;
+      }
+    }
+
+    return values;
+  }
+
+
+  std::vector<double> perturbDuplicates_addEpsilon(std::vector<double> values, double multiple) {
+    std::map<double, int> freqMap;
+
+    for(size_t i = 0; i < values.size(); ++i){
+      freqMap[values[i]]++;
+
+      if(freqMap[values[i]] > 1) {
+        for(int j = 1; j < freqMap[values[i]]; ++j) {
+          values[i] = values[i] + multiple*std::numeric_limits<double>::epsilon();
+        }
       }
     }
 

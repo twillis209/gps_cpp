@@ -18,5 +18,7 @@ namespace gps {
 
   std::vector<double> perturbDuplicates(std::vector<double> values);
 
+  std::vector<double> perturbDuplicates_addEpsilon(std::vector<double> values, double multiple);
+
   std::map<double, int> returnFreqMap(std::vector<double> values);
 }

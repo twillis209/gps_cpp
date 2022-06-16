@@ -1,8 +1,9 @@
 #include <iostream>
+#include <map>
 #include <gps.hpp>
-#include <boost/program_options.hpp>
 #include <rapidcsv.h>
-#include <omp.h>
+#include <random>
+#include <boost/program_options.hpp>
 
 namespace po = boost::program_options;
 using namespace po;
@@ -13,16 +14,12 @@ int main(int argc, const char* argv[]) {
   po::options_description desc("Allowed options");
 
   std::string inputFile;
-  std::string outputFile;
-  std::string logFile;
-  std::string traitA;
-  std::string traitB;
   std::string colLabelA;
   std::string colLabelB;
-  bool lwFlag = false;
-  int perturbN = 0;
+  std::string traitA;
+  std::string traitB;
   double epsilonMultiple = 2.0;
-  int cores = 1;
+  int perturbN = 100;
 
   desc.add_options()
     ("help", "Print help message")
@@ -31,12 +28,8 @@ int main(int argc, const char* argv[]) {
     ("colLabelB,b", po::value<std::string>(&colLabelB), "Label of column B")
     ("traitA,c", po::value<std::string>(&traitA), "Trait A")
     ("traitB,d", po::value<std::string>(&traitB), "Trait B")
-    ("outputFile,o", po::value<std::string>(&outputFile), "Path to output file")
-    ("logFile,g", po::value<std::string>(&logFile), "Path to log file")
-    ("lwFlag,l", po::bool_switch(&lwFlag), "Flag to use the fast bivariate ecdf algorithm from Langrene and Warin")
-    ("perturbN,p", po::value<int>(&perturbN), "No. of perturbation iterations")
     ("epsilonMultiple,e", po::value<double>(&epsilonMultiple), "Multiple of epsilon to use in perturbation procedure")
-    ("cores,n", po::value<int>(&cores), "No. of cores")
+    ("perturbN,p", po::value<int>(&perturbN), "No. of perturbation iterations")
     ;
 
   po::variables_map vm;
@@ -46,12 +39,8 @@ int main(int argc, const char* argv[]) {
   if(vm.count("inputFile")) {
     Document data(inputFile, LabelParams(), SeparatorParams('\t'));
 
-    std::stringstream logOutput;
-
-    logOutput << "Trait\tRow" << std::endl;
-
-    std::vector<double> u;
-    std::vector<double> v;
+    std::vector<double> u = data.GetColumn<double>(colLabelA);
+    std::vector<double> v = data.GetColumn<double>(colLabelB);
 
     try {
       u = data.GetColumn<double>(colLabelA);
@@ -61,7 +50,6 @@ int main(int argc, const char* argv[]) {
           u.push_back(data.GetCell<double>(colLabelA, i));
         } catch(std::out_of_range stod) {
           u.push_back(1.0);
-          logOutput << traitA << "\t" << i+1 << std::endl;
         }
       }
     }
@@ -74,12 +62,9 @@ int main(int argc, const char* argv[]) {
           v.push_back(data.GetCell<double>(colLabelB, i));
         } catch(std::out_of_range stod) {
           v.push_back(1.0);
-          logOutput << traitB << "\t" << i+1 << std::endl;
         }
       }
     }
-
-    double gps;
 
     for(size_t i = 0; i < perturbN; ++i) {
       u = perturbDuplicates_addEpsilon(u, epsilonMultiple);
@@ -93,26 +78,15 @@ int main(int argc, const char* argv[]) {
       }
     }
 
-    omp_set_num_threads(cores);
+    std::cout.precision(20);
 
-    if(lwFlag) {
-      gps = gpsStat(u, v, &bivariateEcdfLW);
-    } else {
-      gps = gpsStat(u, v, &bivariateEcdfPar);
+    std::cout << traitA << "\t" << traitB << std::endl;
+
+    for(size_t i = 0; i < u.size(); ++i) {
+      std::cout << u[i] << "\t" << v[i] << std::endl;
     }
-
-    std::stringstream stringOutput;
-
-    stringOutput << "Trait_A\tTrait_B\tGPS" << std::endl;
-
-    stringOutput << traitA << "\t" << traitB << "\t" << gps << std::endl;
-
-    Document output(stringOutput, LabelParams(), SeparatorParams('\t'));
-    output.Save(outputFile);
-    Document log(logOutput, LabelParams(), SeparatorParams('\t'));
-    log.Save(logFile);
   } else {
-      std::cout << desc << std::endl;
+    std::cout << desc << std::endl;
   }
 
   return 0;

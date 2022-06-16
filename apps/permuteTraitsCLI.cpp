@@ -16,6 +16,7 @@ int main(int argc, const char* argv[]) {
   std::string outputFile;
   std::string columnA;
   std::string columnB;
+  double epsilonMultiple = 2.0;
   int cores;
   int draws;
 
@@ -25,6 +26,7 @@ int main(int argc, const char* argv[]) {
     ("outputFile,o", po::value<std::string>(&outputFile), "Path to output file")
     ("columnA,a", po::value<std::string>(&columnA), "Label of column A")
     ("columnB,b", po::value<std::string>(&columnB), "Label of column B")
+    ("epsilonMultiple,e", po::value<double>(&epsilonMultiple), "Multiple of epsilon to use in perturbation procedure")
     ("cores,c", po::value<int>(&cores), "No. of cores")
     ("draws,n", po::value<int>(&draws), "No. of draws")
     ;
@@ -39,16 +41,20 @@ int main(int argc, const char* argv[]) {
     std::vector<double> u = input.GetColumn<double>(columnA);
     std::vector<double> v = input.GetColumn<double>(columnB);
 
-    std::vector<double> uNoDup = perturbDuplicates(u);
-    std::vector<double> vNoDup = perturbDuplicates(v);
+    for(size_t i = 0; i < 100; ++i) {
+      u = perturbDuplicates_addEpsilon(u, epsilonMultiple);
+      v = perturbDuplicates_addEpsilon(v, epsilonMultiple);
+    }
 
     std::vector<std::vector<double>> gpsPermutations;
 
     int drawsPerCore = draws / cores;
 
+    omp_set_num_threads(cores);
+
     #pragma omp parallel for
     for(int k = 0; k < cores; ++k) {
-      gpsPermutations.push_back(permuteAndSampleGps(uNoDup, vNoDup, drawsPerCore, &bivariateEcdfLW));
+      gpsPermutations.push_back(permuteAndSampleGps(u, v, drawsPerCore, &bivariateEcdfLW));
     }
 
     std::stringstream stringOutput;
