@@ -96,7 +96,7 @@ namespace gps {
 
     ecdf.reserve(n);
 
-    #pragma openmp parallel for
+    #pragma omp parallel for
     for(size_t i = 0; i < n; ++i) {
         int count = 0;
 

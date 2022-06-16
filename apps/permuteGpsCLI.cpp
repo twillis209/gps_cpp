@@ -16,6 +16,7 @@ int main(int argc, const char* argv[]) {
   std::string inputFile;
   std::string colLabelA;
   std::string colLabelB;
+  double epsilonMultiple = 2.0;
 
   desc.add_options()
     ("help", "Print help message")
@@ -23,6 +24,7 @@ int main(int argc, const char* argv[]) {
     ("inputFile,i", po::value<std::string>(&inputFile), "Path to input file")
     ("colLabelA,a", po::value<std::string>(&colLabelA), "Label of column A")
     ("colLabelB,b", po::value<std::string>(&colLabelB), "Label of column B")
+    ("epsilonMultiple,e", po::value<double>(&epsilonMultiple), "Multiple of epsilon to use in perturbation procedure")
     ("cores,c", po::value<int>(&cores), "No. of cores")
     ("draws,n", po::value<int>(&drawsPerCore), "No. of draws per core")
     ;
@@ -37,8 +39,10 @@ int main(int argc, const char* argv[]) {
     std::vector<double> u = data.GetColumn<double>(colLabelA);
     std::vector<double> v = data.GetColumn<double>(colLabelB);
 
-    std::vector<double> uNoDup = perturbDuplicates(u);
-    std::vector<double> vNoDup = perturbDuplicates(v);
+    for(size_t i = 0; i < 100; ++i) {
+      u = perturbDuplicates_addEpsilon(u, epsilonMultiple);
+      v = perturbDuplicates_addEpsilon(v, epsilonMultiple);
+    }
 
     std::vector<std::vector<double>> gpsPermutations;
 
