@@ -86,11 +86,22 @@ int main(int argc, const char* argv[]) {
       v = perturbDuplicates_addEpsilon(v, epsilonMultiple);
     }
 
-    for(size_t i = 0; i < u.size(); ++i) {
-      if(u[i] > 1.0 || v[i] > 1.0) {
-        u.erase(u.end()-(i+1));
-        v.erase(v.end()-(i+1));
+    // Delete any values we couldn't perturb away from being duplicates
+    if(perturbN > 0) {
+      std::map<double, int> freqMapU = returnFreqMap(u);
+      std::map<double, int> freqMapV = returnFreqMap(v);
+
+      int n = u.size();
+
+      for(size_t i = 0; i < n; ++i) {
+        if(freqMapU[u[i]] > 1 || freqMapV[v[i]] > 1 || u[i] > 1.0 || v[i] > 1.0) {
+          u.erase(u.end()-(i+1));
+          v.erase(v.end()-(i+1));
+        }
       }
+
+      std::cout << "Length of u vector before: " << n << std::endl;
+      std::cout << "Length of u vector after: " << u.size() << std::endl;
     }
 
     omp_set_num_threads(cores);
