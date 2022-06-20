@@ -156,10 +156,6 @@ namespace gps {
       freqMap[values[i]]++;
 
       if(freqMap[values[i]] > 1) {
-//        for(int j = 1; j < freqMap[values[i]]; ++j) {
-//          values[i] = values[i] + multiple*std::numeric_limits<double>::epsilon();
-//        }
-
         double candidate_replacement = values[i] + (double) (freqMap[values[i]])* multiple*std::numeric_limits<double>::epsilon();
 
         while((0.5 * (candidate_replacement + values[i])) == values[i]) {

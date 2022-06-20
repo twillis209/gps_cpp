@@ -112,7 +112,6 @@ int main(int argc, const char* argv[]) {
 
     std::stringstream perturbedOutput;
 
-
     perturbedOutput << traitA << "\t" << traitB << std::endl;
 
     perturbedOutput << std::setprecision(20);
@@ -125,6 +124,8 @@ int main(int argc, const char* argv[]) {
     perturbedOutputDoc.Save(perturbedFile);
 
     omp_set_num_threads(cores);
+
+    std::cout.precision(20);
 
     if(lwFlag) {
       gps = gpsStat(u, v, &bivariateEcdfLW);

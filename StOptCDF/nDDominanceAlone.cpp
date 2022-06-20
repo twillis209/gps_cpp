@@ -259,8 +259,10 @@ void recursiveCallNDAlone(const  ArrayXXd &p_pt,
                 // decide in which set to add the point
                 std::cout << "p_pt(nDimM1, iPoint)" << std::endl;
                 std::cout << p_pt(nDimM1, iPoint) << std::endl;
-                std::cout << "p_pt(nDimM1, iPoint)+eps" << std::endl;
-                std::cout << p_pt(nDimM1, iPoint)+2e-16 << std::endl;
+
+                if(p_pt(nDimM1, iPoint) == xMedium) {
+                  std::cout << "xMedium is equal to point" << std::endl;
+                }
 
                 if (p_pt(nDimM1, iPoint) < xMedium) {
                   std::cout << "if" << std::endl;
