@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include <gps.hpp>
 #include <boost/program_options.hpp>
 #include <rapidcsv.h>
@@ -108,7 +109,10 @@ int main(int argc, const char* argv[]) {
 
     std::stringstream perturbedOutput;
 
+
     perturbedOutput << traitA << "\t" << traitB << std::endl;
+
+    perturbedOutput << std::setprecision(20);
 
     for(size_t i = 0; i < u.size(); ++i) {
       perturbedOutput << u[i] << "\t" << v[i] << std::endl;
@@ -124,6 +128,7 @@ int main(int argc, const char* argv[]) {
     } else {
       gps = gpsStat(u, v, &bivariateEcdfPar);
     }
+
 
     std::stringstream stringOutput;
 
