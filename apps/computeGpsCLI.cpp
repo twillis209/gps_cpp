@@ -96,14 +96,17 @@ int main(int argc, const char* argv[]) {
 
       int n = u.size();
 
+      std::cout << "Length of u vector before: " << n << std::endl;
+
+      /*
       for(size_t i = 0; i < n; ++i) {
         if(freqMapU[u[i]] > 1 || freqMapV[v[i]] > 1 || u[i] > 1.0 || v[i] > 1.0) {
           u.erase(u.end()-(i+1));
           v.erase(v.end()-(i+1));
         }
       }
+      */
 
-      std::cout << "Length of u vector before: " << n << std::endl;
       std::cout << "Length of u vector after: " << u.size() << std::endl;
     }
 

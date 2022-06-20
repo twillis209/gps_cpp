@@ -152,13 +152,22 @@ namespace gps {
   std::vector<double> perturbDuplicates_addEpsilon(std::vector<double> values, double multiple) {
     std::map<double, int> freqMap;
 
-    for(size_t i = 0; i < values.size(); ++i){
+    for(size_t i = 0; i < values.size(); ++i) {
       freqMap[values[i]]++;
 
       if(freqMap[values[i]] > 1) {
-        for(int j = 1; j < freqMap[values[i]]; ++j) {
-          values[i] = values[i] + multiple*std::numeric_limits<double>::epsilon();
+//        for(int j = 1; j < freqMap[values[i]]; ++j) {
+//          values[i] = values[i] + multiple*std::numeric_limits<double>::epsilon();
+//        }
+
+        double candidate_replacement = values[i] + (double) (freqMap[values[i]])* multiple*std::numeric_limits<double>::epsilon();
+
+        while((0.5 * (candidate_replacement + values[i])) == values[i]) {
+          std::cout << "Replacement is equal, incrementing" << std::endl;
+          candidate_replacement += multiple*std::numeric_limits<double>::epsilon();
         }
+
+        values[i] = candidate_replacement;
       }
     }
 
