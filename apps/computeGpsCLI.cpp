@@ -15,6 +15,7 @@ int main(int argc, const char* argv[]) {
   std::string inputFile;
   std::string outputFile;
   std::string logFile;
+  std::string perturbedFile;
   std::string traitA;
   std::string traitB;
   std::string colLabelA;
@@ -33,6 +34,7 @@ int main(int argc, const char* argv[]) {
     ("traitB,d", po::value<std::string>(&traitB), "Trait B")
     ("outputFile,o", po::value<std::string>(&outputFile), "Path to output file")
     ("logFile,g", po::value<std::string>(&logFile), "Path to log file")
+    ("perturbedFile,t", po::value<std::string>(&perturbedFile), "Path to file containing perturbed u and v vectors")
     ("lwFlag,l", po::bool_switch(&lwFlag), "Flag to use the fast bivariate ecdf algorithm from Langrene and Warin")
     ("perturbN,p", po::value<int>(&perturbN), "No. of perturbation iterations")
     ("epsilonMultiple,e", po::value<double>(&epsilonMultiple), "Multiple of epsilon to use in perturbation procedure")
@@ -103,6 +105,17 @@ int main(int argc, const char* argv[]) {
       std::cout << "Length of u vector before: " << n << std::endl;
       std::cout << "Length of u vector after: " << u.size() << std::endl;
     }
+
+    std::stringstream perturbedOutput;
+
+    perturbedOutput << traitA << "\t" << traitB << std::endl;
+
+    for(size_t i = 0; i < u.size(); ++i) {
+      perturbedOutput << u[i] << "\t" << v[i] << std::endl;
+    }
+
+    Document perturbedOutputDoc(perturbedOutput, LabelParams(), SeparatorParams('\t'));
+    perturbedOutputDoc.Save(perturbedFile);
 
     omp_set_num_threads(cores);
 
