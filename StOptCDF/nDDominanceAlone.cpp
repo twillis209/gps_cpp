@@ -228,12 +228,19 @@ void recursiveCallNDAlone(const  ArrayXXd &p_pt,
     }
     else if (p_iSort.rows() > 1)
     {
+
         // split into two part
         int iSize1 = p_iSort.rows() / 2 ;
         int iSize2 = p_iSort.rows() - iSize1  ;
         int nDimM1 = p_iSort.cols() - 1;
         // position valeu of splitting position
+        std::cout << "p_pt(nDimM1, p_iSort(iSize1 - 1, nDimM1))" << std::endl;
+        std::cout << p_pt(nDimM1, p_iSort(iSize1 - 1, nDimM1)) << std::endl;
+        std::cout << "p_pt(nDimM1, p_iSort(iSize1, nDimM1))" << std::endl;
+        std::cout << p_pt(nDimM1, p_iSort(iSize1, nDimM1)) << std::endl;
+        std::cout << "double xMedium = 0.5 * (p_pt(nDimM1, p_iSort(iSize1 - 1, nDimM1)) + p_pt(nDimM1, p_iSort(iSize1, nDimM1)));" << std::endl;
         double xMedium = 0.5 * (p_pt(nDimM1, p_iSort(iSize1 - 1, nDimM1)) + p_pt(nDimM1, p_iSort(iSize1, nDimM1)));
+        std::cout << xMedium << std::endl;
         // utilitary for sorted particles
         ArrayXXi iSort1(iSize1, p_iSort.cols());
         ArrayXXi iSort2(iSize2, p_iSort.cols());
@@ -243,16 +250,26 @@ void recursiveCallNDAlone(const  ArrayXXd &p_pt,
         // two  first dimensions
         for (int id = 0; id < nDimM1; ++id)
         {
+
             int iLoc1 = 0 ;
             int iLoc2 = 0 ;
             for (int i = 0 ; i < p_iSort.rows() ; ++i)
             {
                 int iPoint = p_iSort(i, id) ; // get back point number
                 // decide in which set to add the point
-                if (p_pt(nDimM1, iPoint) < xMedium)
+                std::cout << "p_pt(nDimM1, iPoint)" << std::endl;
+                std::cout << p_pt(nDimM1, iPoint) << std::endl;
+                std::cout << "p_pt(nDimM1, iPoint)+eps" << std::endl;
+                std::cout << p_pt(nDimM1, iPoint)+2e-16 << std::endl;
+
+                if (p_pt(nDimM1, iPoint) < xMedium) {
+                  std::cout << "if" << std::endl;
                     iSort1(iLoc1++, id) = iPoint;
-                else
+                }
+                else {
+                  std::cout << "else" << std::endl;
                     iSort2(iLoc2++, id) = iPoint;
+                }
             }
         }
 

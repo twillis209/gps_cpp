@@ -21,8 +21,10 @@ FetchContent_MakeAvailable(catch)
 
 # Tests need to be added as executables first
 add_executable(testGps testGps.cpp)
+add_executable(testStOpt testStOpt.cpp)
 
 target_link_libraries(testGps PRIVATE Gps Catch2::Catch2 rapidcsv)
+target_link_libraries(testStOpt PRIVATE Gps Catch2::Catch2 rapidcsv)
 
 # Run with 'make test'; needs access to test data in gps/test/data
 add_test(
@@ -30,3 +32,9 @@ add_test(
   COMMAND testGps
   WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
   )
+
+add_test(
+  NAME testStOpt
+  COMMAND testStOpt
+  WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+)
