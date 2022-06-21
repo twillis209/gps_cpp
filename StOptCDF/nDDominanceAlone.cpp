@@ -221,6 +221,7 @@ void recursiveCallNDAlone(const  ArrayXXd &p_pt,
 {
     if (p_iSort.cols() == 1)
     {
+      std::cout << "if (p_iSort.cols() == 1)" << std::endl;
         for (int is = 1; is <  p_pt.cols(); ++is)
             p_fDomin(p_iSort(is, 0)) = p_fDomin(p_iSort(is - 1, 0)) + p_valToAdd(p_iSort(is - 1, 0)) ;
         for (int is = p_pt.cols() - 2; is >= 0; --is)

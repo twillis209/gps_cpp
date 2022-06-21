@@ -66,6 +66,7 @@ int main(int argc, const char* argv[]) {
       }
     }
 
+    /*
     for(size_t i = 0; i < perturbN; ++i) {
       u = perturbDuplicates_addEpsilon(u, epsilonMultiple);
       v = perturbDuplicates_addEpsilon(v, epsilonMultiple);
@@ -85,6 +86,44 @@ int main(int argc, const char* argv[]) {
     for(size_t i = 0; i < u.size(); ++i) {
       std::cout << u[i] << "\t" << v[i] << std::endl;
     }
+    */
+
+
+    u = simplePerturbation(u);
+    v = simplePerturbation(v);
+
+    std::cout.precision(20);
+
+    for(size_t i = 0; i < v.size(); ++i) {
+      std::cout << u[i] << "\t" << v[i] << std::endl;
+    }
+
+    /*
+    std::sort(u.begin(), u.end());
+    std::sort(v.begin(), v.end());
+
+    for(size_t i = 0; i < (u.size()-1); ++i) {
+      // is it possible this condition could hold for u[i] but not for u[i+1]?
+      while((0.5 * (u[i] + u[i+1])) == u[i]) {
+        std::cout << "Incrementing u " << i << " and " << i+1 << std::endl;
+        u[i+1] += std::numeric_limits<double>::epsilon();
+      }
+    }
+
+    for(size_t i = 0; i < (v.size()-1); ++i) {
+      // is it possible this condition could hold for u[i] but not for u[i+1]?
+      while((0.5 * (v[i] + v[i+1])) == v[i]) {
+        std::cout << "Incrementing v " << i << " and " << i+1 << std::endl;
+        v[i+1] += std::numeric_limits<double>::epsilon();
+      }
+    }
+
+    std::cout.precision(20);
+
+    std::cout << "u\tv" << std::endl;
+
+    */
+
   } else {
     std::cout << desc << std::endl;
   }

@@ -7,6 +7,7 @@
 #include <math.h>
 #include <map>
 #include <omp.h>
+#include <numeric>
 
 using namespace Eigen;
 using boost::math::empirical_cumulative_distribution_function;
@@ -157,10 +158,12 @@ namespace gps {
 
       if(freqMap[values[i]] > 1) {
         double candidate_replacement = values[i] + (double) (freqMap[values[i]])* multiple*std::numeric_limits<double>::epsilon();
+        //double candidate_replacement = std::nextafter(values[i], 1.0);
 
         while((0.5 * (candidate_replacement + values[i])) == values[i]) {
           std::cout << "Replacement is equal, incrementing" << std::endl;
-          candidate_replacement += multiple*std::numeric_limits<double>::epsilon();
+          //candidate_replacement = std::nextafter(values[i], 1.0);
+          candidate_replacement += (freqMap[values[i]])*multiple*std::numeric_limits<double>::epsilon();
         }
 
         values[i] = candidate_replacement;
@@ -178,6 +181,29 @@ namespace gps {
     }
 
     return freqMap;
+  }
+
+  std::vector<double> simplePerturbation(std::vector<double> values) {
+    https://stackoverflow.com/questions/1577475/c-sorting-and-keeping-track-of-indexes
+    std::vector<size_t> indices(values.size());
+    std::iota(indices.begin(), indices.end(), 0);
+
+    std::sort(indices.begin(), indices.end(), [&](size_t i, size_t j){ return values[i] < values[j];} );
+
+    std::cout << "values.size(): " << values.size() << std::endl;
+
+    std::cout.precision(20);
+
+    for(size_t i = 0; i < (indices.size()-1); ++i) {
+      std::cout << "Incrementing " << i << " and " << i+1 << std::endl;
+      std::cout << "Incrementing " << indices[i] << " and " << indices[i+1] << std::endl;
+      while((0.5 * (values[indices[i]] + values[indices[i+1]])) == values[indices[i+1]]) {
+        std::cout << "Incrementing " << values[indices[i]] << " and " << values[indices[i+1]] << std::endl;
+        values[indices[i+1]] += std::numeric_limits<double>::epsilon();
+      }
+    }
+
+    return values;
   }
 
 }

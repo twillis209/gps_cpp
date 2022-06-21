@@ -84,11 +84,42 @@ int main(int argc, const char* argv[]) {
 
     double gps;
 
+    std::cout.precision(20);
+
+    u = simplePerturbation(u);
+    v = simplePerturbation(v);
+
+    /*
     for(size_t i = 0; i < perturbN; ++i) {
       u = perturbDuplicates_addEpsilon(u, epsilonMultiple);
       v = perturbDuplicates_addEpsilon(v, epsilonMultiple);
     }
 
+    std::vector<double> uCopy(u);
+    std::vector<double> vCopy(v);
+
+    std::sort(uCopy.begin(), uCopy.end());
+    std::sort(vCopy.begin(), vCopy.end());
+
+    for(size_t i = 0; i < (uCopy.size()-1); ++i) {
+
+        double xMedium = 0.5 * (uCopy[i] + uCopy[i+1]);
+        if(xMedium == uCopy[i] || xMedium == uCopy[i+1]) {
+          std::cout << "Imperturbed duplicate in u" << std::endl;
+          std::cout << uCopy[i] << std::endl;
+          std::cout << uCopy[i+1] << std::endl;
+        }
+
+        xMedium = 0.5 * (vCopy[i] + vCopy[i+1]);
+        if(xMedium == vCopy[i] || xMedium == vCopy[i+1]) {
+          std::cout << "Imperturbed duplicate in v" << std::endl;
+          std::cout << vCopy[i] << std::endl;
+          std::cout << vCopy[i+1] << std::endl;
+        }
+    }
+    */
+
+    /*
     // Delete any values we couldn't perturb away from being duplicates
     if(perturbN > 0) {
       std::map<double, int> freqMapU = returnFreqMap(u);
@@ -98,18 +129,17 @@ int main(int argc, const char* argv[]) {
 
       std::cout << "Length of u vector before: " << n << std::endl;
 
-      /*
       for(size_t i = 0; i < n; ++i) {
         if(freqMapU[u[i]] > 1 || freqMapV[v[i]] > 1 || u[i] > 1.0 || v[i] > 1.0) {
           u.erase(u.end()-(i+1));
           v.erase(v.end()-(i+1));
         }
       }
-      */
 
       std::cout << "Length of u vector after: " << u.size() << std::endl;
     }
 
+      */
     std::stringstream perturbedOutput;
 
     perturbedOutput << traitA << "\t" << traitB << std::endl;
@@ -124,8 +154,6 @@ int main(int argc, const char* argv[]) {
     perturbedOutputDoc.Save(perturbedFile);
 
     omp_set_num_threads(cores);
-
-    std::cout.precision(20);
 
     if(lwFlag) {
       gps = gpsStat(u, v, &bivariateEcdfLW);
