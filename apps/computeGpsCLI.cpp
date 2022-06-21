@@ -86,15 +86,8 @@ int main(int argc, const char* argv[]) {
 
     std::cout.precision(20);
 
-    u = simplePerturbation(u);
-    v = simplePerturbation(v);
-
     /*
-    for(size_t i = 0; i < perturbN; ++i) {
-      u = perturbDuplicates_addEpsilon(u, epsilonMultiple);
-      v = perturbDuplicates_addEpsilon(v, epsilonMultiple);
-    }
-
+    NB: Checks the obvious source of my errors, but this xMedium issue doesn't always arise between adjacent points
     std::vector<double> uCopy(u);
     std::vector<double> vCopy(v);
 
@@ -119,16 +112,21 @@ int main(int argc, const char* argv[]) {
     }
     */
 
-    /*
-    // Delete any values we couldn't perturb away from being duplicates
     if(perturbN > 0) {
+
+      for(size_t i = 0; i < perturbN; ++i) {
+        u = perturbDuplicates_addEpsilon(u, epsilonMultiple);
+        v = perturbDuplicates_addEpsilon(v, epsilonMultiple);
+      }
+
       std::map<double, int> freqMapU = returnFreqMap(u);
       std::map<double, int> freqMapV = returnFreqMap(v);
 
       int n = u.size();
 
-      std::cout << "Length of u vector before: " << n << std::endl;
+      std::cout << "Length of u vector before deletion: " << n << std::endl;
 
+      // Delete any values we couldn't perturb away from being duplicates
       for(size_t i = 0; i < n; ++i) {
         if(freqMapU[u[i]] > 1 || freqMapV[v[i]] > 1 || u[i] > 1.0 || v[i] > 1.0) {
           u.erase(u.end()-(i+1));
@@ -136,22 +134,24 @@ int main(int argc, const char* argv[]) {
         }
       }
 
-      std::cout << "Length of u vector after: " << u.size() << std::endl;
+      std::cout << "Length of u vector after deletion: " << u.size() << std::endl;
+
+      if(!perturbedFile.empty()) {
+
+        std::stringstream perturbedOutput;
+
+        perturbedOutput << traitA << "\t" << traitB << std::endl;
+
+        perturbedOutput << std::setprecision(20);
+
+        for(size_t i = 0; i < u.size(); ++i) {
+          perturbedOutput << u[i] << "\t" << v[i] << std::endl;
+        }
+
+        Document perturbedOutputDoc(perturbedOutput, LabelParams(), SeparatorParams('\t'));
+        perturbedOutputDoc.Save(perturbedFile);
+      }
     }
-
-      */
-    std::stringstream perturbedOutput;
-
-    perturbedOutput << traitA << "\t" << traitB << std::endl;
-
-    perturbedOutput << std::setprecision(20);
-
-    for(size_t i = 0; i < u.size(); ++i) {
-      perturbedOutput << u[i] << "\t" << v[i] << std::endl;
-    }
-
-    Document perturbedOutputDoc(perturbedOutput, LabelParams(), SeparatorParams('\t'));
-    perturbedOutputDoc.Save(perturbedFile);
 
     omp_set_num_threads(cores);
 
@@ -160,7 +160,6 @@ int main(int argc, const char* argv[]) {
     } else {
       gps = gpsStat(u, v, &bivariateEcdfPar);
     }
-
 
     std::stringstream stringOutput;
 
