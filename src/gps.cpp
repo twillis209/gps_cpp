@@ -190,15 +190,15 @@ namespace gps {
 
     std::sort(indices.begin(), indices.end(), [&](size_t i, size_t j){ return values[i] < values[j];} );
 
-    std::cout << "values.size(): " << values.size() << std::endl;
+    //std::cout << "values.size(): " << values.size() << std::endl;
 
     std::cout.precision(20);
 
     for(size_t i = 0; i < (indices.size()-1); ++i) {
-      std::cout << "Incrementing " << i << " and " << i+1 << std::endl;
-      std::cout << "Incrementing " << indices[i] << " and " << indices[i+1] << std::endl;
+      //std::cout << "Incrementing " << i << " and " << i+1 << std::endl;
+      //std::cout << "Incrementing " << indices[i] << " and " << indices[i+1] << std::endl;
       while((0.5 * (values[indices[i]] + values[indices[i+1]])) == values[indices[i+1]]) {
-        std::cout << "Incrementing " << values[indices[i]] << " and " << values[indices[i+1]] << std::endl;
+        //std::cout << "Incrementing " << values[indices[i]] << " and " << values[indices[i+1]] << std::endl;
         values[indices[i+1]] += 1000.0*std::numeric_limits<double>::epsilon();
       }
     }
