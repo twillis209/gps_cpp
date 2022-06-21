@@ -254,6 +254,8 @@ void recursiveCallNDAlone(const  ArrayXXd &p_pt,
 
             int iLoc1 = 0 ;
             int iLoc2 = 0 ;
+            std::cout << "p_iSort.rows()" << std::endl;
+            std::cout << p_iSort.rows() << std::endl;
             for (int i = 0 ; i < p_iSort.rows() ; ++i)
             {
                 int iPoint = p_iSort(i, id) ; // get back point number
@@ -272,6 +274,7 @@ void recursiveCallNDAlone(const  ArrayXXd &p_pt,
                 else {
                   std::cout << "else" << std::endl;
                     iSort2(iLoc2++, id) = iPoint;
+                    std::cout << "end of else" << std::endl;
                 }
             }
         }

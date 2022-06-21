@@ -199,7 +199,7 @@ namespace gps {
       std::cout << "Incrementing " << indices[i] << " and " << indices[i+1] << std::endl;
       while((0.5 * (values[indices[i]] + values[indices[i+1]])) == values[indices[i+1]]) {
         std::cout << "Incrementing " << values[indices[i]] << " and " << values[indices[i+1]] << std::endl;
-        values[indices[i+1]] += std::numeric_limits<double>::epsilon();
+        values[indices[i+1]] += 1000.0*std::numeric_limits<double>::epsilon();
       }
     }
 
