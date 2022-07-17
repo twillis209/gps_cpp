@@ -34,7 +34,7 @@ add_executable(fitAndEvaluateEcdfsCLI fitAndEvaluateEcdfsCLI.cpp)
 
 target_include_directories(fitAndEvaluateEcdfsCLI PUBLIC "${CMAKE_SOURCE_DIR}/include/gps" "${Boost_INCLUDE_DIRS}")
 
-target_link_libraries(fitAndEvaluateEcdfsCLI Boost::program_options Gps rapidcsv)
+target_link_libraries(fitAndEvaluateEcdfsCLI Boost::program_options Gps rapidcsv OpenMP::OpenMP_CXX)
 
 add_executable(permuteProblem permuteProblem.cpp)
 

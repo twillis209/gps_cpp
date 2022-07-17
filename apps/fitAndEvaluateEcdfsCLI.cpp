@@ -2,6 +2,8 @@
 #include <gps.hpp>
 #include <boost/program_options.hpp>
 #include <rapidcsv.h>
+#include <omp.h>
+#include <math.h>
 
 namespace po = boost::program_options;
 using namespace po;
@@ -13,10 +15,9 @@ int main(int argc, const char* argv[]) {
 
   std::string inputFile;
   std::string outputFile;
-  std::string traitA;
-  std::string traitB;
   std::string colLabelA;
   std::string colLabelB;
+  int cores = 1;
 
   desc.add_options()
     ("help", "Print help message")
@@ -24,6 +25,7 @@ int main(int argc, const char* argv[]) {
     ("colLabelA,a", po::value<std::string>(&colLabelA), "Label of column A")
     ("colLabelB,b", po::value<std::string>(&colLabelB), "Label of column B")
     ("outputFile,o", po::value<std::string>(&outputFile), "Path to output file")
+    ("cores,n", po::value<int>(&cores), "No. of cores")
     ;
 
   po::variables_map vm;
@@ -36,21 +38,25 @@ int main(int argc, const char* argv[]) {
     std::vector<double> u = data.GetColumn<double>(colLabelA);
     std::vector<double> v = data.GetColumn<double>(colLabelB);
 
-    std::vector<double> uNoDup = perturbDuplicates(u);
-    std::vector<double> vNoDup = perturbDuplicates(v);
+    omp_set_num_threads(cores);
 
-    std::vector<double> bivariateEcdf = bivariateEcdfLW(uNoDup, vNoDup);
+    std::vector<double> bivariateEcdf = bivariateEcdfPar(u, v);
 
-    std::vector<double> uEcdf = ecdf(uNoDup);
-    std::vector<double> vEcdf = ecdf(vNoDup);
+    std::vector<double> uEcdf = ecdf(u);
+    std::vector<double> vEcdf = ecdf(v);
 
     std::stringstream stringOutput;
 
-    stringOutput << "u\tv\tF_u\tF_v\tF_uv" << std::endl;
+    stringOutput << "u\tv\tF_u\tF_v\tF_uv\tnum\tdenom\tmaximand" << std::endl;
 
-    for(int i = 0; i < uNoDup.size(); i++) {
-      stringOutput << uNoDup[i] << "\t" << vNoDup[i] << "\t" << uEcdf[i] << "\t" << vEcdf[i] << "\t" << bivariateEcdf[i] << std::endl;
+    for(int i = 0; i < u.size(); i++) {
+      double denom = sqrt(uEcdf[i]*vEcdf[i] - pow(uEcdf[i], 2.)*pow(vEcdf[i], 2.));
 
+      double numerator = abs(bivariateEcdf[i] - uEcdf[i]*vEcdf[i]);
+
+      double maximand = sqrt((double) u.size() / log((double) u.size()))*numerator/denom;
+
+      stringOutput << u[i] << "\t" << v[i] << "\t" << uEcdf[i] << "\t" << vEcdf[i] << "\t" << bivariateEcdf[i] << "\t" << numerator << "\t" << denom << "\t" << maximand << std::endl;
     }
 
     Document output(stringOutput, LabelParams(), SeparatorParams('\t'));
