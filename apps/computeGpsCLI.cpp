@@ -169,8 +169,11 @@ int main(int argc, const char* argv[]) {
 
     Document output(stringOutput, LabelParams(), SeparatorParams('\t'));
     output.Save(outputFile);
-    Document log(logOutput, LabelParams(), SeparatorParams('\t'));
-    log.Save(logFile);
+
+    if(!logFile.empty()) {
+      Document log(logOutput, LabelParams(), SeparatorParams('\t'));
+      log.Save(logFile);
+    }
   } else {
       std::cout << desc << std::endl;
   }
