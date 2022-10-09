@@ -51,6 +51,21 @@ TEST_CASE( "gpsStat runs in simple case", "[gpsStat]" ) {
   REQUIRE(gpsResult == Detail::Approx(1.439137));
 }
 
+
+TEST_CASE( "Naive bivariate ecdf runs in simple case", "[ecdf]" ) {
+  std::vector u({.1, .2, .3, .4, .5});
+  std::vector v({.1, .2, .3, .5, .4});
+
+  std::vector<double> ecdfResult = bivariateEcdfPar(u,v);
+
+  std::cout << ecdfResult[0] << std::endl;
+
+  REQUIRE_THAT(
+               ecdfResult,
+               Matchers::Approx(std::vector<double>{.2, .4, .6, .8, .8})
+               );
+}
+
 TEST_CASE( "L&W bivariate ecdf runs in simple case", "[ecdf]" ) {
   std::vector u({.1, .2, .3, .4, .5});
   std::vector v({.1, .2, .3, .5, .4});
@@ -89,7 +104,7 @@ TEST_CASE( "L&W bivariate ecdf computes correct ecdf for uniformly distributed d
                );
 
 }
-/*
+
 TEST_CASE( "Naive bivariate ecdf computes correct ecdf for uniformly distributed data", "[ecdf]" ) {
 
   Document data("test/data/1e3_unif.csv");
@@ -101,15 +116,13 @@ TEST_CASE( "Naive bivariate ecdf computes correct ecdf for uniformly distributed
 
   std::vector<double> ecdf = bivariateEcdfPar(u,v);
 
-  std::cout << ecdf[0] << std::endl;
-
   REQUIRE_THAT(
                ecdf,
                Matchers::Approx(ecdfExemplar)
                );
 
 }
-*/
+
 
 TEST_CASE( "Naive bivariate ecdf throws exception with differently-sized input vectors", "[ecdf]") {
   REQUIRE_THROWS_MATCHES(

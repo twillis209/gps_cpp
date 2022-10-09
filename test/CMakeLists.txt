@@ -30,3 +30,14 @@ add_test(
   COMMAND testGps
   WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
   )
+
+add_executable(testFastCDF StOptCDF/testFastCDF.cpp)
+
+#target_link_libraries(testFastCDF StOptCDF ${Boost_TIMER_LIBRARY} ${Boost_MPI_LIBRARY} ${Boost_SERIALIZATION_LIBRARY}    ${Boost_RANDOM_LIBRARY})
+target_link_libraries(testFastCDF StOptCDF ${Boost_TIMER_LIBRARY} ${Boost_SERIALIZATION_LIBRARY}  ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}  ${Boost_RANDOM_LIBRARY})
+
+add_executable(testFastCDFOnSample StOptCDF/testFastCDFOnSample.cpp)
+
+target_include_directories(testFastCDFOnSample PUBLIC "${CMAKE_SOURCE_DIR}/include/StOptCDF")
+
+target_link_libraries(testFastCDFOnSample Eigen3::Eigen ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY} ${Boost_TIMER_LIBRARY} StOptCDF)

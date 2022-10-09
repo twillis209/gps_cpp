@@ -11,7 +11,8 @@ include(FetchContent)
 
 enable_testing()
 
-find_package(Boost 1.77 COMPONENTS random math_c99 program_options REQUIRED)
+# NB: Only need to list compiled libraries here
+find_package(Boost 1.77 COMPONENTS random math_c99 program_options timer serialization unit_test_framework REQUIRED)
 find_package(Eigen3 3.3 REQUIRED NAMES Eigen3 Eigen eigen NO_MODULE)
 
 FetchContent_Declare(
@@ -20,17 +21,6 @@ FetchContent_Declare(
   GIT_TAG v8.53
   GIT_SHALLOW TRUE)
 FetchContent_MakeAvailable(rapidcsv)
-
-FetchContent_Declare(
-  DataFrame
-  GIT_REPOSITORY https://github.com/hosseinmoein/DataFrame.git
-  GIT_SHALLOW TRUE)
-FetchContent_MakeAvailable(DataFrame)
-
-#FetchContent_Declare(
-#  csv
-#  GIT_REPOSITORY https://github.com/ben-strasser/fast-cpp-csv-parser.git  GIT_SHALLOW TRUE)
-#FetchContent_MakeAvailable(csv)
 
 add_subdirectory(StOptCDF)
 add_subdirectory(src)
