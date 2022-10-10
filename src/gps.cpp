@@ -133,23 +133,6 @@ namespace gps {
     return sample;
   }
 
-  std::vector<double> perturbDuplicates(std::vector<double> values) {
-    std::map<double, int> freqMap;
-
-    for(size_t i = 0; i < values.size(); ++i){
-      freqMap[values[i]]++;
-
-      if(freqMap[values[i]] > 1) {
-        for(int j = 1; j < freqMap[values[i]]; ++j) {
-          values[i] = nextafter(values[i], 1.0);
-        }
-      }
-    }
-
-    return values;
-  }
-
-
   std::vector<double> perturbDuplicates_addEpsilon(std::vector<double> values, double multiple) {
     std::map<double, int> freqMap;
 
@@ -172,38 +155,4 @@ namespace gps {
 
     return values;
   }
-
-  std::map<double, int> returnFreqMap(std::vector<double> values) {
-    std::map<double, int> freqMap;
-
-    for(size_t i = 0; i < values.size(); ++i){
-      freqMap[values[i]]++;
-    }
-
-    return freqMap;
-  }
-
-  std::vector<double> simplePerturbation(std::vector<double> values) {
-    https://stackoverflow.com/questions/1577475/c-sorting-and-keeping-track-of-indexes
-    std::vector<size_t> indices(values.size());
-    std::iota(indices.begin(), indices.end(), 0);
-
-    std::sort(indices.begin(), indices.end(), [&](size_t i, size_t j){ return values[i] < values[j];} );
-
-    //std::cout << "values.size(): " << values.size() << std::endl;
-
-    std::cout.precision(20);
-
-    for(size_t i = 0; i < (indices.size()-1); ++i) {
-      //std::cout << "Incrementing " << i << " and " << i+1 << std::endl;
-      //std::cout << "Incrementing " << indices[i] << " and " << indices[i+1] << std::endl;
-      while((0.5 * (values[indices[i]] + values[indices[i+1]])) == values[indices[i+1]]) {
-        //std::cout << "Incrementing " << values[indices[i]] << " and " << values[indices[i+1]] << std::endl;
-        values[indices[i+1]] += 1000.0*std::numeric_limits<double>::epsilon();
-      }
-    }
-
-    return values;
-  }
-
 }
