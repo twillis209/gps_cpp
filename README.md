@@ -33,7 +33,7 @@ make
 
 `Catch2` tests can be run from the top-level `gps_cpp` directory with `./build/test/testGps`; it's necessary to run them from here as several depend on test data files in `gps_cpp/test/data` directory.
 
-I've incorporated the unit tests from `StOpt` along with the fast ecdf algorithm's implementation taken from there, too. These can be run `gps_cpp` with:
+I've incorporated the unit tests from `StOpt` along with the fast ecdf algorithm's implementation taken from there, too. These use the Boost unit testing framework rather than `Catch2`, so at the moment these aren't run together with the `Catch2` tests. Instead they can be run with:
 
 ```
 ./build/test/testFastCDF
