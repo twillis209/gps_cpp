@@ -23,4 +23,6 @@ namespace gps {
   std::map<double, int> returnFreqMap(std::vector<double> values);
 
   std::vector<double> simplePerturbation(std::vector<double> values);
+
+  std::map<double, int> returnFreqMap(std::vector<double> values);
 }
