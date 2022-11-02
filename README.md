@@ -14,7 +14,7 @@ We compute the GPS test statistic for p-values from a pair of GWAS using the `co
 
 The divide-and-conquer algorithm of Langrene and Warin depends on the data points (in our use case, p-values) being distinct. However, GWAS summary statistics are usually sufficiently numerous and/or imprecisely reported that there are many duplicate values amongst them. In order to make use of the fast ecdf algorithm, we 'perturb' duplicate p-values in order to create a set of unique data points. This does not appear to affect the value of the GPS test statistic expressed to four or five significant figures. See the `perturbDuplicates_addEpsilon` function for the implementation of this deduplication approach.
 
-We've yet to implement this perturbation approach in a fashion which succeeds with all data sets. In the event it fails to properly deduplicate the values, you'll most likely encounter the following error: 
+We've yet to implement this perturbation approach in a fashion which succeeds with all data sets, but we're working on it. In the event the procedure fails to properly deduplicate the values, you'll most likely encounter the following error: 
 
 ## Computing p-values
 
