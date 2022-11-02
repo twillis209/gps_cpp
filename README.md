@@ -14,6 +14,12 @@ We compute the GPS test statistic for p-values from a pair of GWAS using the `co
 
 The divide-and-conquer algorithm of Langrene and Warin depends on the data points (in our use case, p-values) being distinct. However, GWAS summary statistics are usually sufficiently numerous and/or imprecisely reported that there are many duplicate values amongst them. In order to make use of the fast ecdf algorithm, we 'perturb' duplicate p-values in order to create a set of unique data points. This does not appear to affect the value of the GPS test statistic expressed to four or five significant figures. See the `perturbDuplicates_addEpsilon` function for the implementation of this deduplication approach.
 
+We've yet to implement this perturbation approach in a fashion which succeeds with all data sets. In the event it fails to properly deduplicate the values, you'll most likely encounter the following error: 
+
+## Computing p-values
+
+The C++ code in this repository suffices to compute the GPS statistic, but not to obtain a p-value for it. We've included a simple CLI R program in the `R` directory which we use to compute a GPS test p-value using a null realisations of the GPS test statistic. The script fits a generalised extreme value distribution (GEVD) to null realisations of the GPS statistic and reports a p-value plus the GEVD parameter estimates and their standard errors.
+
 ## Build process
 
 `gps_cpp` is built with CMake. With `gps_cpp` as your working directory:
@@ -40,3 +46,6 @@ I've incorporated the unit tests from `StOpt` along with the fast ecdf algorithm
 ./build/test/testFastCDFOnSample
 ```
 
+## License
+
+This code is licensed under the Lesser GPL. Note that the `StOpt` components we've used have been licensed under the Lesser GPL, also.
