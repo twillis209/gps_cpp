@@ -8,7 +8,7 @@ This project's directory structure was borrowed from a sample project provided b
 
 ## CLI programs
 
-We compute the GPS test statistic for p-values from a pair of GWAS using the `computeGpsCLI` application. We generate null realisations of the GPS test statistic with the `permuteTraitsCLI` application.
+We compute the GPS test statistic for p-values from a pair of GWAS using the `computeGpsCLI` application. We generate null realisations of the GPS test statistic with the `permuteTraitsCLI` application. You can see the use of these programs in the `snakemake` pipeline for our publication 'Accurate detection of shared genetic architecture from GWAS summary statistics in the small-sample context' at https://github.com/twillis209/gps_paper_pipeline
 
 ## The need to perturb the p-values
 
