@@ -86,32 +86,6 @@ int main(int argc, const char* argv[]) {
 
     std::cout.precision(20);
 
-    /*
-    NB: Checks the obvious source of my errors, but this xMedium issue doesn't always arise between adjacent points
-    std::vector<double> uCopy(u);
-    std::vector<double> vCopy(v);
-
-    std::sort(uCopy.begin(), uCopy.end());
-    std::sort(vCopy.begin(), vCopy.end());
-
-    for(size_t i = 0; i < (uCopy.size()-1); ++i) {
-
-        double xMedium = 0.5 * (uCopy[i] + uCopy[i+1]);
-        if(xMedium == uCopy[i] || xMedium == uCopy[i+1]) {
-          std::cout << "Imperturbed duplicate in u" << std::endl;
-          std::cout << uCopy[i] << std::endl;
-          std::cout << uCopy[i+1] << std::endl;
-        }
-
-        xMedium = 0.5 * (vCopy[i] + vCopy[i+1]);
-        if(xMedium == vCopy[i] || xMedium == vCopy[i+1]) {
-          std::cout << "Imperturbed duplicate in v" << std::endl;
-          std::cout << vCopy[i] << std::endl;
-          std::cout << vCopy[i+1] << std::endl;
-        }
-    }
-    */
-
     if(perturbN > 0) {
 
       for(size_t i = 0; i < perturbN; ++i) {
@@ -124,6 +98,7 @@ int main(int argc, const char* argv[]) {
 
       int n = u.size();
 
+      /*
       std::cout << "Length of u vector before deletion: " << n << std::endl;
 
       // Delete any values we couldn't perturb away from being duplicates
@@ -135,6 +110,7 @@ int main(int argc, const char* argv[]) {
       }
 
       std::cout << "Length of u vector after deletion: " << u.size() << std::endl;
+      */
 
       if(!perturbedFile.empty()) {
 

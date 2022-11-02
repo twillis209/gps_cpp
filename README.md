@@ -12,9 +12,20 @@ We compute the GPS test statistic for p-values from a pair of GWAS using the `co
 
 ## The need to perturb the p-values
 
-The divide-and-conquer algorithm of Langrene and Warin depends on the data points (in our use case, p-values) being distinct. However, GWAS summary statistics are usually sufficiently numerous and/or imprecisely reported that there are many duplicate values amongst them. In order to make use of the fast ecdf algorithm, we 'perturb' duplicate p-values in order to create a set of unique data points. This does not appear to affect the value of the GPS test statistic expressed to four or five significant figures. See the `perturbDuplicates_addEpsilon` function for the implementation of this deduplication approach.
+The divide-and-conquer algorithm of Langrene and Warin depends on the data points (in our use case, p-values) being distinct. However, GWAS summary statistics are usually sufficiently numerous and/or imprecisely reported that there are duplicate p-values amongst them. In order to make use of the fast ecdf algorithm, we 'perturb' duplicate p-values in order to create a set of unique data points. This does not appear to affect the value of the GPS test statistic expressed to four or five significant figures. 
 
-We've yet to implement this perturbation approach in a fashion which succeeds with all data sets, but we're working on it. In the event the procedure fails to properly deduplicate the values, you'll most likely encounter the following error: 
+See the `perturbDuplicates_addEpsilon` function for the implementation of this deduplication approach. In short, we 'spread out' duplicate values by adding multiples of epsilon to all but the first value. To fully remove duplicates, we have to iterate this procedure (e.g. see the `perturbN` argument to the `computeGpsCLI` and `permuteTraitsCLI` scripts which specifies the number of iterations). 
+
+We've yet to implement this perturbation approach in a fashion which succeeds with all data sets, but we're working on it. In the meantime, it helps to supply p-values to the highest precision possible; we do this by recalculating p-values from the effect estimates and standard errors commonly supplied in GWAS summary statistics.
+
+In the event the procedure fails to properly deduplicate the values, you'll most likely encounter the following error:
+
+```
+computeGpsCLI: opt/include/eigen3/Eigen/src/Core/DenseCoeffsBase.h:365: Eigen::DenseCoeffsBase<Derived, 1>::Scalar& Eigen::DenseCoeffsBase<Derived, 1>::operator()(Eigen::Index, Eigen::Index) [with Derived = Eigen::Array<int, -1, -1>; Eigen::DenseCoeffsBase<Derived, 1>::Scalar = int; Eigen::Index = long int]: Assertion `row >= 0 && row < rows() && col >= 0 && col < cols()' failed.
+Aborted
+```
+
+We've found it's not sufficient to supply a data set with wholly distinct values in each dimension: the values need to differ by a certain quantum large enough for the divide-and-conquer algorithm to split them into sets.
 
 ## Computing p-values
 
