@@ -235,6 +235,7 @@ void recursiveCallNDAlone(const  ArrayXXd &p_pt,
         int iSize2 = p_iSort.rows() - iSize1  ;
         int nDimM1 = p_iSort.cols() - 1;
         // position valeu of splitting position
+<<<<<<< HEAD
         // std::cout << "p_pt(nDimM1, p_iSort(iSize1 - 1, nDimM1))" << std::endl;
         // std::cout << p_pt(nDimM1, p_iSort(iSize1 - 1, nDimM1)) << std::endl;
         // std::cout << "p_pt(nDimM1, p_iSort(iSize1, nDimM1))" << std::endl;
@@ -242,6 +243,15 @@ void recursiveCallNDAlone(const  ArrayXXd &p_pt,
         // std::cout << "double xMedium = 0.5 * (p_pt(nDimM1, p_iSort(iSize1 - 1, nDimM1)) + p_pt(nDimM1, p_iSort(iSize1, nDimM1)));" << std::endl;
         double xMedium = 0.5 * (p_pt(nDimM1, p_iSort(iSize1 - 1, nDimM1)) + p_pt(nDimM1, p_iSort(iSize1, nDimM1)));
         // std::cout << xMedium << std::endl;
+=======
+        std::cout << "p_pt(nDimM1, p_iSort(iSize1 - 1, nDimM1))" << std::endl;
+        std::cout << p_pt(nDimM1, p_iSort(iSize1 - 1, nDimM1)) << std::endl;
+        std::cout << "p_pt(nDimM1, p_iSort(iSize1, nDimM1))" << std::endl;
+        std::cout << p_pt(nDimM1, p_iSort(iSize1, nDimM1)) << std::endl;
+        std::cout << "double xMedium = 0.5 * (p_pt(nDimM1, p_iSort(iSize1 - 1, nDimM1)) + p_pt(nDimM1, p_iSort(iSize1, nDimM1)));" << std::endl;
+        double xMedium = 0.5 * (p_pt(nDimM1, p_iSort(iSize1 - 1, nDimM1)) + p_pt(nDimM1, p_iSort(iSize1, nDimM1)));
+        std::cout << xMedium << std::endl;
+>>>>>>> 54ec9deaa580d0c675021f5845bb53897f433f9f
         // utilitary for sorted particles
         ArrayXXi iSort1(iSize1, p_iSort.cols());
         ArrayXXi iSort2(iSize2, p_iSort.cols());
@@ -260,21 +270,18 @@ void recursiveCallNDAlone(const  ArrayXXd &p_pt,
             {
                 int iPoint = p_iSort(i, id) ; // get back point number
                 // decide in which set to add the point
-                // std::cout << "p_pt(nDimM1, iPoint)" << std::endl;
-                // std::cout << p_pt(nDimM1, iPoint) << std::endl;
-
-                if(p_pt(nDimM1, iPoint) == xMedium) {
-                  // std::cout << "xMedium is equal to point" << std::endl;
-                }
+                std::cout << "p_pt(nDimM1, iPoint)" << std::endl;
+                std::cout << p_pt(nDimM1, iPoint) << std::endl;
+                std::cout << "p_pt(nDimM1, iPoint)+eps" << std::endl;
+                std::cout << p_pt(nDimM1, iPoint)+2e-16 << std::endl;
 
                 if (p_pt(nDimM1, iPoint) < xMedium) {
-                  // std::cout << "if" << std::endl;
+                  std::cout << "if" << std::endl;
                     iSort1(iLoc1++, id) = iPoint;
                 }
                 else {
-                  // std::cout << "else" << std::endl;
+                  std::cout << "else" << std::endl;
                     iSort2(iLoc2++, id) = iPoint;
-                    // std::cout << "end of else" << std::endl;
                 }
             }
         }
