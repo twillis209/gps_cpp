@@ -12,7 +12,9 @@ We compute the GPS test statistic for p-values from a pair of GWAS using the `co
 
 ## The need to perturb the p-values
 
-The divide-and-conquer algorithm of Langrene and Warin depends on the data points (in our use case, p-values) being distinct. However, GWAS summary statistics are usually sufficiently numerous and/or imprecisely reported that there are duplicate p-values amongst them. In order to make use of the fast ecdf algorithm, we 'perturb' duplicate p-values in order to create a set of unique data points. This does not appear to affect the value of the GPS test statistic expressed to four or five significant figures. 
+The divide-and-conquer algorithm of Langrene and Warin depends on the data points (in our use case, p-values) being distinct. However, GWAS summary statistics are usually sufficiently numerous and/or imprecisely reported that there are duplicate p-values amongst them. In order to make use of the fast ecdf algorithm, we 'perturb' duplicate p-values in order to create a set of unique data points. 
+
+The perturbation procedure does not appear to affect the value of the GPS test statistic expressed to four or five significant figures *in most cases*. You can check the disparity by running `computeGpsCLI` with the command-line argument `-p 0` (no perturbations) and *without* the flag `-l`; `-l` is a switch which toggles use of the fast bivariate ecdf algorithm (which necessitates perturbation in the first place). If using the 'naive' bivariate ecdf algorithm, you should specify a number of cores with the `-c` flag as the naive algorithm is rather slow when run on a single thread.
 
 See the `perturbDuplicates_addEpsilon` function for the implementation of this deduplication approach. In short, we 'spread out' duplicate values by adding multiples of epsilon to all but the first value. To fully remove duplicates, we have to iterate this procedure (e.g. see the `perturbN` argument to the `computeGpsCLI` and `permuteTraitsCLI` scripts which specifies the number of iterations). 
 

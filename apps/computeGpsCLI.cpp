@@ -88,6 +88,8 @@ int main(int argc, const char* argv[]) {
 
     if(perturbN > 0) {
 
+      std::cout << "Perturbing..." << std::endl;
+
       for(size_t i = 0; i < perturbN; ++i) {
         u = perturbDuplicates_addEpsilon(u, epsilonMultiple);
         v = perturbDuplicates_addEpsilon(v, epsilonMultiple);
@@ -130,6 +132,9 @@ int main(int argc, const char* argv[]) {
     }
 
     omp_set_num_threads(cores);
+
+
+    std::cout << "Computing the GPS statistic..." << std::endl;
 
     if(lwFlag) {
       gps = gpsStat(u, v, &bivariateEcdfLW);
