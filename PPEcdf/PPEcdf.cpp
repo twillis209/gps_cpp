@@ -18,16 +18,18 @@ namespace PPEcdf {
 
     std::vector<double> v_sorted = reindex(v, idx);
 
-    std::map<double, std::vector<double>> uv_map;
+    std::multiset<double> v_set;
 
     std::vector<double> ecdf(n);
 
     for(size_t i = 0; i < n; i++) {
-      uv_map[v_sorted[i]].push_back(u_sorted[i]);
+      auto it = v_set.insert(v_sorted[i]);
 
-      uv_map[v_sorted[i]]
+      size_t m = 0;
 
+      while(it != v_set.begin()) {
 
+      }
 
     }
   }
