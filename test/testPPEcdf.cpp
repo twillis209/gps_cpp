@@ -74,7 +74,49 @@ TEST_CASE( "bivariatePPEcdf computes the ecdf for less simple data", "[bivariate
                Matchers::Approx(std::vector<double>{.2, .4, .6, .8, .8}));
 }
 
+TEST_CASE( "bivariatePPEcdf computes the ecdf for less simple data (II)", "[bivariatePPEcdf]" ) {
+  std::vector u({.1, .2, .3, .4, .5});
+  std::vector v({.5, .4, .3, .2, .1});
+
+  std::vector<double> ecdf = bivariatePPEcdf(u, v);
+
+  REQUIRE_THAT(
+               ecdf,
+               Matchers::Approx(std::vector<double>{.2, .2, .2, .2, .2}));
+}
+
+TEST_CASE( "bivariatePPEcdf computes the ecdf for simple data with duplicates", "[bivariatePPEcdf]" ) {
+  std::vector u({.1, .2, .3, .4, .4, .5});
+  std::vector v({.1, .2, .3, .5, .5, .4});
+
+  std::vector<double> ecdf = bivariatePPEcdf(u, v);
+
+  REQUIRE_THAT(
+               ecdf,
+               Matchers::Approx(std::vector<double>{.167, .333, .5, .667, .667, .667}));
+}
+
 /*
+TEST_CASE( "PP bivariate ecdf computes correct ecdf for uniformly distributed data", "[bivariatePPEcdf]" ) {
+
+  Document data("test/data/1e3_unif.csv");
+  Document exemplar("test/data/1e3_unif_ecdf.csv");
+
+  std::vector<double> u = data.GetColumn<double>("u");
+  std::vector<double> v = data.GetColumn<double>("v");
+  std::vector<double> ecdfExemplar = exemplar.GetColumn<double>("ecdf");
+
+  std::vector<double> ecdf = bivariatePPEcdf(u, v);
+
+  for(auto x : ecdf) {
+    std::cout << x << std::endl;
+  }
+//  REQUIRE_THAT(
+//               ecdf,
+//               Matchers::Approx(ecdfExemplar)
+//               );
+}
+
 TEST_CASE( "ecdf estimates ecdf correctly on unsorted simple data set", "[ecdf]" ) {
   std::vector u({.1, .2, .5, .4, .3});
 
