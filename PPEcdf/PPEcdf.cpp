@@ -62,29 +62,17 @@ namespace PPEcdf {
     return ecdf;
   }
 
- 
   // From https://stackoverflow.com/a/12399290
-  template<typename T>
-  vector<size_t> idxSort(vector<T> v) {
-
-    vector<pair<T, size_t>> v_pair(v.size());
-
-    for(size_t i = 0; i < v.size(); i++) {
-      v_pair[i] = make_pair(v[i], i);
-    }
-
-    stable_sort(v_pair.begin(), v_pair.end());
+  template <typename T> vector<size_t> idxSort(const vector<T> &v) {
 
     vector<size_t> idx(v.size());
 
-    for(size_t i = 0; i < v.size(); i++) {
-      idx[i] = v_pair[i].second;
-    }
+    iota(idx.begin(), idx.end(), 0);
 
-    for(auto x: v_pair) cout << x.first << " " << x.second << endl;
+    sort(idx.begin(), idx.end(), [&v](size_t i1, size_t i2) {return v[i1] < v[i2];});
 
-    return idx; 
-  }
+    return idx;
+}
 
   vector<double> reindex(const vector<double>& v, const vector<size_t>& idx) {
     assert(v.size() == idx.size());
