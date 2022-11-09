@@ -22,9 +22,11 @@ FetchContent_MakeAvailable(catch)
 # Tests need to be added as executables first
 add_executable(testGps testGps.cpp)
 add_executable(testStOpt testStOpt.cpp)
+add_executable(testPPEcdf testPPEcdf.cpp)
 
 target_link_libraries(testGps PRIVATE Gps Catch2::Catch2 rapidcsv)
 target_link_libraries(testStOpt PRIVATE Gps Catch2::Catch2 rapidcsv)
+target_link_libraries(testPPEcdf PRIVATE PPEcdf Catch2::Catch2 rapidcsv)
 
 # Run with 'make test'; needs access to test data in gps/test/data
 add_test(
@@ -33,9 +35,14 @@ add_test(
   WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
   )
 
+add_test(
+  NAME testPPEcdf
+  COMMAND testPPEcdf
+  WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+)
+
 add_executable(testFastCDF StOptCDF/testFastCDF.cpp)
 
-#target_link_libraries(testFastCDF StOptCDF ${Boost_TIMER_LIBRARY} ${Boost_MPI_LIBRARY} ${Boost_SERIALIZATION_LIBRARY}    ${Boost_RANDOM_LIBRARY})
 target_link_libraries(testFastCDF StOptCDF ${Boost_TIMER_LIBRARY} ${Boost_SERIALIZATION_LIBRARY}  ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}  ${Boost_RANDOM_LIBRARY})
 
 add_executable(testFastCDFOnSample StOptCDF/testFastCDFOnSample.cpp)
