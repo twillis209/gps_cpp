@@ -48,20 +48,11 @@ TEST_CASE( "idxSort sorts simple data with duplicates", "[idxSort]" ) {
   // returns { 1, 3, 2, 0 }
   std::vector<size_t> sortedIdx = idxSort(v);
 
-  REQUIRE_THAT(
-               sortedIdx,
-               Matchers::Equals(idx));
-}
-
-TEST_CASE( "reindex rearranges simple data", "[idxSort]" ) {
-  std::vector<double> v({0.4, 0.1, 0.3, 0.2});
-  std::vector<size_t> idx({3, 0, 2, 1});
-
-  std::vector<double> reindexed_v = reindex(v, idx);
+  std::vector<double> ridx = reindex(v, sortedIdx);
 
   REQUIRE_THAT(
-               reindexed_v,
-               Matchers::Equals(std::vector<double>({0.1, 0.2, 0.3, 0.4})));
+               idx,
+               Matchers::Equals(sortedIdx));
 }
 
 //TEST_CASE( "idxSort sorts simple data with all duplicates but one", "[idxSort]" ) {

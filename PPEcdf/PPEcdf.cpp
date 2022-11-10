@@ -62,6 +62,7 @@ namespace PPEcdf {
     return ecdf;
   }
 
+  // TODO maybe I'm calling it incorrectly? But the other implementation didn't work either.
   // From https://stackoverflow.com/a/12399290
   template <typename T> vector<size_t> idxSort(const vector<T> &v) {
 
@@ -69,12 +70,13 @@ namespace PPEcdf {
 
     iota(idx.begin(), idx.end(), 0);
 
-    sort(idx.begin(), idx.end(), [&v](size_t i1, size_t i2) {return v[i1] < v[i2];});
+    stable_sort(idx.begin(), idx.end(),
+         [&v](size_t left, size_t right) {return v[left] < v[right];});
 
     return idx;
 }
 
-  vector<double> reindex(const vector<double>& v, const vector<size_t>& idx) {
+  template <typename T> vector<T> reindex(const vector<T>& v, const vector<size_t>& idx) {
     assert(v.size() == idx.size());
 
     vector<double> reindexed(v.size());
