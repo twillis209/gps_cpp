@@ -11,10 +11,6 @@ include(FetchContent)
 
 enable_testing()
 
-# NB: Only need to list compiled libraries here
-find_package(Boost 1.77 COMPONENTS random math_c99 program_options timer serialization unit_test_framework REQUIRED)
-find_package(Eigen3 3.3 REQUIRED NAMES Eigen3 Eigen eigen NO_MODULE)
-
 FetchContent_Declare(
   rapidcsv
   GIT_REPOSITORY https://github.com/d99kris/rapidcsv.git
@@ -22,8 +18,6 @@ FetchContent_Declare(
   GIT_SHALLOW TRUE)
 FetchContent_MakeAvailable(rapidcsv)
 
-add_subdirectory(StOptCDF)
-add_subdirectory(src)
-add_subdirectory(apps)
 add_subdirectory(test)
 add_subdirectory(PPEcdf)
+add_subdirectory(apps)
