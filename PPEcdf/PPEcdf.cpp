@@ -47,17 +47,11 @@ namespace PPEcdf {
 
       ecdf[ix] = (double) (m+1) / n;
 
-      cout << u_sorted[i] << " " << v_sorted[i] << " " << " " << m << " " << ecdf[i] << " " << endl;
+      //cout << u_sorted[i] << " " << v_sorted[i] << " " << " " << m << " " << ecdf[i] << " " << endl;
 
       //ecdf[posMap[{u_sorted[i], v_sorted[i]}]] = (double) (m+1) / n;
 
     }
-
-    cout << endl;
-
-    //for(size_t i = 0; i < n; i++) {
-    //  cout << u[i] << " " << v[i] << " " << ecdf[i] << " " << endl;
-    //}
 
     return ecdf;
   }

@@ -1,6 +1,7 @@
 #include <iostream>
 #include <iomanip>
 #include <gps.hpp>
+#include <PPEcdf.hpp>
 #include <boost/program_options.hpp>
 #include <rapidcsv.h>
 #include <omp.h>
@@ -139,7 +140,7 @@ int main(int argc, const char* argv[]) {
     if(lwFlag) {
       gps = gpsStat(u, v, &bivariateEcdfLW);
     } else {
-      gps = gpsStat(u, v, &bivariateEcdfPar);
+      gps = gpsStat(u, v, &PPEcdf::bivariatePPEcdf);
     }
 
     std::stringstream stringOutput;
