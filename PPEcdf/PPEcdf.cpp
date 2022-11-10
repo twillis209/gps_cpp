@@ -82,7 +82,7 @@ namespace PPEcdf {
     vector<double> reindexed(v.size());
 
     for(size_t i = 0; i < idx.size(); i++) {
-      reindexed[idx[i]] = v[i];
+      reindexed[i] = v[idx[i]];
     }
 
     return reindexed;

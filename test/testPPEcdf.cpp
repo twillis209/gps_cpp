@@ -41,11 +41,21 @@ TEST_CASE( "idxSort sorts simple duplicated data", "[idxSort]" ) {
                Matchers::Equals(idx));
 }
 
+TEST_CASE( "idxSort sorts triplet of doubles", "[idxSort]" ) {
+  std::vector<double> v({0.2, 0.1, 0.3,});
+  std::vector<size_t> idx({1, 0, 2});
+
+  std::vector<size_t> sortedIdx = idxSort(v);
+
+  REQUIRE_THAT(
+               sortedIdx,
+               Matchers::Equals(idx));
+}
+
 TEST_CASE( "idxSort sorts simple data with duplicates", "[idxSort]" ) {
   std::vector<double> v({0.4, 0.1, 0.3, 0.2});
-  std::vector<size_t> idx({3, 0, 2, 1});
+  std::vector<size_t> idx({1, 3, 2, 0});
 
-  // returns { 1, 3, 2, 0 }
   std::vector<size_t> sortedIdx = idxSort(v);
 
   std::vector<double> ridx = reindex(v, sortedIdx);
@@ -55,65 +65,57 @@ TEST_CASE( "idxSort sorts simple data with duplicates", "[idxSort]" ) {
                Matchers::Equals(sortedIdx));
 }
 
-//TEST_CASE( "idxSort sorts simple data with all duplicates but one", "[idxSort]" ) {
-//  std::vector<double> v({.4, .4, .4, .4, .1});
-//  std::vector<size_t> idx({4, 3, 2, 1, 0});
-//
-//  std::vector<size_t> sortedIdx = argSort(v);
-//
-//  REQUIRE_THAT(
-//               sortedIdx,
-//               Matchers::Equals(std::vector<size_t>{4, 3, 2, 1, 0}));
-//}
-//
-//TEST_CASE( "reindex sorts simple data", "[reindex]" ) {
-//  std::vector<double> v({.5, .4, .3, .2, .1});
-//  std::vector<size_t> idx({1, 2, 4, 3, 0});
-//  std::vector<double> reindexed_v({.1, .5, .4, .2, .3});
-//
-//  std::vector<double> reindexedV = reindex(v, idx);
-//
-//  REQUIRE_THAT(
-//               reindexedV,
-//               Matchers::Approx(std::vector<double>{.1, .5, .4, .2, .3}));
-//}
+TEST_CASE( "idxSort sorts simple data with all duplicates but one", "[idxSort]" ) {
+  std::vector<double> v({.4, .4, .4, .4, .1});
+  std::vector<size_t> idx({4, 0, 1, 2, 3});
 
-/*
+  std::vector<size_t> sortedIdx = idxSort(v);
+
+  REQUIRE_THAT(
+               sortedIdx,
+               Matchers::Equals(idx));
+}
+
+TEST_CASE( "reindex sorts simple data", "[reindex]" ) {
+  std::vector<double> v({.5, .4, .3, .2, .1});
+  std::vector<size_t> idx({4, 3, 2, 1, 0});
+  std::vector<double> reindexed_v({.1, .2, .3, .4, .5});
+
+  std::vector<double> reindexedV = reindex(v, idx);
+
+  REQUIRE_THAT(
+               reindexedV,
+               Matchers::Approx(reindexed_v));
+}
+
+
 // NB: runif with set.seed(42)
 TEST_CASE( "reindex sorts two vectors", "[reindex]" ) {
-  //std::vector u({0.9148060, 0.9370754, 0.2861395, 0.8304476, 0.6417455, 0.5190959, 0.7365883, 0.1346666, 0.6569923, 0.7050648});
-  std::vector u({0.3, 0.1, 0.2});
+  std::vector u({0.9148060, 0.9370754, 0.2861395, 0.8304476, 0.6417455, 0.5190959, 0.7365883, 0.1346666, 0.6569923, 0.7050648});
   std::vector v({0.4577418, 0.7191123, 0.9346722, 0.2554288, 0.4622928, 0.9400145, 0.9782264, 0.1174874, 0.4749971, 0.5603327});
 
-  //std::vector<size_t> u_sorted_idx({8, 9, 1, 7, 3, 2, 6, 0, 4, 5});
-  std::vector<size_t> u_sorted_idx({2, 0, 1});
-
-  //std::vector sorted_u({0.1346666, 0.2861395, 0.5190959, 0.6417455, 0.6569923, 0.7050648, 0.7365883, 0.8304476, 0.9148060, 0.9370754});
   std::vector sorted_u({0.1346666, 0.2861395, 0.5190959, 0.6417455, 0.6569923, 0.7050648, 0.7365883, 0.8304476, 0.9148060, 0.9370754});
   std::vector sorted_v({0.1174874, 0.9346722, 0.9400145, 0.4622928, 0.4749971, 0.5603327, 0.9782264, 0.2554288, 0.4577418, 0.7191123});
 
-  std::vector<size_t> idx = argSort(u);
+  std::vector<size_t> u_sorted_idx({7, 2, 5, 4, 8, 9, 6, 3, 0, 1});
 
-  for(auto x: idx) std::cout << x << std::endl;
+  std::vector<size_t> idx = idxSort(u);
 
   REQUIRE_THAT(
                u_sorted_idx,
                Matchers::Equals(idx));
 
-  /*
   std::vector<double> u_sorted = reindex(u, idx);
+  std::vector<double> v_sorted = reindex(v, idx);
 
   REQUIRE_THAT(
                sorted_u,
                Matchers::Equals(u_sorted));
-  */
-//  std::vector<double> reindexed_u = reindex(u, idx);
-//  std::vector<double> reindexed_v = reindex(v, idx);
-//
-//  REQUIRE_THAT(
-//               reindexed_u,
-//               Matchers::Approx(sorted_u));
-//}
+
+  REQUIRE_THAT(
+               sorted_v,
+               Matchers::Equals(v_sorted));
+}
 /*
 TEST_CASE( "bivariatePPEcdf computes the ecdf for simple data", "[bivariatePPEcdf]" ) {
   std::vector<double> v({.5, .4, .3, .2, .1});
