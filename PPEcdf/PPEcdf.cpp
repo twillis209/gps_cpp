@@ -21,7 +21,6 @@ namespace PPEcdf {
 
     map<pair<double, double>, size_t> posMap;
 
-    // TODO duplicate keys? Perhaps could handle with vector
     for(size_t i = 0; i < n; i++) {
       posMap[{u[i], v[i]}] = i;
     }

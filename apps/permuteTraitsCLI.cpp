@@ -3,6 +3,7 @@
 #include <boost/program_options.hpp>
 #include <rapidcsv.h>
 #include <omp.h>
+#include <PPEcdf.hpp>
 
 namespace po = boost::program_options;
 using namespace po;
@@ -56,7 +57,7 @@ int main(int argc, const char* argv[]) {
 
     #pragma omp parallel for
     for(int k = 0; k < cores; ++k) {
-      gpsPermutations.push_back(permuteAndSampleGps(u, v, drawsPerCore, &bivariateEcdfLW));
+      gpsPermutations.push_back(permuteAndSampleGps(u, v, drawsPerCore, &PPEcdf::bivariatePPEcdf));
     }
 
     std::stringstream stringOutput;
