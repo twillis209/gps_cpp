@@ -154,7 +154,7 @@ TEST_CASE( "perturbDuplicates distinguishes duplicates in simple case", "[pertur
 
   std::vector<double> u({.1,.1,.1,.2,.3,.4,.5});
 
-  std::vector<double> noDup = perturbDuplicates(u);
+  std::vector<double> noDup = perturbDuplicates_addEpsilon(u, 2.0);
 
   REQUIRE(noDup[0] == .1);
   REQUIRE(noDup[0] != noDup[1]);
