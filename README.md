@@ -2,32 +2,36 @@
 
 `gps_cpp` is a C++ library which provides an implementation of the genome-wide pairwise-association signal sharing test (the 'GPS test') invented by Li et al. (DOI: 10.1038/nm.3933).
 
-My implementation of the test depends on the very fast multivariate ecdf algorithm published by Langrene and Warin (arXiv:2005.03246) and their implementation of it in the [`StOpt` library](https://gitlab.com/stochastic-control/StOpt). The permutation testing approach we would take with the GPS test would be completely infeasible without this algorithm. I've incorporated a component of the `StOpt` library in the `StOptCDF` directory; this code is licensed under the GNU Lesser General Public License.
+There are two implementations of the GPS test in this repo. The first depends on the very fast multivariate ecdf algorithm published by Langrene and Warin (arXiv:2005.03246) and their implementation of it in the [`StOpt` library](https://gitlab.com/stochastic-control/StOpt). The algorithm is O(n log n) in the bivariate case. I've incorporated a component of the `StOpt` library in the `StOptCDF` directory; this code is licensed under the GNU Lesser General Public License. We used the Langrene and Warin ecdf algorithm in the code supporting our paper on the GPS test. This implemention of the test can still be found on the `gps_paper` branch.
+
+My more recent implementation of the GPS test depends on the bivariate ecdf algorithm of Perisic and Posse from 2005 (https://doi.org/10.1198/106186005X69440). This algorithm also runs in O(n log n) time, but I've found it to be significantly faster than Langrene and Warin's (this is perhaps understandable given the latter treats the general multivariate case and the former only the bivariate case). The version of the GPS test on the `master` branch currently uses the Perisic and Posse algorithm. We implemented it in the `PPEcdf` library.
 
 This project's directory structure was borrowed from a sample project provided by Henry Schreiner [here](https://gitlab.com/CLIUtils/modern-cmake/-/tree/master/examples/extended-project).
 
 ## CLI programs
 
-We compute the GPS test statistic for p-values from a pair of GWAS using the `computeGpsCLI` application. We generate null realisations of the GPS test statistic with the `permuteTraitsCLI` application. You can see the use of these programs in the `snakemake` pipeline for our publication 'Accurate detection of shared genetic architecture from GWAS summary statistics in the small-sample context' at https://github.com/twillis209/gps_paper_pipeline
+We compute the GPS test statistic for p-values from a pair of GWAS using the `computeGpsCLI` application. We generate null realisations of the GPS test statistic with the `permuteTraitsCLI` application. You can see the use of these programs in the `snakemake` pipeline for our publication 'Accurate detection of shared genetic architecture from GWAS summary statistics in the small-sample context' [here](https://github.com/twillis209/gps_paper_pipeline).
 
 ## The need to perturb the p-values
 
-The divide-and-conquer algorithm of Langrene and Warin depends on the data points (in our use case, p-values) being distinct. However, GWAS summary statistics are usually sufficiently numerous and/or imprecisely reported that there are duplicate p-values amongst them. In order to make use of the fast ecdf algorithm, we 'perturb' duplicate p-values in order to create a set of unique data points. 
+The divide-and-conquer algorithm of Langrene and Warin depends on the data points (in our use case, p-values) being distinct. However, GWAS summary statistics are usually sufficiently numerous and/or imprecisely reported that there are duplicate p-values amongst them. In order to make use of the fast ecdf algorithm, we 'perturb' duplicate p-values in order to create a set of unique data points. I've found it necessary to do the same with the Perisic and Posse algorithm for reasons that aren't yet clear; at the moment I put it down to some deficiency of my implementation.
 
-The perturbation procedure does not appear to affect the value of the GPS test statistic expressed to four or five significant figures *in most cases*. You can check the disparity by running `computeGpsCLI` with the command-line argument `-p 0` (no perturbations) and *without* the flag `-l`; `-l` is a switch which toggles use of the fast bivariate ecdf algorithm (which necessitates perturbation in the first place). If using the 'naive' bivariate ecdf algorithm, you should specify a number of cores with the `-c` flag as the naive algorithm is rather slow when run on a single thread.
+The perturbation procedure does not appear to affect the value of the GPS test statistic expressed to four or five significant figures *in most cases*. You can check the disparity by running `computeGpsCLI` with the command-line argument `-p 0` (no perturbations) and with the argument `-f naive`, which triggers use of the naive bivariate ecdf algorithm. If using this algorithm, you should specify a number of cores with the `-c` flag as it is rather slow. `-f pp` and `-f lw` will trigger use of the Perisic and Posse, and Langrene and Warin ecdf algorithms, respectively.
 
-See the `perturbDuplicates_addEpsilon` function for the implementation of this deduplication approach. In short, we 'spread out' duplicate values by adding multiples of epsilon to all but the first value. To fully remove duplicates, we have to iterate this procedure (e.g. see the `perturbN` argument to the `computeGpsCLI` and `permuteTraitsCLI` scripts which specifies the number of iterations). 
+See the `perturbDuplicates_addEpsilon` function for the implementation of this deduplication approach. In short, we 'spread out' duplicate values by adding multiples of epsilon to all but the first value. To fully remove duplicates, we have to iterate this procedure (e.g. see the `perturbN` argument to the `computeGpsCLI` and `permuteTraitsCLI` scripts which specifies the number of iterations). For the Langrene and Warin implementation, we run 200 iterations of the perturbation procedure to spread out the values sufficiently; this was empirically determined, is particular to the biased selection of GWAS we've looked at so far, and incorporates a generous safety factor. For the Perisic and Posse implementation, one iteration seems to suffice.
 
 We've yet to implement this perturbation approach in a fashion which succeeds with all data sets, but we're working on it. In the meantime, it helps to supply p-values to the highest precision possible; we do this by recalculating p-values from the effect estimates and standard errors commonly supplied in GWAS summary statistics.
 
-In the event the procedure fails to properly deduplicate the values, you'll most likely encounter the following error:
+In the event the procedure fails to properly deduplicate the values when using the Langrene and Warin algorithm, you'll most likely encounter the following error:
 
 ```
 computeGpsCLI: opt/include/eigen3/Eigen/src/Core/DenseCoeffsBase.h:365: Eigen::DenseCoeffsBase<Derived, 1>::Scalar& Eigen::DenseCoeffsBase<Derived, 1>::operator()(Eigen::Index, Eigen::Index) [with Derived = Eigen::Array<int, -1, -1>; Eigen::DenseCoeffsBase<Derived, 1>::Scalar = int; Eigen::Index = long int]: Assertion `row >= 0 && row < rows() && col >= 0 && col < cols()' failed.
 Aborted
 ```
 
-We've found it's not sufficient to supply a data set with wholly distinct values in each dimension: the values need to differ by a certain quantum large enough for the divide-and-conquer algorithm to split them into sets.
+We've found it's not sufficient to supply a data set with wholly distinct values in each dimension: the values need to differ by a certain quantum large enough for Langrene and Warin's divide-and-conquer algorithm to split them into sets.
+
+When using the Perisic and Posse algorithm, I compare the GPS statistics I obtain with those computed with the naive algorithm as a sanity check.
 
 ## Computing p-values
 
