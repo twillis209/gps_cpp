@@ -58,7 +58,7 @@ TEST_CASE( "Naive bivariate ecdf runs in simple case", "[ecdf]" ) {
 
   std::vector<double> ecdfResult = bivariateEcdfPar(u,v);
 
-  std::cout << ecdfResult[0] << std::endl;
+  for(auto x: ecdfResult) std::cerr << x << std::endl;
 
   REQUIRE_THAT(
                ecdfResult,
