@@ -96,6 +96,8 @@ namespace gps {
 
     std::vector<double> ecdf;
 
+    ecdf.reserve(n);
+
     #pragma omp parallel for
     for(size_t i = 0; i < n; ++i) {
         int count = 0;
@@ -106,7 +108,7 @@ namespace gps {
           }
         }
 
-        ecdf.push_back((double) count/n);
+        ecdf[i] = (double) count/n;
       }
 
     return ecdf;
