@@ -41,8 +41,34 @@ int main(int argc, const char* argv[]) {
   if(vm.count("inputFile")) {
     Document input(inputFile, LabelParams(), SeparatorParams('\t'));
 
-    std::vector<double> u = input.GetColumn<double>(columnA);
-    std::vector<double> v = input.GetColumn<double>(columnB);
+    std::vector<double> u;
+    std::vector<double> v;
+
+    try {
+      u = input.GetColumn<double>(columnA);
+    } catch(std::out_of_range stod){
+      for(size_t i = 0; i < input.GetRowCount(); ++i){
+        try {
+          u.push_back(input.GetCell<double>(columnA, i));
+        } catch(std::out_of_range stod) {
+          u.push_back(1.0);
+          //logOutput << traitA << "\t" << i+1 << std::endl;
+        }
+      }
+    }
+
+    try {
+      v = input.GetColumn<double>(columnB);
+    } catch(std::out_of_range stod){
+      for(size_t i = 0; i < input.GetRowCount(); ++i){
+        try {
+          v.push_back(input.GetCell<double>(columnB, i));
+        } catch(std::out_of_range stod) {
+          v.push_back(1.0);
+          //logOutput << traitB << "\t" << i+1 << std::endl;
+        }
+      }
+    }
 
     for(size_t i = 0; i < perturbN; ++i) {
       u = perturbDuplicates_addEpsilon(u, epsilonMultiple);
@@ -71,6 +97,7 @@ int main(int argc, const char* argv[]) {
     }
 
     Document output(stringOutput, LabelParams(), SeparatorParams('\t'));
+
     output.Save(outputFile);
   } else {
       std::cout << desc << std::endl;
