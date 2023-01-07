@@ -26,6 +26,7 @@ int main(int argc, const char* argv[]) {
   int perturbN = 0;
   double epsilonMultiple = 2.0;
   int cores = 1;
+  bool deduplicateFlag = false;
 
   desc.add_options()
     ("help", "Print help message")
@@ -41,6 +42,7 @@ int main(int argc, const char* argv[]) {
     ("perturbN,p", po::value<int>(&perturbN), "No. of perturbation iterations")
     ("epsilonMultiple,e", po::value<double>(&epsilonMultiple), "Multiple of epsilon to use in perturbation procedure")
     ("cores,n", po::value<int>(&cores), "No. of cores")
+    ("deduplicate,d", po::bool_switch(&deduplicateFlag), "Remove duplicate values")
     ;
 
   po::variables_map vm;
@@ -101,19 +103,19 @@ int main(int argc, const char* argv[]) {
 
       int n = u.size();
 
-      /*
-      std::cout << "Length of u vector before deletion: " << n << std::endl;
 
-      // Delete any values we couldn't perturb away from being duplicates
-      for(size_t i = 0; i < n; ++i) {
-        if(freqMapU[u[i]] > 1 || freqMapV[v[i]] > 1 || u[i] > 1.0 || v[i] > 1.0) {
-          u.erase(u.end()-(i+1));
-          v.erase(v.end()-(i+1));
+      if(deduplicateFlag) {
+        std::cout << "Length of u vector before deletion: " << n << std::endl;
+        // Delete any values we couldn't perturb away from being duplicates
+        for(size_t i = 0; i < n; ++i) {
+          if(freqMapU[u[i]] > 1 || freqMapV[v[i]] > 1 || u[i] > 1.0 || v[i] > 1.0) {
+            u.erase(u.end()-(i+1));
+            v.erase(v.end()-(i+1));
+          }
         }
-      }
 
-      std::cout << "Length of u vector after deletion: " << u.size() << std::endl;
-      */
+        std::cout << "Length of u vector after deletion: " << u.size() << std::endl;
+      }
 
       if(!perturbedFile.empty()) {
 
