@@ -22,7 +22,7 @@ int main(int argc, const char* argv[]) {
   std::string traitB;
   std::string colLabelA;
   std::string colLabelB;
-  bool lwFlag = false;
+  std::string ecdf = "naive";
   int perturbN = 0;
   double epsilonMultiple = 2.0;
   int cores = 1;
@@ -38,7 +38,7 @@ int main(int argc, const char* argv[]) {
     ("outputFile,o", po::value<std::string>(&outputFile), "Path to output file")
     ("logFile,g", po::value<std::string>(&logFile), "Path to log file")
     ("perturbedFile,t", po::value<std::string>(&perturbedFile), "Path to file containing perturbed u and v vectors")
-    ("lwFlag,l", po::bool_switch(&lwFlag), "Flag to use the fast bivariate ecdf algorithm from Langrene and Warin")
+    ("ecdf,f", po::value<std::string>(&ecdf), "Specifies ecdf algorithm: \"naive\", \"pp\", or \"lw\"")
     ("perturbN,p", po::value<int>(&perturbN), "No. of perturbation iterations")
     ("epsilonMultiple,e", po::value<double>(&epsilonMultiple), "Multiple of epsilon to use in perturbation procedure")
     ("cores,n", po::value<int>(&cores), "No. of cores")
@@ -97,12 +97,12 @@ int main(int argc, const char* argv[]) {
         u = perturbDuplicates_addEpsilon(u, epsilonMultiple);
         v = perturbDuplicates_addEpsilon(v, epsilonMultiple);
       }
+    }
 
       std::map<double, int> freqMapU = returnFreqMap(u);
       std::map<double, int> freqMapV = returnFreqMap(v);
 
       int n = u.size();
-
 
       if(deduplicateFlag) {
         std::cout << "Length of u vector before deletion: " << n << std::endl;
@@ -132,17 +132,20 @@ int main(int argc, const char* argv[]) {
         Document perturbedOutputDoc(perturbedOutput, LabelParams(), SeparatorParams('\t'));
         perturbedOutputDoc.Save(perturbedFile);
       }
-    }
 
     omp_set_num_threads(cores);
 
-
     std::cout << "Computing the GPS statistic..." << std::endl;
 
-    if(lwFlag) {
+    if(ecdf == "naive") {
+      gps = gpsStat(u, v, &bivariateEcdfPar);
+    } else if(ecdf == "pp") {
+      gps = gpsStat(u, v, &PPEcdf::bivariatePPEcdf);
+    } else if(ecdf == "lw") {
       gps = gpsStat(u, v, &bivariateEcdfLW);
     } else {
-      gps = gpsStat(u, v, &PPEcdf::bivariatePPEcdf);
+      std::cout << "Invalid ecdf argument, using naive algorithm" << std::endl;
+      gps = gpsStat(u, v, &bivariateEcdfPar);
     }
 
     std::stringstream stringOutput;
