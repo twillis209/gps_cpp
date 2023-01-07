@@ -58,7 +58,7 @@ TEST_CASE( "Naive bivariate ecdf runs in simple case", "[ecdf]" ) {
 
   std::vector<double> ecdfResult = bivariateEcdfPar(u,v);
 
-  std::cout << ecdfResult[0] << std::endl;
+  for(auto x: ecdfResult) std::cerr << x << std::endl;
 
   REQUIRE_THAT(
                ecdfResult,
@@ -154,7 +154,7 @@ TEST_CASE( "perturbDuplicates distinguishes duplicates in simple case", "[pertur
 
   std::vector<double> u({.1,.1,.1,.2,.3,.4,.5});
 
-  std::vector<double> noDup = perturbDuplicates_addEpsilon(u, 2.0);
+  std::vector<double> noDup = perturbDuplicates_addEpsilon(u, 1.0);
 
   REQUIRE(noDup[0] == .1);
   REQUIRE(noDup[0] != noDup[1]);
