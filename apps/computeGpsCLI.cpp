@@ -3,6 +3,7 @@
 #include <gps.hpp>
 #include <PPEcdf.hpp>
 #include <boost/program_options.hpp>
+#include <boost/timer/timer.hpp>
 #include <rapidcsv.h>
 #include <omp.h>
 
@@ -18,6 +19,7 @@ int main(int argc, const char* argv[]) {
   std::string outputFile;
   std::string logFile;
   std::string perturbedFile;
+  std::string timingFile;
   std::string traitA;
   std::string traitB;
   std::string colLabelA;
@@ -36,6 +38,7 @@ int main(int argc, const char* argv[]) {
     ("traitA,c", po::value<std::string>(&traitA), "Trait A")
     ("traitB,d", po::value<std::string>(&traitB), "Trait B")
     ("outputFile,o", po::value<std::string>(&outputFile), "Path to output file")
+    ("timingFile,j", po::value<std::string>(&timingFile), "Path to timing file")
     ("logFile,g", po::value<std::string>(&logFile), "Path to log file")
     ("perturbedFile,t", po::value<std::string>(&perturbedFile), "Path to file containing perturbed u and v vectors")
     ("ecdf,f", po::value<std::string>(&ecdf), "Specifies ecdf algorithm: \"naive\", \"pp\", or \"lw\"")
@@ -132,9 +135,12 @@ int main(int argc, const char* argv[]) {
         perturbedOutputDoc.Save(perturbedFile);
       }
 
+
     omp_set_num_threads(cores);
 
     std::cout << "Computing the GPS statistic..." << std::endl;
+
+    boost::timer::cpu_timer timer;
 
     if(ecdf == "naive") {
       gps = gpsStat(u, v, &bivariateEcdfPar);
@@ -145,6 +151,13 @@ int main(int argc, const char* argv[]) {
     } else {
       std::cout << "Invalid ecdf argument, using naive algorithm" << std::endl;
       gps = gpsStat(u, v, &bivariateEcdfPar);
+    }
+
+    if(vm.count("timingFile")) {
+      timer.stop();
+      std::ofstream timingOut(timingFile);
+      timingOut << timer.format() << std::endl;
+      timingOut.close();
     }
 
     std::stringstream stringOutput;
