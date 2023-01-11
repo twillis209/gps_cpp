@@ -114,7 +114,6 @@ namespace gps {
     return ecdf;
   }
 
-  // TODO can make this faster by fitting the univariate ecdfs once
   std::vector<double> permuteAndSampleGps(std::vector<double> u, std::vector<double> v, size_t n, std::function<std::vector<double>(const std::vector<double>&, const std::vector<double>&)> bivariateEcdf) {
     std::vector<double> sample;
 
@@ -155,4 +154,15 @@ namespace gps {
 
     return values;
   }
+
+  std::map<double, int> returnFreqMap(std::vector<double> values) {
+    std::map<double, int> freqMap;
+
+    for(size_t i = 0; i < values.size(); ++i){
+      freqMap[values[i]]++;
+    }
+
+    return freqMap;
+  }
+
 }

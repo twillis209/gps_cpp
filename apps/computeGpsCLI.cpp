@@ -1,6 +1,7 @@
 #include <iostream>
 #include <iomanip>
 #include <gps.hpp>
+#include <PPEcdf.hpp>
 #include <boost/program_options.hpp>
 #include <rapidcsv.h>
 #include <omp.h>
@@ -21,10 +22,11 @@ int main(int argc, const char* argv[]) {
   std::string traitB;
   std::string colLabelA;
   std::string colLabelB;
-  bool lwFlag = false;
+  std::string ecdf = "naive";
   int perturbN = 0;
   double epsilonMultiple = 2.0;
   int cores = 1;
+  bool deduplicateFlag = false;
 
   desc.add_options()
     ("help", "Print help message")
@@ -36,7 +38,7 @@ int main(int argc, const char* argv[]) {
     ("outputFile,o", po::value<std::string>(&outputFile), "Path to output file")
     ("logFile,g", po::value<std::string>(&logFile), "Path to log file")
     ("perturbedFile,t", po::value<std::string>(&perturbedFile), "Path to file containing perturbed u and v vectors")
-    ("lwFlag,l", po::bool_switch(&lwFlag), "Flag to use the fast bivariate ecdf algorithm from Langrene and Warin")
+    ("ecdf,f", po::value<std::string>(&ecdf), "Specifies ecdf algorithm: \"naive\", \"pp\", or \"lw\"")
     ("perturbN,p", po::value<int>(&perturbN), "No. of perturbation iterations")
     ("epsilonMultiple,e", po::value<double>(&epsilonMultiple), "Multiple of epsilon to use in perturbation procedure")
     ("cores,n", po::value<int>(&cores), "No. of cores")
@@ -86,55 +88,33 @@ int main(int argc, const char* argv[]) {
 
     std::cout.precision(20);
 
-    /*
-    NB: Checks the obvious source of my errors, but this xMedium issue doesn't always arise between adjacent points
-    std::vector<double> uCopy(u);
-    std::vector<double> vCopy(v);
-
-    std::sort(uCopy.begin(), uCopy.end());
-    std::sort(vCopy.begin(), vCopy.end());
-
-    for(size_t i = 0; i < (uCopy.size()-1); ++i) {
-
-        double xMedium = 0.5 * (uCopy[i] + uCopy[i+1]);
-        if(xMedium == uCopy[i] || xMedium == uCopy[i+1]) {
-          std::cout << "Imperturbed duplicate in u" << std::endl;
-          std::cout << uCopy[i] << std::endl;
-          std::cout << uCopy[i+1] << std::endl;
-        }
-
-        xMedium = 0.5 * (vCopy[i] + vCopy[i+1]);
-        if(xMedium == vCopy[i] || xMedium == vCopy[i+1]) {
-          std::cout << "Imperturbed duplicate in v" << std::endl;
-          std::cout << vCopy[i] << std::endl;
-          std::cout << vCopy[i+1] << std::endl;
-        }
-    }
-    */
-
     if(perturbN > 0) {
+
+      std::cout << "Perturbing..." << std::endl;
 
       for(size_t i = 0; i < perturbN; ++i) {
         u = perturbDuplicates_addEpsilon(u, epsilonMultiple);
         v = perturbDuplicates_addEpsilon(v, epsilonMultiple);
       }
+    }
 
       std::map<double, int> freqMapU = returnFreqMap(u);
       std::map<double, int> freqMapV = returnFreqMap(v);
 
       int n = u.size();
 
-      std::cout << "Length of u vector before deletion: " << n << std::endl;
-
-      // Delete any values we couldn't perturb away from being duplicates
-      for(size_t i = 0; i < n; ++i) {
-        if(freqMapU[u[i]] > 1 || freqMapV[v[i]] > 1 || u[i] > 1.0 || v[i] > 1.0) {
-          u.erase(u.end()-(i+1));
-          v.erase(v.end()-(i+1));
+      if(deduplicateFlag) {
+        std::cout << "Length of u vector before deletion: " << n << std::endl;
+        // Delete any values we couldn't perturb away from being duplicates
+        for(size_t i = 0; i < n; ++i) {
+          if(freqMapU[u[i]] > 1 || freqMapV[v[i]] > 1 || u[i] > 1.0 || v[i] > 1.0) {
+            u.erase(u.end()-(i+1));
+            v.erase(v.end()-(i+1));
+          }
         }
-      }
 
-      std::cout << "Length of u vector after deletion: " << u.size() << std::endl;
+        std::cout << "Length of u vector after deletion: " << u.size() << std::endl;
+      }
 
       if(!perturbedFile.empty()) {
 
@@ -151,13 +131,19 @@ int main(int argc, const char* argv[]) {
         Document perturbedOutputDoc(perturbedOutput, LabelParams(), SeparatorParams('\t'));
         perturbedOutputDoc.Save(perturbedFile);
       }
-    }
 
     omp_set_num_threads(cores);
 
-    if(lwFlag) {
+    std::cout << "Computing the GPS statistic..." << std::endl;
+
+    if(ecdf == "naive") {
+      gps = gpsStat(u, v, &bivariateEcdfPar);
+    } else if(ecdf == "pp") {
+      gps = gpsStat(u, v, &PPEcdf::bivariatePPEcdf);
+    } else if(ecdf == "lw") {
       gps = gpsStat(u, v, &bivariateEcdfLW);
     } else {
+      std::cout << "Invalid ecdf argument, using naive algorithm" << std::endl;
       gps = gpsStat(u, v, &bivariateEcdfPar);
     }
 
