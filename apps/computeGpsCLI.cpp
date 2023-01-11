@@ -156,7 +156,7 @@ int main(int argc, const char* argv[]) {
     if(vm.count("timingFile")) {
       timer.stop();
       std::ofstream timingOut(timingFile);
-      timingOut << timer.format() << std::endl;
+      timingOut << timer.format();
       timingOut.close();
     }
 
