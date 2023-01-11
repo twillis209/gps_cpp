@@ -19,7 +19,7 @@ int main(int argc, const char* argv[]) {
   std::string colLabelB;
   int perturbN = 0;
   double epsilonMultiple = 2.0;
-  int cores;
+  int cores = 1;
   int draws;
 
   desc.add_options()

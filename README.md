@@ -12,6 +12,47 @@ This project's directory structure was borrowed from a sample project provided b
 
 We compute the GPS test statistic for p-values from a pair of GWAS using the `computeGpsCLI` application. We generate null realisations of the GPS test statistic with the `permuteTraitsCLI` application. You can see the use of these programs in the `snakemake` pipeline for our publication 'Accurate detection of shared genetic architecture from GWAS summary statistics in the small-sample context' [here](https://github.com/twillis209/gps_paper_pipeline).
 
+### `computeGpsCLI`
+
+This program expects a tab-separated, uncompressed file with two columns of p-values with labels corresponding to those passed as the `colLabelA` and `colLabelB` command-line arguments.
+
+The essential command-line arguments are as follows:
+- `--inputFile/-i`: path to input file
+- `--outputFile/-o`: path to output file
+- `--colLabelA/-a`: label of first p-value column
+- `--colLabelB/-b`: label of second p-value column
+- `--traitA/-c`: label of first trait for output file
+- `--traitB/-d`: label of second trait for output file
+
+In addition the following are optional arguments:
+- `--timingFile/-j`: path to file to contain GPS running time for the purpose of evaluating different ecdf algorithms
+- `--logFile/-g`: path to file in which to log input file values which could not be read
+- `--perturbedFile/-t`: path to file in which to log the perturbed input data
+- `--ecdf/-f`: string determining ecdf algorithm to use with the GPS. Defaults to the naive algorithm which does not require perturbation.
+- `--perturbN/-p`: determines the number of iterations of the perturbation procedure. Defaults to 0.
+- `--epsilonMultiple/-e`: determines the multiple of `std::numeric_limits<>::epsilon` to add to values in the perturation procedure
+- `--cores/-n`: number of cores. Only speeds things up when the naive ecdf algorithm is used.
+
+### `permuteTraitsCLI`
+
+This program expects a tab-separated, uncompressed file with two columns of p-values with labels corresponding to those passed as the `colLabelA` and `colLabelB` command-line arguments.
+
+The work of running the permutations is mapped over the cores provided (with the number of cores specified by the `--cores` argument).
+
+Note that the Perisic and Posse ecdf algorithm is used for this program as it is the fastest of the three we considered.
+
+The essential command-line arguments are as follows:
+- `--inputFile/-i`: path to input file
+- `--outputFile/-o`: path to output file
+- `--colLabelA/-a`: label of first p-value column
+- `--colLabelB/-b`: label of second p-value column
+- `--draws/-n`: the number of permutations to generate
+
+In addition the following are optional arguments:
+- `--perturbN/-p`: determines the number of iterations of the perturbation procedure. Defaults to 0.
+- `--epsilonMultiple/-e`: determines the multiple of `std::numeric_limits<>::epsilon` to add to values in the perturation procedure
+- `--cores/-n`: number of cores. 
+
 ## The need to perturb the p-values
 
 The divide-and-conquer algorithm of Langrene and Warin depends on the data points (in our use case, p-values) being distinct. However, GWAS summary statistics are usually sufficiently numerous and/or imprecisely reported that there are duplicate p-values amongst them. In order to make use of the fast ecdf algorithm, we 'perturb' duplicate p-values in order to create a set of unique data points. I've found it necessary to do the same with the Perisic and Posse algorithm for reasons that aren't yet clear; at the moment I put it down to some deficiency of my implementation.
