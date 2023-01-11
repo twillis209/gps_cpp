@@ -15,19 +15,19 @@ int main(int argc, const char* argv[]) {
 
   std::string inputFile;
   std::string outputFile;
-  std::string columnA;
-  std::string columnB;
+  std::string colLabelA;
+  std::string colLabelB;
   int perturbN = 0;
   double epsilonMultiple = 2.0;
-  int cores;
+  int cores = 1;
   int draws;
 
   desc.add_options()
     ("help", "Print help message")
     ("inputFile,i", po::value<std::string>(&inputFile), "Path to input file")
     ("outputFile,o", po::value<std::string>(&outputFile), "Path to output file")
-    ("columnA,a", po::value<std::string>(&columnA), "Label of column A")
-    ("columnB,b", po::value<std::string>(&columnB), "Label of column B")
+    ("colLabelA,a", po::value<std::string>(&colLabelA), "Label of column A")
+    ("colLabelB,b", po::value<std::string>(&colLabelB), "Label of column B")
     ("perturbN,p", po::value<int>(&perturbN), "No. of perturbation iterations")
     ("epsilonMultiple,e", po::value<double>(&epsilonMultiple), "Multiple of epsilon to use in perturbation procedure")
     ("cores,c", po::value<int>(&cores), "No. of cores")
@@ -45,11 +45,11 @@ int main(int argc, const char* argv[]) {
     std::vector<double> v;
 
     try {
-      u = input.GetColumn<double>(columnA);
+      u = input.GetColumn<double>(colLabelA);
     } catch(std::out_of_range stod){
       for(size_t i = 0; i < input.GetRowCount(); ++i){
         try {
-          u.push_back(input.GetCell<double>(columnA, i));
+          u.push_back(input.GetCell<double>(colLabelA, i));
         } catch(std::out_of_range stod) {
           u.push_back(1.0);
           //logOutput << traitA << "\t" << i+1 << std::endl;
@@ -58,11 +58,11 @@ int main(int argc, const char* argv[]) {
     }
 
     try {
-      v = input.GetColumn<double>(columnB);
+      v = input.GetColumn<double>(colLabelB);
     } catch(std::out_of_range stod){
       for(size_t i = 0; i < input.GetRowCount(); ++i){
         try {
-          v.push_back(input.GetCell<double>(columnB, i));
+          v.push_back(input.GetCell<double>(colLabelB, i));
         } catch(std::out_of_range stod) {
           v.push_back(1.0);
           //logOutput << traitB << "\t" << i+1 << std::endl;
@@ -79,6 +79,8 @@ int main(int argc, const char* argv[]) {
 
     int drawsPerCore = draws / cores;
 
+    int remainingDraws = draws - drawsPerCore*cores;
+
     omp_set_num_threads(cores);
 
     #pragma omp parallel for
@@ -86,12 +88,16 @@ int main(int argc, const char* argv[]) {
       gpsPermutations.push_back(permuteAndSampleGps(u, v, drawsPerCore, &PPEcdf::bivariatePPEcdf));
     }
 
+    if(remainingDraws > 0) {
+      gpsPermutations.push_back(permuteAndSampleGps(u, v, remainingDraws, &PPEcdf::bivariatePPEcdf));
+    }
+
     std::stringstream stringOutput;
 
     stringOutput << "GPS" << std::endl;
 
-    for(int i = 0; i < cores; ++i) {
-      for(int j = 0; j < drawsPerCore; ++j) {
+    for(int i = 0; i < gpsPermutations.size(); ++i) {
+      for(int j = 0; j < gpsPermutations[i].size(); ++j) {
         stringOutput << gpsPermutations[i][j] << std::endl;
       }
     }

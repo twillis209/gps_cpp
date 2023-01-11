@@ -164,5 +164,4 @@ namespace gps {
 
     return freqMap;
   }
-
 }
