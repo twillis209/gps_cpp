@@ -11,7 +11,7 @@
 #include <boost/timer/timer.hpp>
 #include <boost/random.hpp>
 #include <Eigen/Dense>
-#include "StOpt/cdf/fastCDF.h"
+#include <fastCDF.h>
 
 
 
