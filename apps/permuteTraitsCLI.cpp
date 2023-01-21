@@ -1,4 +1,5 @@
 #include <iostream>
+#include <stdexcept>
 #include <gps.hpp>
 #include <boost/program_options.hpp>
 #include <rapidcsv.h>
@@ -21,6 +22,7 @@ int main(int argc, const char* argv[]) {
   double epsilonMultiple = 2.0;
   int cores = 1;
   int draws;
+  std::string statistic = "gps";
 
   desc.add_options()
     ("help", "Print help message")
@@ -30,9 +32,14 @@ int main(int argc, const char* argv[]) {
     ("colLabelB,b", po::value<std::string>(&colLabelB), "Label of column B")
     ("perturbN,p", po::value<int>(&perturbN), "No. of perturbation iterations")
     ("epsilonMultiple,e", po::value<double>(&epsilonMultiple), "Multiple of epsilon to use in perturbation procedure")
+    ("statistic,s", po::value<std::string>(&statistic), "Statistic to compute")
     ("cores,c", po::value<int>(&cores), "No. of cores")
     ("draws,n", po::value<int>(&draws), "No. of draws")
     ;
+
+  if(statistic != "gps" && statistic != "mean") {
+    throw std::invalid_argument("Unrecognised statistic argument");
+  }
 
   po::variables_map vm;
   po::store(po::parse_command_line(argc, argv, desc), vm);
@@ -85,11 +92,19 @@ int main(int argc, const char* argv[]) {
 
     #pragma omp parallel for
     for(int k = 0; k < cores; ++k) {
-      gpsPermutations.push_back(permuteAndSampleGps(u, v, drawsPerCore, &PPEcdf::bivariatePPEcdf));
+      if(statistic == "gps") {
+        gpsPermutations.push_back(permuteAndSampleGps(u, v, drawsPerCore, &PPEcdf::bivariatePPEcdf));
+      } else if(statistic == "mean") {
+        gpsPermutations.push_back(permuteAndSampleMeanStat(u, v, drawsPerCore, &PPEcdf::bivariatePPEcdf, &gpsWeight));
+      }
     }
 
     if(remainingDraws > 0) {
-      gpsPermutations.push_back(permuteAndSampleGps(u, v, remainingDraws, &PPEcdf::bivariatePPEcdf));
+      if(statistic == "gps") {
+        gpsPermutations.push_back(permuteAndSampleGps(u, v, remainingDraws, &PPEcdf::bivariatePPEcdf));
+      } else if(statistic == "mean") {
+        gpsPermutations.push_back(permuteAndSampleMeanStat(u, v, remainingDraws, &PPEcdf::bivariatePPEcdf, &gpsWeight));
+      }
     }
 
     std::stringstream stringOutput;

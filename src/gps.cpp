@@ -65,6 +65,36 @@ namespace gps {
   return max;
 }
 
+  double meanStat(std::vector<double> u, std::vector<double> v, std::function<std::vector<double>(const std::vector<double>&, const std::vector<double>&)> bivariateEcdf, std::function<double (const double&, const double&, const double&)> weightFunction) {
+    if(u.size() != v.size()) {
+      throw std::invalid_argument("Size of u and v differs.");
+    }
+
+    size_t n = u.size();
+
+    std::vector<double> uEcdf = ecdf(u);
+    std::vector<double> vEcdf = ecdf(v);
+
+    std::vector<double> bivariateEcdfVec = bivariateEcdf(u, v);
+
+    double numerator_sum = 0;
+    double denominator_sum = 0;
+
+    for(int i = 0; i < n; ++i) {
+      double cdf_uv = bivariateEcdfVec[i];
+      double cdf_u = uEcdf[i];
+      double cdf_v = vEcdf[i];
+      double weight = weightFunction(cdf_u, cdf_v, cdf_uv);
+
+      double numerator = weight*pow(cdf_uv - cdf_u*cdf_v, 2.);
+
+      numerator_sum += numerator;
+      denominator_sum += weight;
+    }
+
+  return numerator_sum/denominator_sum;
+}
+
   std::vector<double> bivariateEcdfLW(const std::vector<double>& u, const std::vector<double>& v) {
     if(u.size() != v.size()) {
       throw std::invalid_argument("Size of u and v differs.");
@@ -114,7 +144,11 @@ namespace gps {
     return ecdf;
   }
 
-  std::vector<double> permuteAndSampleGps(std::vector<double> u, std::vector<double> v, size_t n, std::function<std::vector<double>(const std::vector<double>&, const std::vector<double>&)> bivariateEcdf) {
+  std::vector<double> permuteAndSampleGps(
+                                          std::vector<double> u,
+                                          std::vector<double> v,
+                                          size_t n,
+                                          std::function<std::vector<double>(const std::vector<double>&, const std::vector<double>&)> bivariateEcdf) {
     std::vector<double> sample;
 
     size_t i = 0;
@@ -124,6 +158,29 @@ namespace gps {
 
       if(std::distance(u.begin(), std::max_element(u.begin(), u.end())) != std::distance(v.begin(), std::max_element(v.begin(), v.end()))) {
         sample.push_back(gpsStat(u, v, bivariateEcdf));
+        ++i;
+      }
+
+    }
+
+    return sample;
+  }
+
+  std::vector<double> permuteAndSampleMeanStat(
+                                          std::vector<double> u,
+                                          std::vector<double> v,
+                                          size_t n,
+                                          std::function<std::vector<double>(const std::vector<double>&, const std::vector<double>&)> bivariateEcdf,
+                                          std::function<double (const double&, const double&, const double&)> weightFunction) {
+    std::vector<double> sample;
+
+    size_t i = 0;
+
+    while(i < n) {
+      boost::range::random_shuffle(v);
+
+      if(std::distance(u.begin(), std::max_element(u.begin(), u.end())) != std::distance(v.begin(), std::max_element(v.begin(), v.end()))) {
+        sample.push_back(meanStat(u, v, bivariateEcdf, weightFunction));
         ++i;
       }
 
@@ -163,5 +220,13 @@ namespace gps {
     }
 
     return freqMap;
+  }
+
+  double gpsWeight(double cdf_u, double cdf_v, double cdf_uv) {
+    return sqrt(cdf_u*cdf_v - pow(cdf_u, 2.)*pow(cdf_v, 2.));
+  }
+
+  double pseudoADWeight(double cdf_u, double cdf_v, double cdf_uv) {
+    return cdf_uv*(1-cdf_uv);
   }
 }

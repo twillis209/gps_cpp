@@ -29,6 +29,7 @@ int main(int argc, const char* argv[]) {
   double epsilonMultiple = 2.0;
   int cores = 1;
   bool deduplicateFlag = false;
+  std::string statistic = "gps";
 
   desc.add_options()
     ("help", "Print help message")
@@ -46,6 +47,10 @@ int main(int argc, const char* argv[]) {
     ("epsilonMultiple,e", po::value<double>(&epsilonMultiple), "Multiple of epsilon to use in perturbation procedure")
     ("cores,n", po::value<int>(&cores), "No. of cores")
     ;
+
+  if(statistic != "gps" && statistic != "mean") {
+    throw std::invalid_argument("Unrecognised statistic argument");
+  }
 
   po::variables_map vm;
   po::store(po::parse_command_line(argc, argv, desc), vm);
@@ -142,15 +147,28 @@ int main(int argc, const char* argv[]) {
 
     boost::timer::cpu_timer timer;
 
-    if(ecdf == "naive") {
-      gps = gpsStat(u, v, &bivariateEcdfPar);
-    } else if(ecdf == "pp") {
-      gps = gpsStat(u, v, &PPEcdf::bivariatePPEcdf);
-    } else if(ecdf == "lw") {
-      gps = gpsStat(u, v, &bivariateEcdfLW);
-    } else {
-      std::cout << "Invalid ecdf argument, using naive algorithm" << std::endl;
-      gps = gpsStat(u, v, &bivariateEcdfPar);
+    if(statistic == "gps") {
+      if(ecdf == "naive") {
+        gps = gpsStat(u, v, &bivariateEcdfPar);
+      } else if(ecdf == "pp") {
+        gps = gpsStat(u, v, &PPEcdf::bivariatePPEcdf);
+      } else if(ecdf == "lw") {
+        gps = gpsStat(u, v, &bivariateEcdfLW);
+      } else {
+        std::cout << "Invalid ecdf argument, using naive algorithm" << std::endl;
+        gps = gpsStat(u, v, &bivariateEcdfPar);
+      }
+    } else if(statistic == "mean") {
+      if(ecdf == "naive") {
+        gps = meanStat(u, v, &bivariateEcdfPar, &gpsWeight);
+      } else if(ecdf == "pp") {
+        gps = meanStat(u, v, &PPEcdf::bivariatePPEcdf, &gpsWeight);
+      } else if(ecdf == "lw") {
+        gps = meanStat(u, v, &bivariateEcdfLW, &gpsWeight);
+      } else {
+        std::cout << "Invalid ecdf argument, using naive algorithm" << std::endl;
+        gps = meanStat(u, v, &bivariateEcdfPar, &gpsWeight);
+      }
     }
 
     if(vm.count("timingFile")) {
