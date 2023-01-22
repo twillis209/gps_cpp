@@ -46,6 +46,7 @@ int main(int argc, const char* argv[]) {
     ("perturbN,p", po::value<int>(&perturbN), "No. of perturbation iterations")
     ("epsilonMultiple,e", po::value<double>(&epsilonMultiple), "Multiple of epsilon to use in perturbation procedure")
     ("cores,n", po::value<int>(&cores), "No. of cores")
+    ("statistic,s", po::value<std::string>(&statistic), "Statistic to compute")
     ;
 
   if(statistic != "gps" && statistic != "mean") {
