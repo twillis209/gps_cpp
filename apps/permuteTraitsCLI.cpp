@@ -10,36 +10,38 @@ namespace po = boost::program_options;
 using namespace po;
 using namespace gps;
 using namespace rapidcsv;
+using namespace std;
 
 int main(int argc, const char* argv[]) {
   po::options_description desc("Allowed options");
 
-  std::string inputFile;
-  std::string outputFile;
-  std::string colLabelA;
-  std::string colLabelB;
+  string inputFile;
+  string outputFile;
+  string colLabelA;
+  string colLabelB;
   int perturbN = 0;
   double epsilonMultiple = 2.0;
   int cores = 1;
   int draws;
-  std::string statistic = "gps";
+  string statistic = "gps";
+  string weight = "gps";
 
   desc.add_options()
     ("help", "Print help message")
-    ("inputFile,i", po::value<std::string>(&inputFile), "Path to input file")
-    ("outputFile,o", po::value<std::string>(&outputFile), "Path to output file")
-    ("colLabelA,a", po::value<std::string>(&colLabelA), "Label of column A")
-    ("colLabelB,b", po::value<std::string>(&colLabelB), "Label of column B")
+    ("inputFile,i", po::value<string>(&inputFile), "Path to input file")
+    ("outputFile,o", po::value<string>(&outputFile), "Path to output file")
+    ("colLabelA,a", po::value<string>(&colLabelA), "Label of column A")
+    ("colLabelB,b", po::value<string>(&colLabelB), "Label of column B")
     ("perturbN,p", po::value<int>(&perturbN), "No. of perturbation iterations")
     ("epsilonMultiple,e", po::value<double>(&epsilonMultiple), "Multiple of epsilon to use in perturbation procedure")
-    ("statistic,s", po::value<std::string>(&statistic), "Statistic to compute")
+    ("statistic,s", po::value<string>(&statistic), "Statistic to compute")
     ("weight,w", po::value<string>(&weight), "Weight function to use")
     ("cores,c", po::value<int>(&cores), "No. of cores")
     ("draws,n", po::value<int>(&draws), "No. of draws")
     ;
 
   if(statistic != "gps" && statistic != "mean") {
-    throw std::invalid_argument("Unrecognised statistic argument");
+    throw invalid_argument("Unrecognised statistic argument");
   }
 
   po::variables_map vm;
@@ -70,31 +72,31 @@ int main(int argc, const char* argv[]) {
 
     Document input(inputFile, LabelParams(), SeparatorParams('\t'));
 
-    std::vector<double> u;
-    std::vector<double> v;
+    vector<double> u;
+    vector<double> v;
 
     try {
       u = input.GetColumn<double>(colLabelA);
-    } catch(std::out_of_range stod){
+    } catch(out_of_range stod){
       for(size_t i = 0; i < input.GetRowCount(); ++i){
         try {
           u.push_back(input.GetCell<double>(colLabelA, i));
-        } catch(std::out_of_range stod) {
+        } catch(out_of_range stod) {
           u.push_back(1.0);
-          //logOutput << traitA << "\t" << i+1 << std::endl;
+          //logOutput << traitA << "\t" << i+1 << endl;
         }
       }
     }
 
     try {
       v = input.GetColumn<double>(colLabelB);
-    } catch(std::out_of_range stod){
+    } catch(out_of_range stod){
       for(size_t i = 0; i < input.GetRowCount(); ++i){
         try {
           v.push_back(input.GetCell<double>(colLabelB, i));
-        } catch(std::out_of_range stod) {
+        } catch(out_of_range stod) {
           v.push_back(1.0);
-          //logOutput << traitB << "\t" << i+1 << std::endl;
+          //logOutput << traitB << "\t" << i+1 << endl;
         }
       }
     }
@@ -104,7 +106,7 @@ int main(int argc, const char* argv[]) {
       v = perturbDuplicates_addEpsilon(v, epsilonMultiple);
     }
 
-    std::vector<std::vector<double>> gpsPermutations;
+    vector<vector<double>> gpsPermutations;
 
     int drawsPerCore = draws / cores;
 
@@ -114,28 +116,20 @@ int main(int argc, const char* argv[]) {
 
     #pragma omp parallel for
     for(int k = 0; k < cores; ++k) {
-      if(statistic == "gps") {
-        gpsPermutations.push_back(permuteAndSampleGps(u, v, drawsPerCore, &PPEcdf::bivariatePPEcdf, &weightFun));
-      } else if(statistic == "mean") {
-        gpsPermutations.push_back(permuteAndSampleMeanStat(u, v, drawsPerCore, &statFun, &PPEcdf::bivariatePPEcdf, &weightFun));
-      }
+        gpsPermutations.push_back(permuteAndSampleStat(u, v, drawsPerCore, statFun, PPEcdf::bivariatePPEcdf, weightFun));
     }
 
     if(remainingDraws > 0) {
-      if(statistic == "gps") {
-        gpsPermutations.push_back(permuteAndSampleGps(u, v, remainingDraws, &PPEcdf::bivariatePPEcdf, &gpsWeight));
-      } else if(statistic == "mean") {
-        gpsPermutations.push_back(permuteAndSampleMeanStat(u, v, remainingDraws, &meanStat, &PPEcdf::bivariatePPEcdf, &gpsWeight));
-      }
+      gpsPermutations.push_back(permuteAndSampleStat(u, v, remainingDraws, statFun, PPEcdf::bivariatePPEcdf, weightFun));
     }
 
-    std::stringstream stringOutput;
+    stringstream stringOutput;
 
-    stringOutput << "GPS" << std::endl;
+    stringOutput << "GPS" << endl;
 
     for(int i = 0; i < gpsPermutations.size(); ++i) {
       for(int j = 0; j < gpsPermutations[i].size(); ++j) {
-        stringOutput << gpsPermutations[i][j] << std::endl;
+        stringOutput << gpsPermutations[i][j] << endl;
       }
     }
 
@@ -143,7 +137,7 @@ int main(int argc, const char* argv[]) {
 
     output.Save(outputFile);
   } else {
-      std::cout << desc << std::endl;
+      cout << desc << endl;
   }
 
   return 0;

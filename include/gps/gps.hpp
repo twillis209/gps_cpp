@@ -18,20 +18,12 @@ namespace gps {
 
   vector<double> bivariateEcdfPar(const vector<double>& u, const vector<double>& v);
 
-  // TODO merge these two permute functions by parameterising with statistic
-  vector<double> permuteAndSampleGps(vector<double> u,
+  vector<double> permuteAndSampleStat(vector<double> u,
                                           vector<double> v,
                                           size_t n,
+                                      function<double (vector<double>, vector<double>, function<vector<double>(const vector<double>&, const vector<double>&)>, function<double (const double&, const double&, const double&)>)> statistic,
                                           function<vector<double>(const vector<double>&, const vector<double>&)> bivariateEcdf,
                                           function<double (const double&, const double&, const double&)> weightFunction);
-
-  vector<double> permuteAndSampleMeanStat(
-                                               vector<double> u,
-                                               vector<double> v,
-                                               size_t n,
-                                               function<double (vector<double>, vector<double>, function<vector<double>(const vector<double>&, const vector<double>&)>, function<double (const double&, const double&, const double&)>)> stat,
-                                               function<vector<double>(const vector<double>&, const vector<double>&)> bivariateEcdf,
-                                               function<double (const double&, const double&, const double&)> weightFunction);
 
   vector<double> perturbDuplicates(vector<double> values);
 

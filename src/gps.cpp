@@ -145,30 +145,7 @@ namespace gps {
     return ecdf;
   }
 
-  vector<double> permuteAndSampleGps(
-                                          vector<double> u,
-                                          vector<double> v,
-                                          size_t n,
-                                          function<vector<double>(const vector<double>&, const vector<double>&)> bivariateEcdf,
-                                          function<double (const double&, const double&, const double&)> weightFunction) {
-    vector<double> sample;
-
-    size_t i = 0;
-
-    while(i < n) {
-      boost::range::random_shuffle(v);
-
-      if(distance(u.begin(), max_element(u.begin(), u.end())) != distance(v.begin(), max_element(v.begin(), v.end()))) {
-        sample.push_back(gpsStat(u, v, bivariateEcdf, weightFunction));
-        ++i;
-      }
-
-    }
-
-    return sample;
-  }
-
-  vector<double> permuteAndSampleMeanStat(
+  vector<double> permuteAndSampleStat(
                                           vector<double> u,
                                           vector<double> v,
                                           size_t n,
