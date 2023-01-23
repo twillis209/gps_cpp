@@ -93,17 +93,17 @@ int main(int argc, const char* argv[]) {
     #pragma omp parallel for
     for(int k = 0; k < cores; ++k) {
       if(statistic == "gps") {
-        gpsPermutations.push_back(permuteAndSampleGps(u, v, drawsPerCore, &PPEcdf::bivariatePPEcdf));
+        gpsPermutations.push_back(permuteAndSampleGps(u, v, drawsPerCore, &PPEcdf::bivariatePPEcdf, &gpsWeight));
       } else if(statistic == "mean") {
-        gpsPermutations.push_back(permuteAndSampleMeanStat(u, v, drawsPerCore, &PPEcdf::bivariatePPEcdf, &gpsWeight));
+        gpsPermutations.push_back(permuteAndSampleMeanStat(u, v, drawsPerCore, &meanStat, &PPEcdf::bivariatePPEcdf, &gpsWeight));
       }
     }
 
     if(remainingDraws > 0) {
       if(statistic == "gps") {
-        gpsPermutations.push_back(permuteAndSampleGps(u, v, remainingDraws, &PPEcdf::bivariatePPEcdf));
+        gpsPermutations.push_back(permuteAndSampleGps(u, v, remainingDraws, &PPEcdf::bivariatePPEcdf, &gpsWeight));
       } else if(statistic == "mean") {
-        gpsPermutations.push_back(permuteAndSampleMeanStat(u, v, remainingDraws, &PPEcdf::bivariatePPEcdf, &gpsWeight));
+        gpsPermutations.push_back(permuteAndSampleMeanStat(u, v, remainingDraws, &meanStat, &PPEcdf::bivariatePPEcdf, &gpsWeight));
       }
     }
 

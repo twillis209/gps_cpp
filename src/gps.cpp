@@ -11,43 +11,44 @@
 
 using namespace Eigen;
 using boost::math::empirical_cumulative_distribution_function;
+using namespace std;
 
 namespace gps {
 
-  std::vector<double> ecdf(std::vector<double> reference) {
-    std::vector<double> refCopy = reference;
+  vector<double> ecdf(vector<double> reference) {
+    vector<double> refCopy = reference;
 
     size_t n = reference.size();
 
-    std::sort(refCopy.begin(), refCopy.end());
+    sort(refCopy.begin(), refCopy.end());
 
-    std::vector<double> estEcdf;
+    vector<double> estEcdf;
 
     for(int i = 0; i < n; ++i) {
-      estEcdf.push_back((double) (std::upper_bound(refCopy.begin(), refCopy.end(), reference[i])-refCopy.begin())/n);
+      estEcdf.push_back((double) (upper_bound(refCopy.begin(), refCopy.end(), reference[i])-refCopy.begin())/n);
     }
 
     return estEcdf;
   }
 
-  double gpsStat(std::vector<double> u, std::vector<double> v, std::function<std::vector<double>(const std::vector<double>&, const std::vector<double>&)> bivariateEcdf) {
+  double gpsStat(vector<double> u, vector<double> v, function<vector<double>(const vector<double>&, const vector<double>&)> bivariateEcdf, function<double (const double&, const double&, const double&)> weightFunction) {
     if(u.size() != v.size()) {
-      throw std::invalid_argument("Size of u and v differs.");
+      throw invalid_argument("Size of u and v differs.");
     }
 
     size_t n = u.size();
 
-    if(std::distance(u.begin(), std::max_element(u.begin(), u.end())) == std::distance(
-    v.begin(), std::max_element(v.begin(), v.end()))) {
-        throw std::invalid_argument("Indices of largest elements of u and v coincide. GPS statistic is undefined in this case.");
+    if(distance(u.begin(), max_element(u.begin(), u.end())) == distance(
+    v.begin(), max_element(v.begin(), v.end()))) {
+        throw invalid_argument("Indices of largest elements of u and v coincide. GPS statistic is undefined in this case.");
       }
 
-    std::vector<double> uEcdf = ecdf(u);
-    std::vector<double> vEcdf = ecdf(v);
+    vector<double> uEcdf = ecdf(u);
+    vector<double> vEcdf = ecdf(v);
 
-    std::vector<double> bivariateEcdfVec = bivariateEcdf(u, v);
+    vector<double> bivariateEcdfVec = bivariateEcdf(u, v);
 
-    double max = -std::numeric_limits<double>::max();
+    double max = -numeric_limits<double>::max();
 
     for(int i = 0; i < n; ++i) {
       double cdf_uv = bivariateEcdfVec[i];
@@ -65,17 +66,17 @@ namespace gps {
   return max;
 }
 
-  double meanStat(std::vector<double> u, std::vector<double> v, std::function<std::vector<double>(const std::vector<double>&, const std::vector<double>&)> bivariateEcdf, std::function<double (const double&, const double&, const double&)> weightFunction) {
+  double meanStat(vector<double> u, vector<double> v, function<vector<double>(const vector<double>&, const vector<double>&)> bivariateEcdf, function<double (const double&, const double&, const double&)> weightFunction) {
     if(u.size() != v.size()) {
-      throw std::invalid_argument("Size of u and v differs.");
+      throw invalid_argument("Size of u and v differs.");
     }
 
     size_t n = u.size();
 
-    std::vector<double> uEcdf = ecdf(u);
-    std::vector<double> vEcdf = ecdf(v);
+    vector<double> uEcdf = ecdf(u);
+    vector<double> vEcdf = ecdf(v);
 
-    std::vector<double> bivariateEcdfVec = bivariateEcdf(u, v);
+    vector<double> bivariateEcdfVec = bivariateEcdf(u, v);
 
     double numerator_sum = 0;
     double denominator_sum = 0;
@@ -95,9 +96,9 @@ namespace gps {
   return numerator_sum/denominator_sum;
 }
 
-  std::vector<double> bivariateEcdfLW(const std::vector<double>& u, const std::vector<double>& v) {
+  vector<double> bivariateEcdfLW(const vector<double>& u, const vector<double>& v) {
     if(u.size() != v.size()) {
-      throw std::invalid_argument("Size of u and v differs.");
+      throw invalid_argument("Size of u and v differs.");
     }
 
     size_t n = u.size();
@@ -114,17 +115,17 @@ namespace gps {
 
     ArrayXd ecdf_arr = StOpt::fastCDFOnSample(ptr, toAdd);
 
-    return std::vector<double>(ecdf_arr.data(), ecdf_arr.data() + ecdf_arr.size());
+    return vector<double>(ecdf_arr.data(), ecdf_arr.data() + ecdf_arr.size());
 }
 
-  std::vector<double> bivariateEcdfPar(const std::vector<double>& u, const std::vector<double>& v) {
+  vector<double> bivariateEcdfPar(const vector<double>& u, const vector<double>& v) {
     if(u.size() != v.size()) {
-      throw std::invalid_argument("Size of u and v differs.");
+      throw invalid_argument("Size of u and v differs.");
     }
 
     size_t n = u.size();
 
-    std::vector<double> ecdf;
+    vector<double> ecdf;
 
     ecdf.reserve(n);
 
@@ -144,20 +145,21 @@ namespace gps {
     return ecdf;
   }
 
-  std::vector<double> permuteAndSampleGps(
-                                          std::vector<double> u,
-                                          std::vector<double> v,
+  vector<double> permuteAndSampleGps(
+                                          vector<double> u,
+                                          vector<double> v,
                                           size_t n,
-                                          std::function<std::vector<double>(const std::vector<double>&, const std::vector<double>&)> bivariateEcdf) {
-    std::vector<double> sample;
+                                          function<vector<double>(const vector<double>&, const vector<double>&)> bivariateEcdf,
+                                          function<double (const double&, const double&, const double&)> weightFunction) {
+    vector<double> sample;
 
     size_t i = 0;
 
     while(i < n) {
       boost::range::random_shuffle(v);
 
-      if(std::distance(u.begin(), std::max_element(u.begin(), u.end())) != std::distance(v.begin(), std::max_element(v.begin(), v.end()))) {
-        sample.push_back(gpsStat(u, v, bivariateEcdf));
+      if(distance(u.begin(), max_element(u.begin(), u.end())) != distance(v.begin(), max_element(v.begin(), v.end()))) {
+        sample.push_back(gpsStat(u, v, bivariateEcdf, weightFunction));
         ++i;
       }
 
@@ -166,21 +168,22 @@ namespace gps {
     return sample;
   }
 
-  std::vector<double> permuteAndSampleMeanStat(
-                                          std::vector<double> u,
-                                          std::vector<double> v,
+  vector<double> permuteAndSampleMeanStat(
+                                          vector<double> u,
+                                          vector<double> v,
                                           size_t n,
-                                          std::function<std::vector<double>(const std::vector<double>&, const std::vector<double>&)> bivariateEcdf,
-                                          std::function<double (const double&, const double&, const double&)> weightFunction) {
-    std::vector<double> sample;
+                                          function<double (vector<double>, vector<double>, function<vector<double>(const vector<double>&, const vector<double>&)>, function<double (const double&, const double&, const double&)>)> stat,
+                                          function<vector<double>(const vector<double>&, const vector<double>&)> bivariateEcdf,
+                                          function<double (const double&, const double&, const double&)> weightFunction) {
+    vector<double> sample;
 
     size_t i = 0;
 
     while(i < n) {
       boost::range::random_shuffle(v);
 
-      if(std::distance(u.begin(), std::max_element(u.begin(), u.end())) != std::distance(v.begin(), std::max_element(v.begin(), v.end()))) {
-        sample.push_back(meanStat(u, v, bivariateEcdf, weightFunction));
+      if(distance(u.begin(), max_element(u.begin(), u.end())) != distance(v.begin(), max_element(v.begin(), v.end()))) {
+        sample.push_back(stat(u, v, bivariateEcdf, weightFunction));
         ++i;
       }
 
@@ -189,20 +192,20 @@ namespace gps {
     return sample;
   }
 
-  std::vector<double> perturbDuplicates_addEpsilon(std::vector<double> values, double multiple) {
-    std::map<double, int> freqMap;
+  vector<double> perturbDuplicates_addEpsilon(vector<double> values, double multiple) {
+    map<double, int> freqMap;
 
     for(size_t i = 0; i < values.size(); ++i) {
       freqMap[values[i]]++;
 
       if(freqMap[values[i]] > 1) {
-        double candidate_replacement = values[i] + (double) (freqMap[values[i]])* multiple*std::numeric_limits<double>::epsilon();
-        //double candidate_replacement = std::nextafter(values[i], 1.0);
+        double candidate_replacement = values[i] + (double) (freqMap[values[i]])* multiple*numeric_limits<double>::epsilon();
+        //double candidate_replacement = nextafter(values[i], 1.0);
 
         while((0.5 * (candidate_replacement + values[i])) == values[i]) {
-          std::cout << "Replacement is equal, incrementing" << std::endl;
-          //candidate_replacement = std::nextafter(values[i], 1.0);
-          candidate_replacement += (freqMap[values[i]])*multiple*std::numeric_limits<double>::epsilon();
+          cout << "Replacement is equal, incrementing" << endl;
+          //candidate_replacement = nextafter(values[i], 1.0);
+          candidate_replacement += (freqMap[values[i]])*multiple*numeric_limits<double>::epsilon();
         }
 
         values[i] = candidate_replacement;
@@ -212,8 +215,8 @@ namespace gps {
     return values;
   }
 
-  std::map<double, int> returnFreqMap(std::vector<double> values) {
-    std::map<double, int> freqMap;
+  map<double, int> returnFreqMap(vector<double> values) {
+    map<double, int> freqMap;
 
     for(size_t i = 0; i < values.size(); ++i){
       freqMap[values[i]]++;
