@@ -33,6 +33,7 @@ int main(int argc, const char* argv[]) {
     ("perturbN,p", po::value<int>(&perturbN), "No. of perturbation iterations")
     ("epsilonMultiple,e", po::value<double>(&epsilonMultiple), "Multiple of epsilon to use in perturbation procedure")
     ("statistic,s", po::value<std::string>(&statistic), "Statistic to compute")
+    ("weight,w", po::value<string>(&weight), "Weight function to use")
     ("cores,c", po::value<int>(&cores), "No. of cores")
     ("draws,n", po::value<int>(&draws), "No. of draws")
     ;
@@ -46,6 +47,27 @@ int main(int argc, const char* argv[]) {
   po::notify(vm);
 
   if(vm.count("inputFile")) {
+
+    function<double (vector<double>, vector<double>, function<vector<double>(const vector<double>&, const vector<double>&)>, function<double (const double&, const double&, const double&)>)> statFun;
+
+    if(statistic == "gps") {
+      statFun = gpsStat;
+    } else if(statistic == "mean") {
+      statFun = meanStat;
+    } else {
+      throw invalid_argument("Unrecognised statistic argument");
+    }
+
+    function<double (double, double, double)> weightFun;
+
+    if(weight == "gps") {
+      weightFun = gpsWeight;
+    } else if(weight == "pseudoAD") {
+      weightFun = pseudoADWeight;
+    } else {
+      throw invalid_argument("Unrecognised weight argument");
+    }
+
     Document input(inputFile, LabelParams(), SeparatorParams('\t'));
 
     std::vector<double> u;
@@ -93,9 +115,9 @@ int main(int argc, const char* argv[]) {
     #pragma omp parallel for
     for(int k = 0; k < cores; ++k) {
       if(statistic == "gps") {
-        gpsPermutations.push_back(permuteAndSampleGps(u, v, drawsPerCore, &PPEcdf::bivariatePPEcdf, &gpsWeight));
+        gpsPermutations.push_back(permuteAndSampleGps(u, v, drawsPerCore, &PPEcdf::bivariatePPEcdf, &weightFun));
       } else if(statistic == "mean") {
-        gpsPermutations.push_back(permuteAndSampleMeanStat(u, v, drawsPerCore, &meanStat, &PPEcdf::bivariatePPEcdf, &gpsWeight));
+        gpsPermutations.push_back(permuteAndSampleMeanStat(u, v, drawsPerCore, &statFun, &PPEcdf::bivariatePPEcdf, &weightFun));
       }
     }
 

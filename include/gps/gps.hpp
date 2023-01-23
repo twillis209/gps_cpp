@@ -18,6 +18,7 @@ namespace gps {
 
   vector<double> bivariateEcdfPar(const vector<double>& u, const vector<double>& v);
 
+  // TODO merge these two permute functions by parameterising with statistic
   vector<double> permuteAndSampleGps(vector<double> u,
                                           vector<double> v,
                                           size_t n,
