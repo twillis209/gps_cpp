@@ -38,4 +38,8 @@ namespace gps {
   double gpsWeight(double cdf_u, double cdf_v, double cdf_uv);
 
   double pseudoADWeight(double cdf_u, double cdf_v, double cdf_uv);
+
+  double squareNumerator(double cdf_u, double cdf_v, double cdf_uv);
+
+  double normNumerator(double cdf_u, double cdf_v, double cdf_uv);
 }

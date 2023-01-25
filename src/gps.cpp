@@ -209,4 +209,12 @@ namespace gps {
   double pseudoADWeight(double cdf_u, double cdf_v, double cdf_uv) {
     return cdf_uv*(1-cdf_uv);
   }
+
+  double squareNumerator(double cdf_u, double cdf_v, double cdf_uv) {
+    return pow(cdf_uv - cdf_u*cdf_v, 2.);
+  }
+
+  double normNumerator(double cdf_u, double cdf_v, double cdf_uv) {
+    return abs(cdf_uv - cdf_u*cdf_v);
+  }
 }

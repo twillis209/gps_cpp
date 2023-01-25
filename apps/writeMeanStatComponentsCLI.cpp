@@ -20,6 +20,7 @@ int main(int argc, const char* argv[]) {
   string colLabelA;
   string colLabelB;
   string ecdfArg = "naive";
+  string weight = "gps";
   int cores = 1;
   int perturbN = 0;
   double epsilonMultiple = 2.0;
@@ -31,6 +32,7 @@ int main(int argc, const char* argv[]) {
     ("colLabelA,a", po::value<string>(&colLabelA), "Label of column A")
     ("colLabelB,b", po::value<string>(&colLabelB), "Label of column B")
     ("ecdfArg,f", po::value<string>(&ecdfArg), "Specifies ecdf algorithm: \"naive\", \"pp\", or \"lw\"")
+    ("weight,w", po::value<string>(&weight), "Weight function to use")
     ("outputFile,o", po::value<string>(&outputFile), "Path to output file")
     ("cores,n", po::value<int>(&cores), "No. of cores")
     ("perturbN,p", po::value<int>(&perturbN), "No. of perturbation iterations")
@@ -43,6 +45,30 @@ int main(int argc, const char* argv[]) {
   po::notify(vm);
 
   if(vm.count("inputFile")) {
+
+    function<vector<double>(const vector<double>&, const vector<double>&)> ecdfFun;
+
+    if(ecdfArg == "naive") {
+      ecdfFun = bivariateEcdfPar;
+    } else if(ecdfArg == "pp") {
+      ecdfFun = PPEcdf::bivariatePPEcdf;
+    } else if(ecdfArg == "lw") {
+      ecdfFun = bivariateEcdfLW;
+    } else {
+      cout << "Invalid ecdf argument, using naive algorithm" << endl;
+      ecdfFun = bivariateEcdfPar;
+    }
+
+    function<double (double, double, double)> weightFun;
+
+    if(weight == "gps") {
+      weightFun = gpsWeight;
+    } else if(weight == "pseudoAD") {
+      weightFun = pseudoADWeight;
+    } else {
+      throw invalid_argument("Unrecognised weight argument");
+    }
+
     Document data(inputFile, LabelParams(), SeparatorParams('\t'));
 
     vector<double> u = data.GetColumn<double>(colLabelA);
@@ -83,34 +109,20 @@ int main(int argc, const char* argv[]) {
 
     omp_set_num_threads(cores);
 
-    vector<double> bivariateEcdf;
-
-    if(ecdfArg == "naive") {
-      bivariateEcdf = bivariateEcdfPar(u, v);
-    } else if(ecdfArg == "pp") {
-      bivariateEcdf = PPEcdf::bivariatePPEcdf(u, v);
-    } else if(ecdfArg == "lw") {
-      bivariateEcdf = bivariateEcdfLW(u, v);
-    } else {
-      cout << "Invalid ecdfArg argument, using naive algorithm" << endl;
-      bivariateEcdf = bivariateEcdfPar(u, v);
-    }
-
     vector<double> uEcdf = ecdf(u);
     vector<double> vEcdf = ecdf(v);
+    vector<double> uvEcdf = ecdfFun(u, v);
 
     stringstream stringOutput;
 
-    stringOutput << "u\tv\tF_u\tF_v\tF_uv\tnum\tdenom\tmaximand" << endl;
+    stringOutput << "u\tv\tF_u\tF_v\tF_uv\tnum\tweight" << endl;
 
     for(int i = 0; i < u.size(); i++) {
-      double denom = sqrt(uEcdf[i]*vEcdf[i] - pow(uEcdf[i], 2.)*pow(vEcdf[i], 2.));
+      double weight = weightFun(uEcdf[i], vEcdf[i], uvEcdf[i]);
 
-      double numerator = abs(bivariateEcdf[i] - uEcdf[i]*vEcdf[i]);
+      double numerator = pow(uvEcdf[i] - uEcdf[i]*vEcdf[i], 2.);
 
-      double maximand = sqrt((double) u.size() / log((double) u.size()))*numerator/denom;
-
-      stringOutput << u[i] << "\t" << v[i] << "\t" << uEcdf[i] << "\t" << vEcdf[i] << "\t" << bivariateEcdf[i] << "\t" << numerator << "\t" << denom << "\t" << maximand << endl;
+      stringOutput << u[i] << "\t" << v[i] << "\t" << uEcdf[i] << "\t" << vEcdf[i] << "\t" << uvEcdf[i] << "\t" << numerator << "\t" << weight << endl;
     }
 
     Document output(stringOutput, LabelParams(), SeparatorParams('\t'));

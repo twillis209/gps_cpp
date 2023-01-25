@@ -29,3 +29,9 @@ add_executable(testIdxSort testIdxSort.cpp)
 target_include_directories(testIdxSort PUBLIC "${CMAKE_SOURCE_DIR}/include/PPEcdf")
 
 target_link_libraries(testIdxSort PPEcdf)
+
+add_executable(writeMeanStatComponentsCLI writeMeanStatComponentsCLI.cpp)
+
+target_include_directories(writeMeanStatComponentsCLI PUBLIC "${CMAKE_SOURCE_DIR}/include/gps" "${CMAKE_SOURCE_DIR}/include/gps" "${Boost_INCLUDE_DIRS}")
+
+target_link_libraries(writeMeanStatComponentsCLI Boost::program_options Gps rapidcsv OpenMP::OpenMP_CXX PPEcdf)
