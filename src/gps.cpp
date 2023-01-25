@@ -203,11 +203,11 @@ namespace gps {
   }
 
   double gpsWeight(double cdf_u, double cdf_v, double cdf_uv) {
-    return sqrt(cdf_u*cdf_v - pow(cdf_u, 2.)*pow(cdf_v, 2.));
+    return 1./sqrt(cdf_u*cdf_v - pow(cdf_u, 2.)*pow(cdf_v, 2.));
   }
 
   double pseudoADWeight(double cdf_u, double cdf_v, double cdf_uv) {
-    return cdf_uv*(1-cdf_uv);
+    return 1./cdf_uv*(1-cdf_uv);
   }
 
   double squareNumerator(double cdf_u, double cdf_v, double cdf_uv) {
