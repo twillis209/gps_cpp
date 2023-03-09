@@ -1,4 +1,5 @@
 #include <PPEcdf.hpp>
+#include <orbtree.h>
 #include <map>
 #include <vector>
 #include <numeric>
@@ -47,12 +48,45 @@ namespace PPEcdf {
       size_t ix = posMap[{u_sorted[i], v_sorted[i]}];
 
       ecdf[ix] = (double) (m+1) / n;
-
-      //cout << u_sorted[i] << " " << v_sorted[i] << " " << " " << m << " " << ecdf[i] << " " << endl;
-
-      //ecdf[posMap[{u_sorted[i], v_sorted[i]}]] = (double) (m+1) / n;
-
     }
+
+    return ecdf;
+  }
+
+  vector<double> bivariatePPEcdfOrbTree(vector<double> u, vector<double> v) {
+    if(u.size() != v.size()) {
+      throw invalid_argument("Size of u and v differs.");
+    }
+
+    size_t n = u.size();
+
+    map<pair<double, double>, size_t> posMap;
+
+    for(size_t i = 0; i < n; i++) {
+      posMap[{u[i], v[i]}] = i;
+    }
+
+    vector<size_t> idx = idxSort(u);
+
+    vector<double> u_sorted = reindex(u, idx);
+
+    vector<double> v_sorted = reindex(v, idx);
+
+    vector<double> ecdf(n, 0.0);
+
+    orbtree::rankmultiset<double> double_rankmultiset;
+
+    /*
+    for(size_t i = 0; i < n; i++) {
+      double_multiset::iterator it = v_set.insert(v_sorted[i]).first;
+
+      double_multiset::size_type m = v_set.rank(it);
+
+      size_t ix = posMap[{u_sorted[i], v_sorted[i]}];
+
+      ecdf[ix] = (double) (m+1) / n;
+    }
+    */
 
     return ecdf;
   }
