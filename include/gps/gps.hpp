@@ -13,9 +13,6 @@ namespace gps {
 
   double meanStat(vector<double> u, vector<double> v, function<vector<double>(const vector<double>&, const vector<double>&)> bivariateEcdf, function<double (const double&, const double&, const double&)> weightFunction);
 
-  vector<double> bivariateEcdfLW(const vector<double>& u,
-                       const vector<double>& v);
-
   vector<double> bivariateEcdfPar(const vector<double>& u, const vector<double>& v);
 
   vector<double> permuteAndSampleStat(vector<double> u,

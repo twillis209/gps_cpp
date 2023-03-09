@@ -1,7 +1,4 @@
 #include <gps.hpp>
-#include <Eigen/Dense>
-#include <fastCDFOnSample.h>
-#include <boost/math/distributions/empirical_cumulative_distribution_function.hpp>
 #include <boost/random.hpp>
 #include <boost/range/algorithm/random_shuffle.hpp>
 #include <math.h>
@@ -9,8 +6,6 @@
 #include <omp.h>
 #include <numeric>
 
-using namespace Eigen;
-using boost::math::empirical_cumulative_distribution_function;
 using namespace std;
 
 namespace gps {
@@ -94,28 +89,6 @@ namespace gps {
     }
 
   return numerator_sum/denominator_sum;
-}
-
-  vector<double> bivariateEcdfLW(const vector<double>& u, const vector<double>& v) {
-    if(u.size() != v.size()) {
-      throw invalid_argument("Size of u and v differs.");
-    }
-
-    size_t n = u.size();
-
-    ArrayXd toAdd = ArrayXd::Constant(n, 1.);
-
-    // NB: XXd for two-dimensional and double entries
-    ArrayXXd ptr(2, n);
-
-    for(int i = 0; i < n; i++) {
-      ptr(0, i) = u[i];
-      ptr(1, i) = v[i];
-    }
-
-    ArrayXd ecdf_arr = StOpt::fastCDFOnSample(ptr, toAdd);
-
-    return vector<double>(ecdf_arr.data(), ecdf_arr.data() + ecdf_arr.size());
 }
 
   vector<double> bivariateEcdfPar(const vector<double>& u, const vector<double>& v) {

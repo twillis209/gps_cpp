@@ -30,7 +30,7 @@ int main(int argc, const char* argv[]) {
     ("inputFile,i", po::value<string>(&inputFile), "Path to input file")
     ("colLabelA,a", po::value<string>(&colLabelA), "Label of column A")
     ("colLabelB,b", po::value<string>(&colLabelB), "Label of column B")
-    ("ecdfArg,f", po::value<string>(&ecdfArg), "Specifies ecdf algorithm: \"naive\", \"pp\", or \"lw\"")
+    ("ecdfArg,f", po::value<string>(&ecdfArg), "Specifies ecdf algorithm: \"naive\" or \"pp\"")
     ("outputFile,o", po::value<string>(&outputFile), "Path to output file")
     ("cores,n", po::value<int>(&cores), "No. of cores")
     ("perturbN,p", po::value<int>(&perturbN), "No. of perturbation iterations")
@@ -89,8 +89,6 @@ int main(int argc, const char* argv[]) {
       bivariateEcdf = bivariateEcdfPar(u, v);
     } else if(ecdfArg == "pp") {
       bivariateEcdf = PPEcdf::bivariatePPEcdf(u, v);
-    } else if(ecdfArg == "lw") {
-      bivariateEcdf = bivariateEcdfLW(u, v);
     } else {
       cout << "Invalid ecdfArg argument, using naive algorithm" << endl;
       bivariateEcdf = bivariateEcdfPar(u, v);

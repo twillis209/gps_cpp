@@ -15,7 +15,9 @@ using namespace std;
 namespace PPEcdf {
 
   vector<double> bivariatePPEcdf(vector<double> u, vector<double> v) {
-    assert(u.size()  == v.size());
+    if(u.size() != v.size()) {
+      throw invalid_argument("Size of u and v differs.");
+    }
 
     size_t n = u.size();
 

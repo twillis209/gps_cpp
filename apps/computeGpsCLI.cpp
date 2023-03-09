@@ -44,7 +44,7 @@ int main(int argc, const char* argv[]) {
     ("timingFile,j", po::value<string>(&timingFile), "Path to timing file")
     ("logFile,g", po::value<string>(&logFile), "Path to log file")
     ("perturbedFile,t", po::value<string>(&perturbedFile), "Path to file containing perturbed u and v vectors")
-    ("ecdf,f", po::value<string>(&ecdf), "Specifies ecdf algorithm: \"naive\", \"pp\", or \"lw\"")
+    ("ecdf,f", po::value<string>(&ecdf), "Specifies ecdf algorithm: \"naive\" or \"pp\"")
     ("perturbN,p", po::value<int>(&perturbN), "No. of perturbation iterations")
     ("epsilonMultiple,e", po::value<double>(&epsilonMultiple), "Multiple of epsilon to use in perturbation procedure")
     ("cores,n", po::value<int>(&cores), "No. of cores")
@@ -68,8 +68,6 @@ int main(int argc, const char* argv[]) {
       ecdfFun = bivariateEcdfPar;
     } else if(ecdf == "pp") {
       ecdfFun = PPEcdf::bivariatePPEcdf;
-    } else if(ecdf == "lw") {
-      ecdfFun = bivariateEcdfLW;
     } else {
       cout << "Invalid ecdf argument, using naive algorithm" << endl;
       ecdfFun = bivariateEcdfPar;
