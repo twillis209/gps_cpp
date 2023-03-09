@@ -74,19 +74,18 @@ namespace PPEcdf {
 
     vector<double> ecdf(n, 0.0);
 
-    orbtree::rankmultiset<double> double_rankmultiset;
+    orbtree::rankmultiset<double> multiset;
 
-    /*
     for(size_t i = 0; i < n; i++) {
-      double_multiset::iterator it = v_set.insert(v_sorted[i]).first;
+      // TODO really want to be able to insert and get back rank
+      multiset.insert(v_sorted[i]);
 
-      double_multiset::size_type m = v_set.rank(it);
+      uint32_t m = multiset.get_sum(v_sorted[i]);
 
       size_t ix = posMap[{u_sorted[i], v_sorted[i]}];
 
       ecdf[ix] = (double) (m+1) / n;
     }
-    */
 
     return ecdf;
   }
