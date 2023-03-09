@@ -98,9 +98,7 @@ namespace gps {
 
     size_t n = u.size();
 
-    vector<double> ecdf;
-
-    ecdf.reserve(n);
+    vector<double> ecdf(n, 0.0);
 
     #pragma omp parallel for
     for(size_t i = 0; i < n; ++i) {
