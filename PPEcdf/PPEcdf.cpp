@@ -74,7 +74,7 @@ namespace PPEcdf {
 
     vector<double> ecdf(n, 0.0);
 
-    orbtree::rankmultiset<double> multiset;
+    orbtree::rankmultiset<double, uint32_t> multiset;
 
     for(size_t i = 0; i < n; i++) {
       // TODO really want to be able to insert and get back rank

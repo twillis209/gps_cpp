@@ -23,8 +23,8 @@ FetchContent_MakeAvailable(rapidcsv)
 
 FetchContent_Declare(
   orbtree
-  GIT_REPOSITORY https://github.com/dkondor/orbtree.git
-  GIT_TAG 39e6b3c
+  GIT_REPOSITORY https://github.com/twillis209/orbtree.git
+  GIT_TAG origin/rankFunc_fix
   GIT_SHALLOW TRUE)
 FetchContent_MakeAvailable(orbtree)
 

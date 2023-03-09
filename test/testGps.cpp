@@ -292,6 +292,18 @@ TEST_CASE( "gps computes correct statistic on uniformly distributed data", "[gps
   REQUIRE(gpsResult == Detail::Approx(0.87333));
 }
 
+TEST_CASE( "gpsStat with bivariatePPEcdfOrbTree computes correct statistic on uniformly distributed data", "[gps]" ) {
+
+  Document doc("test/data/1e3_unif.csv");
+
+  vector<double> u = doc.GetColumn<double>("u");
+  vector<double> v = doc.GetColumn<double>("v");
+
+  double gpsResult = gpsStat(u,v, &bivariatePPEcdfOrbTree, &gpsWeight);
+
+  REQUIRE(gpsResult == Detail::Approx(0.87333));
+}
+
 TEST_CASE( "gpsStat runs in simple case", "[gpsStat]" ) {
   vector u({.1, .2, .3, .4, .5});
   vector v({.1, .2, .3, .5, .4});
