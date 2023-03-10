@@ -269,15 +269,71 @@ TEST_CASE( "PP bivariate ecdf orbtree computes correct ecdf for uniformly distri
                );
 }
 
-TEST_CASE( "bivariatePPEcdfOrbTree computes the ecdf for simple data with duplicate", "[bivariatePPEcdfOrbTree]" ) {
+
+TEST_CASE( "bivariatePPEcdf computes the ecdf for simple data with duplicate values in first vector", "[bivariatePPEcdf]" ) {
+  vector u({.1, .2, .3, .4, .4, .5});
+  vector v({.1, .2, .3, .4, .5, .5});
+
+  vector<double> ecdf = bivariatePPEcdf(u, v);
+
+  REQUIRE_THAT(
+               ecdf,
+               Matchers::Approx(vector<double>{0.1666667, 0.333333, 0.5, 0.666667, 0.833333, 1.0}));
+}
+
+TEST_CASE( "bivariatePPEcdf computes the ecdf for simple data with duplicate values in second vector", "[bivariatePPEcdf]" ) {
   vector u({.1, .2, .3, .4, .5, .5});
-  vector v({.5, .4, .3, .2, .1, .1});
+  vector v({.1, .2, .3, .4, .4, .5});
+
+  vector<double> ecdf = bivariatePPEcdf(u, v);
+
+  REQUIRE_THAT(
+               ecdf,
+               Matchers::Approx(vector<double>{0.1666667, 0.333333, 0.5, 0.666667, 0.833333, 1.0}));
+}
+
+TEST_CASE( "bivariatePPEcdf computes the ecdf for simple data with duplicate pairs", "[bivariatePPEcdf]" ) {
+  vector u({.1, .2, .3, .5, .4, .5});
+  vector v({.5, .4, .3, .1, .2, .1});
+
+  vector<double> ecdf = bivariatePPEcdf(u, v);
+
+  REQUIRE_THAT(
+               ecdf,
+               Matchers::Approx(vector<double>{0.1666667, 0.1666667, 0.1666667, 0.3333333, 0.1666667,  0.3333333}));
+}
+
+TEST_CASE( "bivariatePPEcdfOrbTree computes the ecdf for simple data with duplicate values in first vector", "[bivariatePPEcdf]" ) {
+  vector u({.1, .2, .3, .4, .4, .5});
+  vector v({.1, .2, .3, .4, .5, .5});
 
   vector<double> ecdf = bivariatePPEcdfOrbTree(u, v);
 
   REQUIRE_THAT(
                ecdf,
-               Matchers::Approx(vector<double>{0.1666667, 0.1666667, 0.1666667, 0.1666667, 0.3333333, 0.3333333}));
+               Matchers::Approx(vector<double>{0.1666667, 0.333333, 0.5, 0.666667, 0.833333, 1.0}));
+}
+
+TEST_CASE( "bivariatePPEcdfOrbTree computes the ecdf for simple data with duplicate values in second vector", "[bivariatePPEcdf]" ) {
+  vector u({.1, .2, .3, .4, .5, .5});
+  vector v({.1, .2, .3, .4, .4, .5});
+
+  vector<double> ecdf = bivariatePPEcdfOrbTree(u, v);
+
+  REQUIRE_THAT(
+               ecdf,
+               Matchers::Approx(vector<double>{0.1666667, 0.333333, 0.5, 0.666667, 0.833333, 1.0}));
+}
+
+TEST_CASE( "bivariatePPEcdfOrbTree computes the ecdf for simple data with duplicate", "[bivariatePPEcdfOrbTree]" ) {
+  vector u({.1, .2, .3, .5, .4, .5});
+  vector v({.5, .4, .3, .1, .2, .1});
+
+  vector<double> ecdf = bivariatePPEcdfOrbTree(u, v);
+
+  REQUIRE_THAT(
+               ecdf,
+               Matchers::Approx(vector<double>{0.1666667, 0.1666667, 0.1666667, 0.3333333, 0.1666667,  0.3333333}));
 }
 
 TEST_CASE( "gps computes correct statistic on uniformly distributed data", "[gps]" ) {
