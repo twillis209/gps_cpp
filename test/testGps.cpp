@@ -325,7 +325,7 @@ TEST_CASE( "bivariatePPEcdfOrbTree computes the ecdf for simple data with duplic
                Matchers::Approx(vector<double>{0.1666667, 0.333333, 0.5, 0.666667, 0.833333, 1.0}));
 }
 
-TEST_CASE( "bivariatePPEcdfOrbTree computes the ecdf for simple data with duplicate", "[bivariatePPEcdfOrbTree]" ) {
+TEST_CASE( "bivariatePPEcdfOrbTree computes the ecdf for simple data with duplicate pairs", "[bivariatePPEcdfOrbTree]" ) {
   vector u({.1, .2, .3, .5, .4, .5});
   vector v({.5, .4, .3, .1, .2, .1});
 

@@ -90,7 +90,6 @@ namespace PPEcdf {
     return ecdf;
   }
 
-  // TODO maybe I'm calling it incorrectly? But the other implementation didn't work either.
   // From https://stackoverflow.com/a/12399290
   template <typename T> vector<size_t> idxSort(const vector<T> &v) {
 
@@ -107,7 +106,7 @@ namespace PPEcdf {
   template <typename T> vector<T> reindex(const vector<T>& v, const vector<size_t>& idx) {
     assert(v.size() == idx.size());
 
-    vector<double> reindexed(v.size());
+    vector<T> reindexed(v.size());
 
     for(size_t i = 0; i < idx.size(); i++) {
       reindexed[i] = v[idx[i]];

@@ -17,29 +17,91 @@ int main(int argc, const char* argv[]) {
   //vector u({.1, .2, .3, .5, .4, .5});
   //vector v({.5, .4, .3, .1, .2, .1});
   vector u({.1, .2, .3, .4, .5, .5});
-  vector v({.1, .2, .3, .4, .4, .5});
+  vector v({.1, .2, .3, .4, .5, .5});
 
   size_t n = u.size();
 
   // TODO need to handle the case wherein we have duplicate double-double pairs (surely quite rare, though?)
+  // TODO could index by <double, double, size_t> to take into account duplicates, with the size_t noting the no. of duplicates so far + 1?
+
   map<pair<double, double>, size_t> posMap;
 
   for(size_t i = 0; i < n; i++) {
     posMap[{u[i], v[i]}] = i;
   }
 
-  vector<size_t> idx = idxSort(u);
+  vector<size_t> u_idx = idxSort(u);
 
-  vector<double> u_sorted = reindex(u, idx);
+  vector<double> u_sorted = reindex(u, u_idx);
 
-  vector<double> v_sorted = reindex(v, idx);
+  vector<double> v_sorted = reindex(v, u_idx);
+
+  vector<size_t> v_idx(n, 0);
+
+  for(size_t i = 0; i < n; i++) {
+    v_idx[i] = i;
+  }
+
+  // TODO expecting this to give index back into original v vector
+  v_idx = reindex(v_idx, u_idx);
 
   vector<double> ecdf(n, 0.0);
+
+  map<double, size_t> freqMap;
+
+  for(size_t i = 0; i < v_sorted.size(); ++i) {
+    freqMap[v_sorted[i]]++;
+  }
 
   typedef multi_index_container<double, indexed_by<ranked_non_unique<identity<double>>>> double_multiset;
 
   double_multiset v_set;
 
+  for(size_t i = 0; i < n; i++) {
+    cout << "i: " << i << endl;
+
+    cout << "v_sorted[i]: " << v_sorted[i] << endl;
+
+    v_set.insert(v_sorted[i]);
+  }
+
+  for(size_t i = 0; i < n; i++) {
+    cout << "i: " << i << endl;
+
+    cout << "v_sorted[i]: " << v_sorted[i] << endl;
+
+    cout << "find(v_sorted[i]): " << endl;
+
+    auto it = v_set.find(v_sorted[i]);
+
+    double_multiset::size_type m = v_set.rank(it);
+
+    cout << "rank: " << m << endl;
+
+    size_t ix = posMap[{u_sorted[i], v_sorted[i]}];
+
+    cout << "ix: " << ix << endl << endl;
+
+    // TODO: can probably get the freqMap info from the multiset
+    ecdf[ix] = (double) (m+freqMap[v_sorted[i]]) / n;
+
+    /*
+    cout << "m: " << m << endl;
+
+    size_t ix = posMap[{u_sorted[i], v_sorted[i]}];
+
+    cout << "ix: " << ix << endl << endl;
+
+    ecdf[ix] = (double) (m+1) / n;
+    */
+  }
+
+  auto it = v_set.lower_bound(.5);
+  auto end = v_set.upper_bound(.5);
+
+  //for(; it != end; ++it)
+  //  cout << it << endl;
+  /*
   for(size_t i = 0; i < n; i++) {
     cout << "i: " << i << endl;
 
@@ -57,6 +119,8 @@ int main(int argc, const char* argv[]) {
 
     ecdf[ix] = (double) (m+1) / n;
   }
+  */
+
 
   /*
   rankmultiset<double, uint32_t> multiset;
