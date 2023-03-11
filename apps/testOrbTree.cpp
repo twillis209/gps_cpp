@@ -19,6 +19,7 @@ int main(int argc, const char* argv[]) {
   //vector v({.5, .4, .3, .1, .2, .1});
   vector u({.1, .2, .3, .4, .5, .5});
   vector v({.1, .2, .3, .4, .5, .5});
+  // ecdf should be .167, .333, .5, .667, 1.0, 1.0
 
   size_t n = u.size();
 
@@ -31,18 +32,25 @@ int main(int argc, const char* argv[]) {
     posMap[{u[i], v[i]}] = i;
   }
 
-  vector<size_t> u_idx = idxSort(u);
+  //vector<vector<double>::size_type> u_idx = idxSort(u);
+  vector<vector<double>::size_type> u_idx = idxSort(u);
 
   vector<double> u_sorted = reindex(u, u_idx);
 
   vector<double> v_sorted = reindex(v, u_idx);
 
-  vector<size_t> v_idx(n);
+  //vector<vector<double>::size_type> v_idx(n, 0);
+  vector<double> v_idx(n, 0);
 
   iota(v_idx.begin(), v_idx.end(), 0);
 
-  // TODO expecting this to give index back into original v vector
-  //v_idx = reindex(v_idx, u_idx);
+  // TODO Need to check that this in fact reindexes v_idx
+  v_idx = reindex(v_idx, u_idx);
+
+  // TODO this cannot be the way this needs to be done
+  vector<size_t> v_idx_size_t(v_idx.begin(), v_idx.end());
+
+  for(auto value : v_idx) cout << value << endl;
 
   vector<double> ecdf(n, 0.0);
 
@@ -77,26 +85,16 @@ int main(int argc, const char* argv[]) {
 
     cout << "rank: " << m << endl;
 
+    /*
     size_t ix = posMap[{u_sorted[i], v_sorted[i]}];
 
     cout << "ix: " << ix << endl << endl;
+    */
+    cout << "v_idx_size_t[i]: " << v_idx_size_t[i] << endl << endl;
 
     // TODO: can probably get the freqMap info from the multiset
-    ecdf[ix] = (double) (m+freqMap[v_sorted[i]]) / n;
-
-    /*
-    cout << "m: " << m << endl;
-
-    size_t ix = posMap[{u_sorted[i], v_sorted[i]}];
-
-    cout << "ix: " << ix << endl << endl;
-
-    ecdf[ix] = (double) (m+1) / n;
-    */
+    ecdf[v_idx_size_t[i]] = (double) (m+freqMap[v_sorted[i]]) / n;
   }
-
-  auto it = v_set.lower_bound(.5);
-  auto end = v_set.upper_bound(.5);
 
   //for(; it != end; ++it)
   //  cout << it << endl;
