@@ -3,6 +3,7 @@
 #include <map>
 #include <vector>
 #include <iostream>
+#include <numeric>
 #include <boost/multi_index_container.hpp>
 #include <boost/multi_index/ranked_index.hpp>
 #include <boost/multi_index/member.hpp>
@@ -36,14 +37,12 @@ int main(int argc, const char* argv[]) {
 
   vector<double> v_sorted = reindex(v, u_idx);
 
-  vector<size_t> v_idx(n, 0);
+  vector<size_t> v_idx(n);
 
-  for(size_t i = 0; i < n; i++) {
-    v_idx[i] = i;
-  }
+  iota(v_idx.begin(), v_idx.end(), 0);
 
   // TODO expecting this to give index back into original v vector
-  v_idx = reindex(v_idx, u_idx);
+  //v_idx = reindex(v_idx, u_idx);
 
   vector<double> ecdf(n, 0.0);
 

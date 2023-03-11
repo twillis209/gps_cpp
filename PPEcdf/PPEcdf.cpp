@@ -22,6 +22,7 @@ namespace PPEcdf {
 
     size_t n = u.size();
 
+
     map<pair<double, double>, size_t> posMap;
 
     for(size_t i = 0; i < n; i++) {
@@ -103,12 +104,17 @@ namespace PPEcdf {
     return idx;
 }
 
-  template <typename T> vector<T> reindex(const vector<T>& v, const vector<size_t>& idx) {
+  template <typename T> vector<T> reindex(const vector<T>& v, const vector<typename vector<T>::size_type>& idx) {
     assert(v.size() == idx.size());
 
     vector<T> reindexed(v.size());
 
-    for(size_t i = 0; i < idx.size(); i++) {
+    /*
+    for(typename vector<T>::size_type i = 0; i < idx.size(); i++) {
+      reindexed[i] = v[idx[i]];
+    }
+    */
+    for(typename vector<T>::size_type i = 0; i < idx.size(); i++) {
       reindexed[i] = v[idx[i]];
     }
 
