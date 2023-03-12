@@ -2,14 +2,14 @@
 
 #include <vector>
 #include <map>
-#include <boost/random.hpp>
+#include <functional>
 
 using namespace std;
 
 namespace gps {
-  vector<double> ecdf(vector<double> reference);
+  vector<double> ecdf(const vector<double>& reference);
 
-  double gpsStat(vector<double> u, vector<double> v, function<vector<double>(const vector<double>&, const vector<double>&)> bivariateEcdf, function<double (const double&, const double&, const double&)> weightFunction);
+  double gpsStat(const vector<double>& u, const vector<double>& v, function<vector<double>(const vector<double>&, const vector<double>&)> bivariateEcdf, function<double (const double&, const double&, const double&)> weightFunction);
 
   double meanStat(vector<double> u, vector<double> v, function<vector<double>(const vector<double>&, const vector<double>&)> bivariateEcdf, function<double (const double&, const double&, const double&)> weightFunction);
 
@@ -20,7 +20,7 @@ namespace gps {
                                           size_t n,
                                       function<double (vector<double>, vector<double>, function<vector<double>(const vector<double>&, const vector<double>&)>, function<double (const double&, const double&, const double&)>)> statistic,
                                           function<vector<double>(const vector<double>&, const vector<double>&)> bivariateEcdf,
-                                          function<double (const double&, const double&, const double&)> weightFunction);
+                                      function<double (const double&, const double&, const double&)> weightFunction, const optional<int>& seed = nullopt);
 
   vector<double> perturbDuplicates(vector<double> values);
 

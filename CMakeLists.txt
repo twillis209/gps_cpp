@@ -11,8 +11,7 @@ include(FetchContent)
 
 enable_testing()
 
-# NB: Only need to list compiled libraries here
-find_package(Boost 1.77 COMPONENTS random math_c99 program_options timer serialization unit_test_framework REQUIRED)
+find_package(Boost 1.77 COMPONENTS program_options timer unit_test_framework REQUIRED)
 
 FetchContent_Declare(
   rapidcsv

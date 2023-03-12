@@ -1,16 +1,17 @@
 #include <gps.hpp>
-#include <boost/random.hpp>
-#include <boost/range/algorithm/random_shuffle.hpp>
 #include <math.h>
 #include <map>
 #include <omp.h>
 #include <numeric>
+#include <random>
+#include <algorithm>
+#include <iostream>
 
 using namespace std;
 
 namespace gps {
 
-  vector<double> ecdf(vector<double> reference) {
+  vector<double> ecdf(const vector<double>& reference) {
     vector<double> refCopy = reference;
 
     size_t n = reference.size();
@@ -26,7 +27,7 @@ namespace gps {
     return estEcdf;
   }
 
-  double gpsStat(vector<double> u, vector<double> v, function<vector<double>(const vector<double>&, const vector<double>&)> bivariateEcdf, function<double (const double&, const double&, const double&)> weightFunction) {
+  double gpsStat(const vector<double>& u, const vector<double>& v, function<vector<double>(const vector<double>&, const vector<double>&)> bivariateEcdf, function<double (const double&, const double&, const double&)> weightFunction) {
     if(u.size() != v.size()) {
       throw invalid_argument("Size of u and v differs.");
     }
@@ -122,13 +123,19 @@ namespace gps {
                                           size_t n,
                                           function<double (vector<double>, vector<double>, function<vector<double>(const vector<double>&, const vector<double>&)>, function<double (const double&, const double&, const double&)>)> stat,
                                           function<vector<double>(const vector<double>&, const vector<double>&)> bivariateEcdf,
-                                          function<double (const double&, const double&, const double&)> weightFunction) {
+                                          function<double (const double&, const double&, const double&)> weightFunction, const optional<int>& seed) {
     vector<double> sample;
 
     size_t i = 0;
 
+    default_random_engine rng;
+
+    if(seed) {
+      //rng.seed(seed);
+    }
+
     while(i < n) {
-      boost::range::random_shuffle(v);
+      shuffle(v.begin(), v.end(), rng);
 
       if(distance(u.begin(), max_element(u.begin(), u.end())) != distance(v.begin(), max_element(v.begin(), v.end()))) {
         sample.push_back(stat(u, v, bivariateEcdf, weightFunction));
