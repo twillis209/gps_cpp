@@ -19,14 +19,12 @@ int main(int argc, const char* argv[]) {
   string inputFile;
   string outputFile;
   string logFile;
-  string perturbedFile;
   string timingFile;
   string traitA;
   string traitB;
   string colLabelA;
   string colLabelB;
   string ecdf = "naive";
-  int perturbN = 0;
   double epsilonMultiple = 2.0;
   int cores = 1;
   bool deduplicateFlag = false;
@@ -43,10 +41,7 @@ int main(int argc, const char* argv[]) {
     ("outputFile,o", po::value<string>(&outputFile), "Path to output file")
     ("timingFile,j", po::value<string>(&timingFile), "Path to timing file")
     ("logFile,g", po::value<string>(&logFile), "Path to log file")
-    ("perturbedFile,t", po::value<string>(&perturbedFile), "Path to file containing perturbed u and v vectors")
     ("ecdf,f", po::value<string>(&ecdf), "Specifies ecdf algorithm: \"naive\" or \"pp\"")
-    ("perturbN,p", po::value<int>(&perturbN), "No. of perturbation iterations")
-    ("epsilonMultiple,e", po::value<double>(&epsilonMultiple), "Multiple of epsilon to use in perturbation procedure")
     ("cores,n", po::value<int>(&cores), "No. of cores")
     ("statistic,s", po::value<string>(&statistic), "Statistic to compute")
     ("weight,w", po::value<string>(&weight), "Weight function to use")
@@ -132,50 +127,10 @@ int main(int argc, const char* argv[]) {
 
     cout.precision(20);
 
-    if(perturbN > 0) {
+    map<double, int> freqMapU = returnFreqMap(u);
+    map<double, int> freqMapV = returnFreqMap(v);
 
-      cout << "Perturbing..." << endl;
-
-      for(size_t i = 0; i < perturbN; ++i) {
-        u = perturbDuplicates_addEpsilon(u, epsilonMultiple);
-        v = perturbDuplicates_addEpsilon(v, epsilonMultiple);
-      }
-    }
-
-      map<double, int> freqMapU = returnFreqMap(u);
-      map<double, int> freqMapV = returnFreqMap(v);
-
-      int n = u.size();
-
-      if(deduplicateFlag) {
-        cout << "Length of u vector before deletion: " << n << endl;
-        // Delete any values we couldn't perturb away from being duplicates
-        for(size_t i = 0; i < n; ++i) {
-          if(freqMapU[u[i]] > 1 || freqMapV[v[i]] > 1 || u[i] > 1.0 || v[i] > 1.0) {
-            u.erase(u.end()-(i+1));
-            v.erase(v.end()-(i+1));
-          }
-        }
-
-        cout << "Length of u vector after deletion: " << u.size() << endl;
-      }
-
-      if(!perturbedFile.empty()) {
-
-        stringstream perturbedOutput;
-
-        perturbedOutput << traitA << "\t" << traitB << endl;
-
-        perturbedOutput << setprecision(20);
-
-        for(size_t i = 0; i < u.size(); ++i) {
-          perturbedOutput << u[i] << "\t" << v[i] << endl;
-        }
-
-        Document perturbedOutputDoc(perturbedOutput, LabelParams(), SeparatorParams('\t'));
-        perturbedOutputDoc.Save(perturbedFile);
-      }
-
+    int n = u.size();
 
     omp_set_num_threads(cores);
 

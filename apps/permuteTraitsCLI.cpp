@@ -19,7 +19,6 @@ int main(int argc, const char* argv[]) {
   string outputFile;
   string colLabelA;
   string colLabelB;
-  int perturbN = 0;
   double epsilonMultiple = 2.0;
   int cores = 1;
   int draws;
@@ -32,8 +31,6 @@ int main(int argc, const char* argv[]) {
     ("outputFile,o", po::value<string>(&outputFile), "Path to output file")
     ("colLabelA,a", po::value<string>(&colLabelA), "Label of column A")
     ("colLabelB,b", po::value<string>(&colLabelB), "Label of column B")
-    ("perturbN,p", po::value<int>(&perturbN), "No. of perturbation iterations")
-    ("epsilonMultiple,e", po::value<double>(&epsilonMultiple), "Multiple of epsilon to use in perturbation procedure")
     ("statistic,s", po::value<string>(&statistic), "Statistic to compute")
     ("weight,w", po::value<string>(&weight), "Weight function to use")
     ("cores,c", po::value<int>(&cores), "No. of cores")
@@ -99,11 +96,6 @@ int main(int argc, const char* argv[]) {
           //logOutput << traitB << "\t" << i+1 << endl;
         }
       }
-    }
-
-    for(size_t i = 0; i < perturbN; ++i) {
-      u = perturbDuplicates_addEpsilon(u, epsilonMultiple);
-      v = perturbDuplicates_addEpsilon(v, epsilonMultiple);
     }
 
     vector<vector<double>> gpsPermutations;
