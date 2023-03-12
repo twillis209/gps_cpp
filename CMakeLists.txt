@@ -21,13 +21,6 @@ FetchContent_Declare(
   GIT_SHALLOW TRUE)
 FetchContent_MakeAvailable(rapidcsv)
 
-FetchContent_Declare(
-  orbtree
-  GIT_REPOSITORY https://github.com/twillis209/orbtree.git
-  GIT_TAG origin/rankFunc_fix
-  GIT_SHALLOW TRUE)
-FetchContent_MakeAvailable(orbtree)
-
 add_subdirectory(src)
 add_subdirectory(apps)
 add_subdirectory(test)

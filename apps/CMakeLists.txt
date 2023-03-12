@@ -17,9 +17,3 @@ add_executable(fitAndEvaluateEcdfsCLI fitAndEvaluateEcdfsCLI.cpp)
 target_include_directories(fitAndEvaluateEcdfsCLI PUBLIC "${CMAKE_SOURCE_DIR}/include/gps" "${CMAKE_SOURCE_DIR}/include/gps" "${Boost_INCLUDE_DIRS}")
 
 target_link_libraries(fitAndEvaluateEcdfsCLI Boost::program_options Gps rapidcsv OpenMP::OpenMP_CXX PPEcdf)
-
-add_executable(testOrbTree testOrbTree.cpp)
-
-target_include_directories(testOrbTree PUBLIC "${CMAKE_SOURCE_DIR}/include/PPEcdf" "${Boost_INCLUDE_DIRS}" "${orbtree_SOURCE_DIR}")
-
-target_link_libraries(testOrbTree PPEcdf)

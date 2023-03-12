@@ -1,5 +1,4 @@
 #include <PPEcdf.hpp>
-#include <orbtree.h>
 #include <map>
 #include <vector>
 #include <numeric>
@@ -47,41 +46,6 @@ namespace PPEcdf {
 
     for(size_t i = 0; i < n; i++) {
       ecdf[u_idx[i]] = (double) maxIxMap[make_pair(u_sorted[i], v_sorted[i])] / n;
-    }
-
-    return ecdf;
-  }
-
-  vector<double> bivariatePPEcdfOrbTree(vector<double> u, vector<double> v) {
-    if(u.size() != v.size()) {
-      throw invalid_argument("Size of u and v differs.");
-    }
-
-    size_t n = u.size();
-
-    map<pair<double, double>, size_t> maxIxMap;
-
-    vector<size_t> idx = idxSort(u);
-
-    vector<double> u_sorted = reindex(u, idx);
-
-    vector<double> v_sorted = reindex(v, idx);
-
-    vector<double> ecdf(n, 0.0);
-
-    orbtree::rankmultiset<double, uint32_t> multiset;
-
-    for(size_t i = 0; i < n; i++) {
-      // TODO really want to be able to insert and get back rank
-      multiset.insert(v_sorted[i]);
-
-      uint32_t m = multiset.get_sum(v_sorted[i]);
-
-      maxIxMap[make_pair(u_sorted[i], v_sorted[i])] = m+1;
-    }
-
-    for(size_t i = 0; i < n; i++) {
-      ecdf[idx[i]] = (double) maxIxMap[make_pair(u_sorted[i], v_sorted[i])] / n;
     }
 
     return ecdf;
