@@ -244,9 +244,25 @@ TEST_CASE( "gps computes correct statistic on uniformly distributed data", "[gps
   vector<double> u = doc.GetColumn<double>("u");
   vector<double> v = doc.GetColumn<double>("v");
 
-  double gpsResult = gpsStat(u,v, &bivariatePPEcdf, &gpsWeight);
+  double ppResult = gpsStat(u,v, &bivariatePPEcdf, &gpsWeight);
+  double naiveResult = gpsStat(u,v, &bivariateEcdfPar, &gpsWeight);
 
-  REQUIRE(gpsResult == Detail::Approx(0.87333));
+  REQUIRE(ppResult == Detail::Approx(0.87333));
+  REQUIRE(ppResult == naiveResult);
+}
+
+TEST_CASE( "gps computes correct statistic on uniformly distributed data with one row in triplicate", "[gpsStat]" ) {
+
+  Document doc("test/data/1002_unif_with_duplicates.csv");
+
+  vector<double> u = doc.GetColumn<double>("u");
+  vector<double> v = doc.GetColumn<double>("v");
+
+  double ppResult = gpsStat(u,v, &bivariatePPEcdf, &gpsWeight);
+  double naiveResult = gpsStat(u,v, &bivariateEcdfPar, &gpsWeight);
+
+  REQUIRE(ppResult == Detail::Approx(0.8773904625));
+  REQUIRE(ppResult == naiveResult);
 }
 
 TEST_CASE( "gpsStat runs in simple case", "[gpsStat]" ) {
