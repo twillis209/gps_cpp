@@ -150,29 +150,6 @@ namespace gps {
     return sample;
   }
 
-  vector<double> perturbDuplicates_addEpsilon(vector<double> values, double multiple) {
-    map<double, int> freqMap;
-
-    for(size_t i = 0; i < values.size(); ++i) {
-      freqMap[values[i]]++;
-
-      if(freqMap[values[i]] > 1) {
-        double candidate_replacement = values[i] + (double) (freqMap[values[i]])* multiple*numeric_limits<double>::epsilon();
-        //double candidate_replacement = nextafter(values[i], 1.0);
-
-        while((0.5 * (candidate_replacement + values[i])) == values[i]) {
-          cout << "Replacement is equal, incrementing" << endl;
-          //candidate_replacement = nextafter(values[i], 1.0);
-          candidate_replacement += (freqMap[values[i]])*multiple*numeric_limits<double>::epsilon();
-        }
-
-        values[i] = candidate_replacement;
-      }
-    }
-
-    return values;
-  }
-
   map<double, int> returnFreqMap(vector<double> values) {
     map<double, int> freqMap;
 

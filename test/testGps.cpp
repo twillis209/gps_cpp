@@ -341,17 +341,6 @@ TEST_CASE( "gps throws exception on undefined case", "[ecdf]") {
                  );
 }
 
-TEST_CASE( "perturbDuplicates distinguishes duplicates in simple case", "[perturbDuplicates]") {
-
-  vector<double> u({.1,.1,.1,.2,.3,.4,.5});
-
-  vector<double> noDup = perturbDuplicates_addEpsilon(u, 1.0);
-
-  REQUIRE(noDup[0] == .1);
-  REQUIRE(noDup[0] != noDup[1]);
-  REQUIRE(noDup[0] != noDup[2]);
-}
-
 TEST_CASE( "permuteAndSampleGps on simple data set", "[permuteAndSampleStat]") {
   vector u({0.9148060, 0.9370754, 0.2861395, 0.8304476, 0.6417455, 0.5190959, 0.7365883, 0.1346666, 0.6569923, 0.7050648});
   vector v({0.4577418, 0.7191123, 0.9346722, 0.2554288, 0.4622928, 0.9400145, 0.9782264, 0.1174874, 0.4749971, 0.5603327});

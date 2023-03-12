@@ -21,7 +21,6 @@ int main(int argc, const char* argv[]) {
   string colLabelB;
   string ecdfArg = "naive";
   int cores = 1;
-  int perturbN = 0;
   double epsilonMultiple = 2.0;
   bool deduplicateFlag = false;
 
@@ -33,8 +32,6 @@ int main(int argc, const char* argv[]) {
     ("ecdfArg,f", po::value<string>(&ecdfArg), "Specifies ecdf algorithm: \"naive\" or \"pp\"")
     ("outputFile,o", po::value<string>(&outputFile), "Path to output file")
     ("cores,n", po::value<int>(&cores), "No. of cores")
-    ("perturbN,p", po::value<int>(&perturbN), "No. of perturbation iterations")
-    ("epsilonMultiple,e", po::value<double>(&epsilonMultiple), "Multiple of epsilon to use in perturbation procedure")
     ("deduplicate,d", po::bool_switch(&deduplicateFlag), "Remove duplicate values")
     ;
 
@@ -48,38 +45,10 @@ int main(int argc, const char* argv[]) {
     vector<double> u = data.GetColumn<double>(colLabelA);
     vector<double> v = data.GetColumn<double>(colLabelB);
 
-    if(perturbN > 0) {
-
-      cout << "Perturbing..." << endl;
-
-      for(size_t i = 0; i < perturbN; ++i) {
-        u = perturbDuplicates_addEpsilon(u, epsilonMultiple);
-        v = perturbDuplicates_addEpsilon(v, epsilonMultiple);
-      }
-    }
-
     map<double, int> freqMapU = returnFreqMap(u);
     map<double, int> freqMapV = returnFreqMap(v);
 
     int n = u.size();
-
-    if(deduplicateFlag) {
-      cout << "Length of u vector before deletion: " << n << endl;
-
-      // Delete any values we couldn't perturb away from being duplicates
-      for(size_t i = 0; i < n; ++i) {
-
-        //cout << i << endl;
-
-        if(freqMapU[u[i]] > 1 || freqMapV[v[i]] > 1 || u[i] > 1.0 || v[i] > 1.0) {
-          cout << "Erasing " << i << " " << endl;
-          u.erase(u.begin()+i);
-          v.erase(v.begin()+i);
-        }
-      }
-
-      cout << "Length of u vector after deletion: " << u.size() << endl;
-    }
 
     omp_set_num_threads(cores);
 

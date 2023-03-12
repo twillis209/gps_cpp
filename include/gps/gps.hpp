@@ -22,13 +22,7 @@ namespace gps {
                                           function<vector<double>(const vector<double>&, const vector<double>&)> bivariateEcdf,
                                       function<double (const double&, const double&, const double&)> weightFunction, const optional<unsigned int>& seed = nullopt);
 
-  vector<double> perturbDuplicates(vector<double> values);
-
-  vector<double> perturbDuplicates_addEpsilon(vector<double> values, double multiple);
-
   map<double, int> returnFreqMap(vector<double> values);
-
-  vector<double> simplePerturbation(vector<double> values);
 
   map<double, int> returnFreqMap(vector<double> values);
 
