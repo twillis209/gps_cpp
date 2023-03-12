@@ -123,16 +123,19 @@ namespace gps {
                                           size_t n,
                                           function<double (vector<double>, vector<double>, function<vector<double>(const vector<double>&, const vector<double>&)>, function<double (const double&, const double&, const double&)>)> stat,
                                           function<vector<double>(const vector<double>&, const vector<double>&)> bivariateEcdf,
-                                          function<double (const double&, const double&, const double&)> weightFunction, const optional<int>& seed) {
+                                          function<double (const double&, const double&, const double&)> weightFunction, const optional<unsigned int>& seed) {
     vector<double> sample;
-
-    size_t i = 0;
 
     default_random_engine rng;
 
     if(seed) {
-      //rng.seed(seed);
+      rng = default_random_engine(seed.value());
+    } else {
+      auto rd = random_device {};
+      rng = default_random_engine { rd() };
     }
+
+    size_t i = 0;
 
     while(i < n) {
       shuffle(v.begin(), v.end(), rng);

@@ -20,7 +20,7 @@ namespace gps {
                                           size_t n,
                                       function<double (vector<double>, vector<double>, function<vector<double>(const vector<double>&, const vector<double>&)>, function<double (const double&, const double&, const double&)>)> statistic,
                                           function<vector<double>(const vector<double>&, const vector<double>&)> bivariateEcdf,
-                                      function<double (const double&, const double&, const double&)> weightFunction, const optional<int>& seed = nullopt);
+                                      function<double (const double&, const double&, const double&)> weightFunction, const optional<unsigned int>& seed = nullopt);
 
   vector<double> perturbDuplicates(vector<double> values);
 
