@@ -22,18 +22,13 @@ namespace PPEcdf {
 
     size_t n = u.size();
 
+    map<pair<double, double>, size_t> maxIxMap;
 
-    map<pair<double, double>, size_t> posMap;
+    vector<vector<double>::size_type> u_idx = idxSort(u);
 
-    for(size_t i = 0; i < n; i++) {
-      posMap[{u[i], v[i]}] = i;
-    }
+    vector<double> u_sorted = reindex(u, u_idx);
 
-    vector<size_t> idx = idxSort(u);
-
-    vector<double> u_sorted = reindex(u, idx);
-
-    vector<double> v_sorted = reindex(v, idx);
+    vector<double> v_sorted = reindex(v, u_idx);
 
     vector<double> ecdf(n, 0.0);
 
@@ -42,13 +37,16 @@ namespace PPEcdf {
     double_multiset v_set;
 
     for(size_t i = 0; i < n; i++) {
-      double_multiset::iterator it = v_set.insert(v_sorted[i]).first;
+      auto it = v_set.insert(v_sorted[i]).first;
 
       double_multiset::size_type m = v_set.rank(it);
 
-      size_t ix = posMap[{u_sorted[i], v_sorted[i]}];
+      maxIxMap[make_pair(u_sorted[i], v_sorted[i])] = m+1;
+    }
 
-      ecdf[ix] = (double) (m+1) / n;
+
+    for(size_t i = 0; i < n; i++) {
+      ecdf[u_idx[i]] = (double) maxIxMap[make_pair(u_sorted[i], v_sorted[i])] / n;
     }
 
     return ecdf;
@@ -61,11 +59,7 @@ namespace PPEcdf {
 
     size_t n = u.size();
 
-    map<pair<double, double>, size_t> posMap;
-
-    for(size_t i = 0; i < n; i++) {
-      posMap[{u[i], v[i]}] = i;
-    }
+    map<pair<double, double>, size_t> maxIxMap;
 
     vector<size_t> idx = idxSort(u);
 
@@ -83,9 +77,11 @@ namespace PPEcdf {
 
       uint32_t m = multiset.get_sum(v_sorted[i]);
 
-      size_t ix = posMap[{u_sorted[i], v_sorted[i]}];
+      maxIxMap[make_pair(u_sorted[i], v_sorted[i])] = m+1;
+    }
 
-      ecdf[ix] = (double) (m+1) / n;
+    for(size_t i = 0; i < n; i++) {
+      ecdf[idx[i]] = (double) maxIxMap[make_pair(u_sorted[i], v_sorted[i])] / n;
     }
 
     return ecdf;
