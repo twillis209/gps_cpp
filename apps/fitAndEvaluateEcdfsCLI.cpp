@@ -5,6 +5,7 @@
 #include <rapidcsv.h>
 #include <omp.h>
 #include <math.h>
+#include <cstddef>
 
 namespace po = boost::program_options;
 using namespace po;

@@ -6,6 +6,7 @@
 #include <boost/timer/timer.hpp>
 #include <rapidcsv.h>
 #include <omp.h>
+#include <cstddef>
 
 namespace po = boost::program_options;
 using namespace po;

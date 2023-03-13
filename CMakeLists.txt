@@ -3,9 +3,10 @@ cmake_minimum_required(VERSION 3.10)
 # TODO remove if exporting
 find_program(CMAKE_CXX_COMPILER NAMES $ENV{CXX} g++ PATHS ENV PATH NO_DEFAULT_PATH)
 
-project(Gps VERSION 0.1)
+project(Gps VERSION 0.2)
 
 set(CMAKE_CXX_STANDARD 17)
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
 
 include(FetchContent)
 

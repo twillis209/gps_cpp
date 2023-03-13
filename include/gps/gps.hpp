@@ -3,6 +3,8 @@
 #include <vector>
 #include <map>
 #include <functional>
+#include <optional>
+#include <cstddef>
 
 using namespace std;
 
