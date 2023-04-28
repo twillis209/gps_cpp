@@ -144,6 +144,7 @@ namespace gps {
       if(distance(u.begin(), max_element(u.begin(), u.end())) != distance(v.begin(), max_element(v.begin(), v.end()))) {
         sample.push_back(stat(u, v, bivariateEcdf, weightFunction));
         ++i;
+        cerr << "Computed statistic, iteration " << i << endl;
       }
 
     }
