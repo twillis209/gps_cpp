@@ -6,13 +6,12 @@ find_program(CMAKE_CXX_COMPILER NAMES $ENV{CXX} g++ PATHS ENV PATH NO_DEFAULT_PA
 project(Gps VERSION 0.2)
 
 set(CMAKE_CXX_STANDARD 17)
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
 
 include(FetchContent)
 
 enable_testing()
 
-find_package(Boost 1.77 COMPONENTS program_options timer unit_test_framework REQUIRED)
+find_package(Boost 1.59 EXACT COMPONENTS program_options timer REQUIRED)
 
 FetchContent_Declare(
   rapidcsv
