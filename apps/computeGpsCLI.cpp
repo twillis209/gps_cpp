@@ -26,9 +26,7 @@ int main(int argc, const char* argv[]) {
   string colLabelA;
   string colLabelB;
   string ecdf = "naive";
-  double epsilonMultiple = 2.0;
   int cores = 1;
-  bool deduplicateFlag = false;
   string statistic = "gps";
   string weight = "gps";
 
@@ -125,11 +123,6 @@ int main(int argc, const char* argv[]) {
     }
 
     double gps;
-
-    cout.precision(20);
-
-    map<double, int> freqMapU = returnFreqMap(u);
-    map<double, int> freqMapV = returnFreqMap(v);
 
     int n = u.size();
 
