@@ -81,7 +81,6 @@ int main(int argc, const char* argv[]) {
           u.push_back(input.GetCell<double>(colLabelA, i));
         } catch(out_of_range stod) {
           u.push_back(1.0);
-          //logOutput << traitA << "\t" << i+1 << endl;
         }
       }
     }
@@ -94,7 +93,6 @@ int main(int argc, const char* argv[]) {
           v.push_back(input.GetCell<double>(colLabelB, i));
         } catch(out_of_range stod) {
           v.push_back(1.0);
-          //logOutput << traitB << "\t" << i+1 << endl;
         }
       }
     }
