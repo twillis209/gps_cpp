@@ -9,3 +9,6 @@ machine.file.*
 *.out
 pruned_pid_ra.tsv
 test_perm.txt
+gdb.txt
+gdb.txt
+gdb.txt
