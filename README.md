@@ -61,7 +61,7 @@ make
 
 ### Dependencies
 
-`gps_cpp` depends on the Boost library. CMake will look for this as part of the build process. Using old versions of Boost on my local cluster, it seems `gps_cpp` can be built with a version as old as 1.59.0 (provided it was built with `gcc` 5.4.0, not 4.8.5). It should work with newer versions, too.
+`gps_cpp` depends on the Boost library. CMake will look for this as part of the build process. Using old versions of Boost on my local cluster, it seems `gps_cpp` can be built with a version as old as 1.59.0 (provided it was built with `gcc` 5.4.0, not 4.8.5). It should work with newer versions, too. Note that Boost can be a bit of a pain to install if you're not used to this sort of thing. Using a package manager is probably easiest; `gps_cpp` should be compatible with all versions of the Debian `libboost-all-dev` package listed [here](packages.debian.org/search&keywords=libboost-all-dev).
 
 `gps_cpp` also depends on the `rapidcsv` and `Catch2` libraries, but these should be downloaded and built as part of the build process. See the `CMakeLists.txt` files for more details.
 

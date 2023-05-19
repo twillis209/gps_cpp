@@ -11,7 +11,7 @@ include(FetchContent)
 
 enable_testing()
 
-find_package(Boost 1.59 EXACT COMPONENTS program_options timer REQUIRED)
+find_package(Boost 1.59 COMPONENTS program_options timer REQUIRED)
 
 FetchContent_Declare(
   rapidcsv
