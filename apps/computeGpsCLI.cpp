@@ -3,7 +3,6 @@
 #include <gps.hpp>
 #include <PPEcdf.hpp>
 #include <CLI/CLI.hpp>
-#include <boost/timer/timer.hpp>
 #include <rapidcsv.h>
 #include <omp.h>
 #include <cstddef>
@@ -19,7 +18,6 @@ int main(int argc, const char* argv[]) {
   string inputFile;
   string outputFile;
   string logFile;
-  string timingFile;
   string traitA;
   string traitB;
   string colLabelA;
@@ -32,7 +30,6 @@ int main(int argc, const char* argv[]) {
   app.add_option("-c,--traitA", traitA, "Trait A")->required();
   app.add_option("-d,--traitB", traitB, "Trait B")->required();
   app.add_option("-o,--outputFile", outputFile, "Path to output file")->required();
-  app.add_option("-j,--timingFile", timingFile, "Path to timing file");
   app.add_option("-g,--logFile", logFile, "Path to log file");
   app.add_option("-n,--cores", cores, "No. of cores");
 
@@ -81,16 +78,7 @@ int main(int argc, const char* argv[]) {
 
     cout << "Computing the GPS statistic..." << endl;
 
-    boost::timer::cpu_timer timer;
-
     gps = gpsStat(u, v, PPEcdf::bivariatePPEcdf, gpsWeight);
-
-    if(!timingFile.empty()) {
-      timer.stop();
-      ofstream timingOut(timingFile);
-      timingOut << timer.format();
-      timingOut.close();
-    }
 
     stringstream stringOutput;
 

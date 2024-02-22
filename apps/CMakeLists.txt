@@ -8,7 +8,7 @@ add_executable(computeGpsCLI computeGpsCLI.cpp)
 
 target_include_directories(computeGpsCLI PUBLIC "${CMAKE_SOURCE_DIR}/include/gps" "${CMAKE_SOURCE_DIR}/include/PPEcdf" "${Boost_INCLUDE_DIRS}")
 
-target_link_libraries(computeGpsCLI PUBLIC Boost::timer Gps rapidcsv OpenMP::OpenMP_CXX PPEcdf )
+target_link_libraries(computeGpsCLI PUBLIC Gps rapidcsv OpenMP::OpenMP_CXX PPEcdf )
 target_link_libraries(computeGpsCLI PRIVATE CLI11::CLI11)
 
 add_executable(permuteTraitsCLI permuteTraitsCLI.cpp)

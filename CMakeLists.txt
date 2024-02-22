@@ -1,10 +1,9 @@
 # Setting this version so we can use FetchContent
 cmake_minimum_required(VERSION 3.14)
 
-# TODO remove if exporting
 find_program(CMAKE_CXX_COMPILER NAMES $ENV{CXX} g++ PATHS ENV PATH NO_DEFAULT_PATH)
 
-project(Gps VERSION 0.2)
+project(Gps VERSION 0.3)
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -12,7 +11,7 @@ include(FetchContent)
 
 enable_testing()
 
-find_package(Boost 1.59 COMPONENTS timer REQUIRED)
+find_package(Boost 1.59)
 
 FetchContent_Declare(
   rapidcsv
