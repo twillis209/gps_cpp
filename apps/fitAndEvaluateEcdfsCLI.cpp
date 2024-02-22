@@ -11,7 +11,7 @@ using namespace CLI;
 using namespace gps;
 using namespace rapidcsv;
 using namespace std;
-
+ 
 int main(int argc, const char* argv[]) {
   App app{"Compute and evaluate ecdf"};
 
@@ -22,10 +22,10 @@ int main(int argc, const char* argv[]) {
   string ecdfArg = "naive";
   int cores = 1;
 
-  app.add_option("-i,--inputFile", inputFile, "Path to input file");
-  app.add_option("-o,--outputFile", outputFile, "Path to output file");
-  app.add_option("-a,--colLabelA", colLabelA, "Label of column A");
-  app.add_option("-b,--colLabelB", colLabelB, "Label of column B");
+  app.add_option("-i,--inputFile", inputFile, "Path to input file")->required()->check(CLI::ExistingFile);
+  app.add_option("-o,--outputFile", outputFile, "Path to output file")->required();
+  app.add_option("-a,--colLabelA", colLabelA, "Label of column A")->required();
+  app.add_option("-b,--colLabelB", colLabelB, "Label of column B")->required();
   app.add_option("-f,--ecdf", ecdfArg, "Specifies ecdf algorithm: 'naive' or 'pp'");
   app.add_option("-n,--cores", cores, "No. of cores");
 

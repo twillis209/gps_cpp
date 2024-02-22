@@ -21,41 +21,15 @@ int main(int argc, const char* argv[]) {
   string colLabelB;
   int cores = 1;
   int draws;
-  string statistic = "gps";
-  string weight = "gps";
 
-  app.add_option("-i,--inputFile", inputFile, "Path to input file");
-  app.add_option("-o,--outputFile", outputFile, "Path to output file");
-  app.add_option("-a,--colLabelA", colLabelA, "Label of column A");
-  app.add_option("-b,--colLabelB", colLabelB, "Label of column B");
+  app.add_option("-i,--inputFile", inputFile, "Path to input file")->required()->check(CLI::ExistingFile);
+  app.add_option("-o,--outputFile", outputFile, "Path to output file")->required();
+  app.add_option("-a,--colLabelA", colLabelA, "Label of column A")->required();
+  app.add_option("-b,--colLabelB", colLabelB, "Label of column B")->required();
   app.add_option("-n,--cores", cores, "No. of cores");
-  app.add_option("-d,--draws", cores, "No. of GPS realisations to generate");
+  app.add_option("-d,--draws", draws, "No. of GPS realisations to generate")->required();
 
   CLI11_PARSE(app, argc, argv);
-
-  if(statistic != "gps" && statistic != "mean") {
-    throw invalid_argument("Unrecognised statistic argument");
-  }
-
-  function<double (vector<double>, vector<double>, function<vector<double>(const vector<double>&, const vector<double>&)>, function<double (const double&, const double&, const double&)>)> statFun;
-
-  if(statistic == "gps") {
-    statFun = gpsStat;
-  } else if(statistic == "mean") {
-    statFun = meanStat;
-  } else {
-    throw invalid_argument("Unrecognised statistic argument");
-  }
-
-  function<double (double, double, double)> weightFun;
-
-  if(weight == "gps") {
-    weightFun = gpsWeight;
-  } else if(weight == "pseudoAD") {
-    weightFun = pseudoADWeight;
-  } else {
-    throw invalid_argument("Unrecognised weight argument");
-  }
 
   Document input(inputFile, LabelParams(), SeparatorParams('\t'));
 
@@ -96,11 +70,11 @@ int main(int argc, const char* argv[]) {
 
   #pragma omp parallel for
   for(int k = 0; k < cores; ++k) {
-      gpsPermutations.push_back(permuteAndSampleStat(u, v, drawsPerCore, statFun, PPEcdf::bivariatePPEcdf, weightFun));
+      gpsPermutations.push_back(permuteAndSampleStat(u, v, drawsPerCore, gpsStat, PPEcdf::bivariatePPEcdf, gpsWeight));
   }
 
   if(remainingDraws > 0) {
-    gpsPermutations.push_back(permuteAndSampleStat(u, v, remainingDraws, statFun, PPEcdf::bivariatePPEcdf, weightFun));
+    gpsPermutations.push_back(permuteAndSampleStat(u, v, remainingDraws, gpsStat, PPEcdf::bivariatePPEcdf, gpsWeight));
   }
 
   stringstream stringOutput;

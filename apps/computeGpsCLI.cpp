@@ -24,61 +24,19 @@ int main(int argc, const char* argv[]) {
   string traitB;
   string colLabelA;
   string colLabelB;
-  string ecdf = "pp";
   int cores = 1;
-  string statistic = "gps";
-  string weight = "gps";
 
-  app.add_option("-i,--inputFile", inputFile, "Path to input file");
-  app.add_option("-a,--colLabelA", colLabelA, "Label of column A");
-  app.add_option("-b,--colLabelB", colLabelB, "Label of column B");
-  app.add_option("-c,--traitA", traitA, "Trait A");
-  app.add_option("-d,--traitB", traitB, "Trait B");
-  app.add_option("-o,--outputFile", outputFile, "Path to output file");
+  app.add_option("-i,--inputFile", inputFile, "Path to input file")->required()->check(CLI::ExistingFile);
+  app.add_option("-a,--colLabelA", colLabelA, "Label of column A")->required();
+  app.add_option("-b,--colLabelB", colLabelB, "Label of column B")->required();
+  app.add_option("-c,--traitA", traitA, "Trait A")->required();
+  app.add_option("-d,--traitB", traitB, "Trait B")->required();
+  app.add_option("-o,--outputFile", outputFile, "Path to output file")->required();
   app.add_option("-j,--timingFile", timingFile, "Path to timing file");
   app.add_option("-g,--logFile", logFile, "Path to log file");
-  app.add_option("-f,--ecdf", ecdf, "Specifies ecdf algorithm: 'naive' or 'pp'");
   app.add_option("-n,--cores", cores, "No. of cores");
-  app.add_option("-s,--statistic", statistic, "Statistic to compute");
-  app.add_option("-w,--weight", weight, "Weight function to use");
 
   CLI11_PARSE(app, argc, argv);
-
-  if(statistic != "gps" && statistic != "mean") {
-    throw invalid_argument("Unrecognised statistic argument");
-  }
-
-
-  function<vector<double>(const vector<double>&, const vector<double>&)> ecdfFun;
-
-  if(ecdf == "naive") {
-    ecdfFun = bivariateEcdfPar;
-  } else if(ecdf == "pp") {
-    ecdfFun = PPEcdf::bivariatePPEcdf;
-  } else {
-    cout << "Invalid ecdf argument, using naive algorithm" << endl;
-    ecdfFun = bivariateEcdfPar;
-  }
-
-  function<double (vector<double>, vector<double>, function<vector<double>(const vector<double>&, const vector<double>&)>, function<double (const double&, const double&, const double&)>)> statFun;
-
-  if(statistic == "gps") {
-    statFun = gpsStat;
-  } else if(statistic == "mean") {
-    statFun = meanStat;
-  } else {
-    throw invalid_argument("Unrecognised statistic argument");
-  }
-
-  function<double (double, double, double)> weightFun;
-
-  if(weight == "gps") {
-    weightFun = gpsWeight;
-  } else if(weight == "pseudoAD") {
-    weightFun = pseudoADWeight;
-  } else {
-    throw invalid_argument("Unrecognised weight argument");
-  }
 
   Document data(inputFile, LabelParams(), SeparatorParams('\t'));
 
@@ -125,7 +83,7 @@ int main(int argc, const char* argv[]) {
 
     boost::timer::cpu_timer timer;
 
-    gps = statFun(u, v, ecdfFun, weightFun);
+    gps = gpsStat(u, v, PPEcdf::bivariatePPEcdf, gpsWeight);
 
     if(!timingFile.empty()) {
       timer.stop();
