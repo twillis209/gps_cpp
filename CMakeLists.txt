@@ -1,4 +1,5 @@
-cmake_minimum_required(VERSION 3.10)
+# Setting this version so we can use FetchContent
+cmake_minimum_required(VERSION 3.14)
 
 # TODO remove if exporting
 find_program(CMAKE_CXX_COMPILER NAMES $ENV{CXX} g++ PATHS ENV PATH NO_DEFAULT_PATH)
@@ -11,7 +12,7 @@ include(FetchContent)
 
 enable_testing()
 
-find_package(Boost 1.59 COMPONENTS program_options timer REQUIRED)
+find_package(Boost 1.59 COMPONENTS timer REQUIRED)
 
 FetchContent_Declare(
   rapidcsv
@@ -19,6 +20,15 @@ FetchContent_Declare(
   GIT_TAG v8.53
   GIT_SHALLOW TRUE)
 FetchContent_MakeAvailable(rapidcsv)
+
+FetchContent_Declare(
+  cli11_proj
+  QUIET
+  GIT_REPOSITORY https://github.com/CLIUtils/CLI11.git
+  GIT_TAG v2.3.2
+)
+FetchContent_MakeAvailable(cli11_proj)
+
 
 add_subdirectory(src)
 add_subdirectory(apps)

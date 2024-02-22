@@ -1,20 +1,19 @@
 #include <iostream>
 #include <gps.hpp>
 #include <PPEcdf.hpp>
-#include <boost/program_options.hpp>
+#include <CLI/CLI.hpp>
 #include <rapidcsv.h>
 #include <omp.h>
 #include <math.h>
 #include <cstddef>
 
-namespace po = boost::program_options;
-using namespace po;
+using namespace CLI;
 using namespace gps;
 using namespace rapidcsv;
 using namespace std;
 
 int main(int argc, const char* argv[]) {
-  po::options_description desc("Allowed options");
+  App app{"Compute and evaluate ecdf"};
 
   string inputFile;
   string outputFile;
@@ -22,70 +21,58 @@ int main(int argc, const char* argv[]) {
   string colLabelB;
   string ecdfArg = "naive";
   int cores = 1;
-  double epsilonMultiple = 2.0;
-  bool deduplicateFlag = false;
 
-  desc.add_options()
-    ("help", "Print help message")
-    ("inputFile,i", po::value<string>(&inputFile), "Path to input file")
-    ("colLabelA,a", po::value<string>(&colLabelA), "Label of column A")
-    ("colLabelB,b", po::value<string>(&colLabelB), "Label of column B")
-    ("ecdfArg,f", po::value<string>(&ecdfArg), "Specifies ecdf algorithm: \"naive\" or \"pp\"")
-    ("outputFile,o", po::value<string>(&outputFile), "Path to output file")
-    ("cores,n", po::value<int>(&cores), "No. of cores")
-    ("deduplicate,d", po::bool_switch(&deduplicateFlag), "Remove duplicate values")
-    ;
+  app.add_option("-i,--inputFile", inputFile, "Path to input file");
+  app.add_option("-o,--outputFile", outputFile, "Path to output file");
+  app.add_option("-a,--colLabelA", colLabelA, "Label of column A");
+  app.add_option("-b,--colLabelB", colLabelB, "Label of column B");
+  app.add_option("-f,--ecdf", ecdfArg, "Specifies ecdf algorithm: 'naive' or 'pp'");
+  app.add_option("-n,--cores", cores, "No. of cores");
 
-  po::variables_map vm;
-  po::store(po::parse_command_line(argc, argv, desc), vm);
-  po::notify(vm);
+  CLI11_PARSE(app, argc, argv);
 
-  if(vm.count("inputFile")) {
-    Document data(inputFile, LabelParams(), SeparatorParams('\t'));
+  Document data(inputFile, LabelParams(), SeparatorParams('\t'));
 
-    vector<double> u = data.GetColumn<double>(colLabelA);
-    vector<double> v = data.GetColumn<double>(colLabelB);
+  vector<double> u = data.GetColumn<double>(colLabelA);
+  vector<double> v = data.GetColumn<double>(colLabelB);
 
-    map<double, int> freqMapU = returnFreqMap(u);
-    map<double, int> freqMapV = returnFreqMap(v);
+  map<double, int> freqMapU = returnFreqMap(u);
+  map<double, int> freqMapV = returnFreqMap(v);
 
-    int n = u.size();
+  int n = u.size();
 
-    omp_set_num_threads(cores);
+  omp_set_num_threads(cores);
 
-    vector<double> bivariateEcdf;
+  vector<double> bivariateEcdf;
 
-    if(ecdfArg == "naive") {
-      bivariateEcdf = bivariateEcdfPar(u, v);
-    } else if(ecdfArg == "pp") {
-      bivariateEcdf = PPEcdf::bivariatePPEcdf(u, v);
-    } else {
-      cout << "Invalid ecdfArg argument, using naive algorithm" << endl;
-      bivariateEcdf = bivariateEcdfPar(u, v);
-    }
-
-    vector<double> uEcdf = ecdf(u);
-    vector<double> vEcdf = ecdf(v);
-
-    stringstream stringOutput;
-
-    stringOutput << "u\tv\tF_u\tF_v\tF_uv\tnum\tdenom\tmaximand" << endl;
-
-    for(int i = 0; i < u.size(); i++) {
-      double denom = sqrt(uEcdf[i]*vEcdf[i] - pow(uEcdf[i], 2.)*pow(vEcdf[i], 2.));
-
-      double numerator = abs(bivariateEcdf[i] - uEcdf[i]*vEcdf[i]);
-
-      double maximand = sqrt((double) u.size() / log((double) u.size()))*numerator/denom;
-
-      stringOutput << u[i] << "\t" << v[i] << "\t" << uEcdf[i] << "\t" << vEcdf[i] << "\t" << bivariateEcdf[i] << "\t" << numerator << "\t" << denom << "\t" << maximand << endl;
-    }
-
-    Document output(stringOutput, LabelParams(), SeparatorParams('\t'));
-    output.Save(outputFile);
+  if(ecdfArg == "naive") {
+    bivariateEcdf = bivariateEcdfPar(u, v);
+  } else if(ecdfArg == "pp") {
+    bivariateEcdf = PPEcdf::bivariatePPEcdf(u, v);
   } else {
-      cout << desc << endl;
+    cout << "Invalid ecdfArg argument, using naive algorithm" << endl;
+    bivariateEcdf = bivariateEcdfPar(u, v);
   }
+
+  vector<double> uEcdf = ecdf(u);
+  vector<double> vEcdf = ecdf(v);
+
+  stringstream stringOutput;
+
+  stringOutput << "u\tv\tF_u\tF_v\tF_uv\tnum\tdenom\tmaximand" << endl;
+
+  for(int i = 0; i < u.size(); i++) {
+    double denom = sqrt(uEcdf[i]*vEcdf[i] - pow(uEcdf[i], 2.)*pow(vEcdf[i], 2.));
+
+    double numerator = abs(bivariateEcdf[i] - uEcdf[i]*vEcdf[i]);
+
+    double maximand = sqrt((double) u.size() / log((double) u.size()))*numerator/denom;
+
+    stringOutput << u[i] << "\t" << v[i] << "\t" << uEcdf[i] << "\t" << vEcdf[i] << "\t" << bivariateEcdf[i] << "\t" << numerator << "\t" << denom << "\t" << maximand << endl;
+  }
+
+  Document output(stringOutput, LabelParams(), SeparatorParams('\t'));
+  output.Save(outputFile);
 
   return 0;
 }

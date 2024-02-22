@@ -2,20 +2,19 @@
 #include <iomanip>
 #include <gps.hpp>
 #include <PPEcdf.hpp>
-#include <boost/program_options.hpp>
+#include <CLI/CLI.hpp>
 #include <boost/timer/timer.hpp>
 #include <rapidcsv.h>
 #include <omp.h>
 #include <cstddef>
 
-namespace po = boost::program_options;
-using namespace po;
+using namespace CLI;
 using namespace gps;
 using namespace rapidcsv;
 using namespace std;
 
 int main(int argc, const char* argv[]) {
-  po::options_description desc("Allowed options");
+  App app{"Compute GPS statistic"};
 
   string inputFile;
   string outputFile;
@@ -25,102 +24,96 @@ int main(int argc, const char* argv[]) {
   string traitB;
   string colLabelA;
   string colLabelB;
-  string ecdf = "naive";
+  string ecdf = "pp";
   int cores = 1;
   string statistic = "gps";
   string weight = "gps";
 
-  desc.add_options()
-    ("help", "Print help message")
-    ("inputFile,i", po::value<string>(&inputFile), "Path to input file")
-    ("colLabelA,a", po::value<string>(&colLabelA), "Label of column A")
-    ("colLabelB,b", po::value<string>(&colLabelB), "Label of column B")
-    ("traitA,c", po::value<string>(&traitA), "Trait A")
-    ("traitB,d", po::value<string>(&traitB), "Trait B")
-    ("outputFile,o", po::value<string>(&outputFile), "Path to output file")
-    ("timingFile,j", po::value<string>(&timingFile), "Path to timing file")
-    ("logFile,g", po::value<string>(&logFile), "Path to log file")
-    ("ecdf,f", po::value<string>(&ecdf), "Specifies ecdf algorithm: \"naive\" or \"pp\"")
-    ("cores,n", po::value<int>(&cores), "No. of cores")
-    ("statistic,s", po::value<string>(&statistic), "Statistic to compute")
-    ("weight,w", po::value<string>(&weight), "Weight function to use")
-    ;
+  app.add_option("-i,--inputFile", inputFile, "Path to input file");
+  app.add_option("-a,--colLabelA", colLabelA, "Label of column A");
+  app.add_option("-b,--colLabelB", colLabelB, "Label of column B");
+  app.add_option("-c,--traitA", traitA, "Trait A");
+  app.add_option("-d,--traitB", traitB, "Trait B");
+  app.add_option("-o,--outputFile", outputFile, "Path to output file");
+  app.add_option("-j,--timingFile", timingFile, "Path to timing file");
+  app.add_option("-g,--logFile", logFile, "Path to log file");
+  app.add_option("-f,--ecdf", ecdf, "Specifies ecdf algorithm: 'naive' or 'pp'");
+  app.add_option("-n,--cores", cores, "No. of cores");
+  app.add_option("-s,--statistic", statistic, "Statistic to compute");
+  app.add_option("-w,--weight", weight, "Weight function to use");
+
+  CLI11_PARSE(app, argc, argv);
 
   if(statistic != "gps" && statistic != "mean") {
     throw invalid_argument("Unrecognised statistic argument");
   }
 
-  po::variables_map vm;
-  po::store(po::parse_command_line(argc, argv, desc), vm);
-  po::notify(vm);
 
-  if(vm.count("inputFile")) {
+  function<vector<double>(const vector<double>&, const vector<double>&)> ecdfFun;
 
-    function<vector<double>(const vector<double>&, const vector<double>&)> ecdfFun;
+  if(ecdf == "naive") {
+    ecdfFun = bivariateEcdfPar;
+  } else if(ecdf == "pp") {
+    ecdfFun = PPEcdf::bivariatePPEcdf;
+  } else {
+    cout << "Invalid ecdf argument, using naive algorithm" << endl;
+    ecdfFun = bivariateEcdfPar;
+  }
 
-    if(ecdf == "naive") {
-      ecdfFun = bivariateEcdfPar;
-    } else if(ecdf == "pp") {
-      ecdfFun = PPEcdf::bivariatePPEcdf;
-    } else {
-      cout << "Invalid ecdf argument, using naive algorithm" << endl;
-      ecdfFun = bivariateEcdfPar;
-    }
+  function<double (vector<double>, vector<double>, function<vector<double>(const vector<double>&, const vector<double>&)>, function<double (const double&, const double&, const double&)>)> statFun;
 
-    function<double (vector<double>, vector<double>, function<vector<double>(const vector<double>&, const vector<double>&)>, function<double (const double&, const double&, const double&)>)> statFun;
+  if(statistic == "gps") {
+    statFun = gpsStat;
+  } else if(statistic == "mean") {
+    statFun = meanStat;
+  } else {
+    throw invalid_argument("Unrecognised statistic argument");
+  }
 
-    if(statistic == "gps") {
-      statFun = gpsStat;
-    } else if(statistic == "mean") {
-      statFun = meanStat;
-    } else {
-      throw invalid_argument("Unrecognised statistic argument");
-    }
+  function<double (double, double, double)> weightFun;
 
-    function<double (double, double, double)> weightFun;
+  if(weight == "gps") {
+    weightFun = gpsWeight;
+  } else if(weight == "pseudoAD") {
+    weightFun = pseudoADWeight;
+  } else {
+    throw invalid_argument("Unrecognised weight argument");
+  }
 
-    if(weight == "gps") {
-      weightFun = gpsWeight;
-    } else if(weight == "pseudoAD") {
-      weightFun = pseudoADWeight;
-    } else {
-      throw invalid_argument("Unrecognised weight argument");
-    }
+  Document data(inputFile, LabelParams(), SeparatorParams('\t'));
 
-    Document data(inputFile, LabelParams(), SeparatorParams('\t'));
+  stringstream logOutput;
 
-    stringstream logOutput;
+  logOutput << "Trait\tRow" << endl;
 
-    logOutput << "Trait\tRow" << endl;
+  vector<double> u;
+  vector<double> v;
 
-    vector<double> u;
-    vector<double> v;
-
-    try {
-      u = data.GetColumn<double>(colLabelA);
-    } catch(out_of_range stod){
-      for(size_t i = 0; i < data.GetRowCount(); ++i){
-        try {
-          u.push_back(data.GetCell<double>(colLabelA, i));
-        } catch(out_of_range stod) {
-          u.push_back(1.0);
-          logOutput << traitA << "\t" << i+1 << endl;
-        }
+  try {
+    u = data.GetColumn<double>(colLabelA);
+  } catch(out_of_range stod){
+    for(size_t i = 0; i < data.GetRowCount(); ++i){
+      try {
+        u.push_back(data.GetCell<double>(colLabelA, i));
+      } catch(out_of_range stod) {
+        u.push_back(1.0);
+        logOutput << traitA << "\t" << i+1 << endl;
       }
     }
+  }
 
-    try {
-      v = data.GetColumn<double>(colLabelB);
-    } catch(out_of_range stod){
-      for(size_t i = 0; i < data.GetRowCount(); ++i){
-        try {
-          v.push_back(data.GetCell<double>(colLabelB, i));
-        } catch(out_of_range stod) {
-          v.push_back(1.0);
-          logOutput << traitB << "\t" << i+1 << endl;
-        }
+  try {
+    v = data.GetColumn<double>(colLabelB);
+  } catch(out_of_range stod){
+    for(size_t i = 0; i < data.GetRowCount(); ++i){
+      try {
+        v.push_back(data.GetCell<double>(colLabelB, i));
+      } catch(out_of_range stod) {
+        v.push_back(1.0);
+        logOutput << traitB << "\t" << i+1 << endl;
       }
     }
+  }
 
     double gps;
 
@@ -134,7 +127,7 @@ int main(int argc, const char* argv[]) {
 
     gps = statFun(u, v, ecdfFun, weightFun);
 
-    if(vm.count("timingFile")) {
+    if(!timingFile.empty()) {
       timer.stop();
       ofstream timingOut(timingFile);
       timingOut << timer.format();
@@ -154,9 +147,6 @@ int main(int argc, const char* argv[]) {
       Document log(logOutput, LabelParams(), SeparatorParams('\t'));
       log.Save(logFile);
     }
-  } else {
-      cout << desc << endl;
-  }
 
   return 0;
 }
