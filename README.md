@@ -21,10 +21,7 @@ The essential command-line arguments are as follows:
 - `--traitB/-d`: label of second trait for output file
 
 In addition the following are optional arguments:
-- `--timingFile/-j`: path to file to contain GPS running time for the purpose of evaluating different ecdf algorithms
 - `--logFile/-g`: path to file in which to log input file values which could not be read
-- `--ecdf/-f`: string determining ecdf algorithm to use with the GPS (legacy argument)
-- `--cores/-n`: number of cores. Only speeds things up when the naive ecdf algorithm is used.
 
 ### `permuteTraitsCLI`
 
@@ -39,10 +36,10 @@ The essential command-line arguments are as follows:
 - `--outputFile/-o`: path to output file
 - `--colLabelA/-a`: label of first p-value column
 - `--colLabelB/-b`: label of second p-value column
-- `--draws/-n`: the number of permutations to generate
+- `--draws/-d`: the number of permutations to generate
 
 In addition the following are optional arguments:
-- `--cores/-n`: number of cores. 
+- `--cores/-n`: number of cores
 
 ## Computing p-values
 
@@ -63,7 +60,7 @@ make
 
 `gps_cpp` depends on the Boost library. CMake will look for this as part of the build process. Using old versions of Boost on my local cluster, it seems `gps_cpp` can be built with a version as old as 1.59.0 (provided it was built with `gcc` 5.4.0, not 4.8.5). It should work with newer versions, too. Note that Boost can be a bit of a pain to install if you're not used to this sort of thing. Using a package manager is probably easiest; `gps_cpp` should be compatible with all versions of the Debian `libboost-all-dev` package listed [here](packages.debian.org/search&keywords=libboost-all-dev).
 
-`gps_cpp` also depends on the `rapidcsv` and `Catch2` libraries, but these should be downloaded and built as part of the build process. See the `CMakeLists.txt` files for more details.
+`gps_cpp` also depends on the `rapidcsv`, `Catch2`, and `CLI11` libraries, but these should be downloaded and built as part of the build process. See the `CMakeLists.txt` files for more details.
 
 ### Unit tests
 

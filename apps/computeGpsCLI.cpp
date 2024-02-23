@@ -4,7 +4,6 @@
 #include <PPEcdf.hpp>
 #include <CLI/CLI.hpp>
 #include <rapidcsv.h>
-#include <omp.h>
 #include <cstddef>
 
 using namespace CLI;
@@ -22,7 +21,6 @@ int main(int argc, const char* argv[]) {
   string traitB;
   string colLabelA;
   string colLabelB;
-  int cores = 1;
 
   app.add_option("-i,--inputFile", inputFile, "Path to input file")->required()->check(CLI::ExistingFile);
   app.add_option("-a,--colLabelA", colLabelA, "Label of column A")->required();
@@ -31,7 +29,6 @@ int main(int argc, const char* argv[]) {
   app.add_option("-d,--traitB", traitB, "Trait B")->required();
   app.add_option("-o,--outputFile", outputFile, "Path to output file")->required();
   app.add_option("-g,--logFile", logFile, "Path to log file");
-  app.add_option("-n,--cores", cores, "No. of cores");
 
   CLI11_PARSE(app, argc, argv);
 
@@ -73,8 +70,6 @@ int main(int argc, const char* argv[]) {
     double gps;
 
     int n = u.size();
-
-    omp_set_num_threads(cores);
 
     cout << "Computing the GPS statistic..." << endl;
 
