@@ -142,8 +142,12 @@ namespace gps {
       shuffle(v.begin(), v.end(), rng);
 
       if(distance(u.begin(), max_element(u.begin(), u.end())) != distance(v.begin(), max_element(v.begin(), v.end()))) {
-        sample.push_back(stat(u, v, bivariateEcdf, weightFunction));
-        ++i;
+        double result = stat(u, v, bivariateEcdf, weightFunction);
+
+        if(!isinf(result)) {
+          sample.push_back(result);
+          ++i;
+        }
       }
 
     }
