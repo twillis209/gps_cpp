@@ -35,10 +35,6 @@ namespace gps {
 
     size_t n = u.size();
 
-    if(distance(u.begin(), max_element(u.begin(), u.end())) == distance(
-    v.begin(), max_element(v.begin(), v.end()))) {
-        throw invalid_argument("Indices of largest elements of u and v coincide. GPS statistic is undefined in this case.");
-      }
 
     vector<double> uEcdf = ecdf(u);
     vector<double> vEcdf = ecdf(v);
