@@ -66,6 +66,14 @@ make
 
 `Catch2` tests can be run from the top-level `gps_cpp` directory with `./build/test/testGps`; it's necessary to run them from this working directory as several tests depend on data files in `gps_cpp/test/data` directory.
 
+## Docker
+
+A `docker` image containing the program can be found [here](https://hub.docker.com/r/twillis209/gps-cpp) and can be obtained with
+
+```
+docker pull twillis209/gps-cpp:latest
+```
+
 ## License
 
 This code is licensed under the Lesser GPL. Earlier versions licensed components from the `StOpt` library, also. These have since been removed as we've moved to a different algorithm for computing the bivariate ecdf.
