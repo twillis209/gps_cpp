@@ -6,7 +6,7 @@ This project's directory structure was borrowed from a sample project provided b
 
 ## CLI programs
 
-We compute the GPS test statistic for p-values from a pair of GWAS using the `computeGpsCLI` application. We generate null realisations of the GPS test statistic with the `permuteTraitsCLI` application. You can see the use of these programs in the `snakemake` pipeline for our publication 'Accurate detection of shared genetic architecture from GWAS summary statistics in the small-sample context' [here](https://github.com/twillis209/gps_paper_pipeline).
+We compute the GPS test statistic for p-values from a pair of GWAS using the `computeGpsCLI` application. We generate null realisations of the GPS test statistic with the `permuteTraitsCLI` application. You can see the use of these programs in the `snakemake` pipeline for our [publication](https://doi.org/10.1371/journal.pgen.1010852) 'Accurate detection of shared genetic architecture from GWAS summary statistics in the small-sample context' [here](https://github.com/twillis209/gps_paper_pipeline) and in use to the end of actually discovering something (rather than merely evaluating the test's performance) in the pipeline for the [paper](https://doi.org/10.1016/j.clim.2024.110356) 'Leveraging pleiotropy identifies common-variant associations with selective IgA deficiency' [here](https://github.com/twillis209/igad_paper_pipeline).
 
 ### `computeGpsCLI`
 
@@ -58,13 +58,13 @@ make
 
 ### Dependencies
 
-`gps_cpp` depends on the Boost library. CMake will look for this as part of the build process. Using old versions of Boost on my local cluster, it seems `gps_cpp` can be built with a version as old as 1.59.0 (provided it was built with `gcc` 5.4.0, not 4.8.5). It should work with newer versions, too. Note that Boost can be a bit of a pain to install if you're not used to this sort of thing. Using a package manager is probably easiest; `gps_cpp` should be compatible with all versions of the Debian `libboost-all-dev` package listed [here](packages.debian.org/search&keywords=libboost-all-dev).
+`gps_cpp` depends on Boost, specifically the `multi_index` library. Earlier I required that this be installed on the user's machine prior to the `gps_cpp` build, but I now (October '24) use the `FetchContent` feature of `cmake` to download Boost and build `multi_index`. This should save you quite the headache installing Boost if you're not familiar with this sort of thing.
 
-`gps_cpp` also depends on the `rapidcsv`, `Catch2`, and `CLI11` libraries, but these should be downloaded and built as part of the build process. See the `CMakeLists.txt` files for more details.
+`gps_cpp` also depends on the `rapidcsv`, `Catch2`, and `CLI11` libraries, but these should be downloaded and built as part of the build process (again using `FetchContent`). See the `CMakeLists.txt` files for more details.
 
 ### Unit tests
 
-`Catch2` tests can be run from the top-level `gps_cpp` directory with `./build/test/testGps`; it's necessary to run them from here as several depend on test data files in `gps_cpp/test/data` directory.
+`Catch2` tests can be run from the top-level `gps_cpp` directory with `./build/test/testGps`; it's necessary to run them from this working directory as several tests depend on data files in `gps_cpp/test/data` directory.
 
 ## License
 
