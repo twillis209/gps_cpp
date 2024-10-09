@@ -22,6 +22,9 @@ FetchContent_Declare(
 set(BOOST_INCLUDE_LIBRARIES multi_index)
 FetchContent_MakeAvailable(Boost)
 
+#include_directories(${Boost_INCLUDE_DIRS}) 
+
+
 FetchContent_Declare(
   rapidcsv
   GIT_REPOSITORY https://github.com/d99kris/rapidcsv.git
