@@ -18,4 +18,4 @@ RUN cmake ..
 
 RUN make
 
-WORKDIR /app
+WORKDIR /app/gps_cpp/build/apps
