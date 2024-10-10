@@ -7,18 +7,6 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(catch)
 # Adds Catch2::Catch2
 
-# 1.3.3 builds fine
-# 2.0.0-beta builds fine
-# 2.0.1 does not build due to string_view-related issue
-# Not sure I'm managing C++17 libraries correctly
-# Testing library
-#FetchContent_Declare(
-#  csv-parser
-#  GIT_REPOSITORY https://github.com/vincentlaucsb/csv-parser
-#  GIT_TAG 2.0.0-beta
-#  GIT_SHALLOW TRUE)
-#FetchContent_MakeAvailable(csv-parser)
-
 # Tests need to be added as executables first
 add_executable(testGps testGps.cpp)
 

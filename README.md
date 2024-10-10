@@ -66,6 +66,8 @@ make
 
 `Catch2` tests can be run from the top-level `gps_cpp` directory with `./build/test/testGps`; it's necessary to run them from this working directory as several tests depend on data files in `gps_cpp/test/data` directory.
 
+There is also a `test` `make` target, so you can run `make test` with `build` as your working directory. Note that this will not rebuild the tests even if their dependencies have changed (this is apparently a long-standing issue/design decision with `CMake`) and its output is less informative.
+
 ## Docker
 
 A `docker` image containing the program can be found [here](https://hub.docker.com/r/twillis209/gps-cpp) and can be obtained with
