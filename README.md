@@ -58,7 +58,7 @@ make
 
 ### Dependencies
 
-`gps_cpp` depends on Boost, specifically the `multi_index` library. Earlier I required that this be installed on the user's machine prior to the `gps_cpp` build, but I now (October '24) use the `FetchContent` feature of `cmake` to download Boost and build `multi_index`. This should save you quite the headache installing Boost if you're not familiar with this sort of thing.
+`gps_cpp` depends on Boost, specifically the `multi_index` library. Earlier I required that this be installed on the user's machine prior to the `gps_cpp` build, but I now (October '24) use the `FetchContent` feature of `cmake` to download Boost to get `multi_index` (this is a header-only library). This should save you quite the headache in installing Boost if you're not familiar with this sort of thing (and even if you are!)
 
 `gps_cpp` also depends on the `rapidcsv`, `Catch2`, and `CLI11` libraries, but these should be downloaded and built as part of the build process (again using `FetchContent`). See the `CMakeLists.txt` files for more details.
 
