@@ -18,4 +18,5 @@ RUN cmake ..
 
 RUN make
 
-WORKDIR /app/gps_cpp/build/apps
+RUN cp /app/gps_cpp/build/apps/computeGpsCLI /usr/local/bin
+RUN cp /app/gps_cpp/build/apps/permuteTraitsCLI /usr/local/bin
